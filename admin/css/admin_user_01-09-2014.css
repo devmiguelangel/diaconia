@@ -1,0 +1,197 @@
+/*ELIMINAR REGISTRO*/
+a.eliminar{
+	display:block;
+	background:url(../images/delete.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.eliminar:hover{
+	background:url(../images/delete2.gif) 0 0 no-repeat;
+}
+
+a.eliminar_modelo{
+	display:block;
+	background:url(../images/delete.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.eliminar_modelo:hover{
+	background:url(../images/delete2.gif) 0 0 no-repeat;
+}
+
+/*CAMBIAR PASSWORD */
+a.privacidad{
+	display:block;
+	background:url(../images/privacy.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.privacidad:hover{
+	background:url(../images/privacy2.gif) 0 0 no-repeat;
+}
+
+/*RESETEAR PASSWORD */
+a.resetear{
+	display:block;
+	background:url(../images/reset.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.resetear:hover{
+	background:url(../images/reset2.gif) 0 0 no-repeat;
+}
+
+/*DAR BAJA USUARIO */
+a.darbaja{
+	display:block;
+	background:url(../images/habilitar.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.darbaja:hover{
+	background:url(../images/deshabilitar.gif) 0 0 no-repeat;
+}
+
+/*EDITAR REGISTRO */
+a.edit{
+	display:block;
+	background:url(../images/editar2.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.edit:hover{
+	background:url(../images/editar.gif) 0 0 no-repeat;
+}
+
+/*EDITAR DESABILITADO*/
+a.editar_disabled{
+	display:block;
+	background:url(../images/editar_disabled.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+
+/*ACTIVAR REGISTRO */
+a.daralta{
+	display:block;
+	background:url(../images/deshabilitar.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.daralta:hover{
+	background:url(../images/habilitar.gif) 0 0 no-repeat;
+}
+
+/*CREAR REGISTRO */
+a.create{
+	display:block;
+	background:url(../images/create1.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.create:hover{
+	background:url(../images/create2.gif) 0 0 no-repeat;
+}
+
+/*CREAR REGISTRO */
+a.add_mod{
+	display:block;
+	background:url(../images/add_data1.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.add_mod:hover{
+	background:url(../images/add_data2.gif) 0 0 no-repeat;
+}
+
+/*ADICIONAR INCREMENTO */
+a.ad_incre{
+	display:block;
+	background:url(../images/ad_incre1.png) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.ad_incre:hover{
+	background:url(../images/ad_incre2.png) 0 0 no-repeat;
+}
+
+/*ADICIONAR PREGUNTA 
+a.add-question{
+	display:block;
+	background:url(../images/add_question1.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.add-question:hover{
+	background:url(../images/add_question2.gif) 0 0 no-repeat;
+}
+*/
+
+/*ADICIONAR CUESTIONARIO*/
+a.add-cuestionario{
+	display:block;
+	background:url(../images/add_cuestion1.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.add-cuestionario:hover{
+	background:url(../images/add_cuestion2.gif) 0 0 no-repeat;
+}
+
+/*ADICIONAR PREGUNTAS*/
+a.add-pregunta{
+	display:block;
+	background:url(../images/lista1.gif) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.add-pregunta:hover{
+	background:url(../images/lista2.gif) 0 0 no-repeat;
+}
+
+/*ADICIONAR PREGUNTAS*/
+a.admi-preg{
+	display:block;
+	background:url(../images/tests.png) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.admi-preg:hover{
+	background:url(../images/tests.png) 0 0 no-repeat;
+}
+
+/*ADICIONAR PRODUCTO EXTRA*/
+a.admi-prodextra{
+	display:block;
+	background:url(../images/admi_pe.png) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.admi-prodextra:hover{
+	background:url(../images/admi_pe2.png) 0 0 no-repeat;
+}
+
+.action_user li{
+  display: inline-block; 
+  /*width: 20px; 
+  background: #F3F3A1;*/ 
+  margin: 0;
+  padding:0;
+}
+
+.color-fondo:hover{
+	background:#A5CF36;
+	width:32px;
+	height:32px;
+}
+
+/*CERTIFICADOS MEDICOS*/
+a.cert-medico{
+	display:block;
+	background:url(../images/certmedic.png) 0 0 no-repeat;
+	width:15px;
+	height:15px;
+}
+a.cert-medico:hover{
+	background:url(../images/certmedic2.png) 0 0 no-repeat;
+}
