@@ -11,15 +11,6 @@ class SibasDB extends MySQLi
 			1 => 'AU|Automotores', 
 			2 => 'TRD|Todo Riesgo Domiciliario',
 			3 => 'TRM|Todo Riesgo Equipo Móvil'),
-		$coverage = array(
-			0 => '1|Individual/Mancomunado',
-			1 => '2|Banca Comunal',
-			),
-		$typeTerm = array(
-			0 => 'Y|Años', 
-			1 => 'M|Meses', 
-			2 => 'W|Semanas',
-			3 => 'D|Días'),
 		$gender = array(
 			0 => 'M|Masculino', 
 			1 => 'F|Femenino'),
@@ -639,72 +630,6 @@ class SibasDB extends MySQLi
             return false;
         }
     }
-
-	public function check_amount($idef, $amount, $currency, $ce = 'COT', $pr = 'DE')
-	{
-		$arr_res = array(0 => false, 1 => 0);
-		
-		$max_usd = 'sh.max_cotizacion_usd';
-		$max_bs = 'sh.max_cotizacion_bs';
-		
-		if($ce === 'EM'){
-			$max_usd = 'sh.max_emision_usd';
-			$max_bs = 'sh.max_emision_bs';
-		}else{
-			
-		}
-		
-		$this->sql = 'select '.$max_usd.' as m_usd, '.$max_bs.' as m_bs 
-		from s_sgc_home as sh
-			inner join s_entidad_financiera as sef ON (sef.id_ef = sh.id_ef)
-		where sh.producto = "'.$pr.'" 
-			and sef.id_ef = "'.base64_decode($idef).'"
-			and sef.activado = true
-		limit 0, 1 
-		;';
-		
-		if (($this->rs = $this->query($this->sql,MYSQLI_STORE_RESULT))) {
-			if ($this->rs->num_rows === 1) {
-				$this->row = $this->rs->fetch_array(MYSQLI_ASSOC);
-				$this->rs->free();
-				
-				if ($currency === 'BS' && $amount > $this->row['m_bs']) {
-					$arr_res[1] = $this->row['m_bs'];
-					return $arr_res;
-				} elseif ($currency === 'USD' && $amount > $this->row['m_usd']) {
-					$arr_res[1] = $this->row['m_usd'];
-					return $arr_res;
-				} else {
-					$arr_res[0] = true;
-					return $arr_res;
-				}
-			} else {
-				return $arr_res;
-			}
-		} else {
-			return $arr_res;
-		}
-	}
-	
-	public function get_rate_exchange($flag = false)
-	{
-		$this->sql = 'SELECT id_tc, valor_boliviano FROM s_tipo_cambio WHERE activado = TRUE LIMIT 0,1 ;';
-		if (($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT))) {
-			if($this->rs->num_rows === 1){
-				$this->row = $this->rs->fetch_array(MYSQLI_ASSOC);
-				$this->rs->free();
-				if ($flag === false) {
-					return $this->row['id_tc'];
-				} else {
-					return $this->row['valor_boliviano'];
-				}
-			}else{
-				return 0;
-			}
-		} else {
-			return 0;
-		}
-	}
 	
 	public function verify_customer($dni, $ext, $idef, $pr = 'DE')
 	{
