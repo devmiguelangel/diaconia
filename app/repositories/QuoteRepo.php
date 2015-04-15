@@ -4,7 +4,7 @@ class QuoteRepo
 {
 	protected $cx;
 	
-	function __construct($cx)
+	public function __construct($cx)
 	{
 		$this->cx = $cx;
 	}

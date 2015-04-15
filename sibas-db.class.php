@@ -11,20 +11,6 @@ class SibasDB extends MySQLi
 			1 => 'AU|Automotores', 
 			2 => 'TRD|Todo Riesgo Domiciliario',
 			3 => 'TRM|Todo Riesgo Equipo Móvil'),
-		$gender = array(
-			0 => 'M|Masculino', 
-			1 => 'F|Femenino'),
-		$status = array(
-			0 => 'SOL|Soltero(a)', 
-			1 => 'CAS|Casado(a)', 
-			2 => 'VIU|Viudo(a)',
-			3 => 'DIV|Divorciado(a)', 
-			4 => 'CON|Concubino(a)'), 
-		$typeDoc = array(
-			0 => 'CI|Carnet de Identidad', 
-			1 => 'RUN|RUN', 
-			2 => 'PA|Pasaporte', 
-			3 => 'CE|Carnet Extranjero'),
 		$hand = array(
 			0 => 'DE|Derecha', 
 			1 => 'IZ|Izquierda'),
@@ -343,46 +329,6 @@ class SibasDB extends MySQLi
 		}
 	}
 
-	public function verifyYearUser ($min_year, $max_year, $date)
-	{
-		$datetime1 = new DateTime($date);
-		$datetime2 = new DateTime(date('Y-m-d'));
-
-		$interval = $datetime1->diff($datetime2);
-		$data = (array)$interval;
-
-		$year = $data['y'];
-		
-		if ($year >= $min_year && $year <= $max_year) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public function getTypeCoverage($idc)
-	{
-		$this->sql = 'select 
-			sdc.cobertura,
-			spc.id_prcia 
-		from 
-			s_de_cot_cabecera as sdc
-				inner join 
-			s_producto_cia as spc ON (spc.id_prcia = sdc.id_prcia)
-		where sdc.id_cotizacion = "' . base64_decode($idc) . '"
-		;';
-
-		if (($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT)) !== false) {
-			if ($this->rs->num_rows === 1) {
-				$this->row = $this->rs->fetch_array(MYSQLI_ASSOC);
-				$this->rs->free();
-				return $this->row;
-			}
-		}
-
-		return false;
-	}
-	
 	public function getNameHostEF ($idef)
 	{
 		$this->sql = 'select 
@@ -439,69 +385,6 @@ class SibasDB extends MySQLi
 			return FALSE;
 		}
 	}
-
-    public function checkWebService($idef, $product)
-    {
-        $this->sql = 'select ssh.web_service as ws
-        from s_sgc_home as ssh
-          inner join
-          s_entidad_financiera as sef on (sef.id_ef = ssh.id_ef)
-        where sef.id_ef = "' . base64_decode($idef) . '"
-          and sef.activado = true
-          and ssh.producto = "' . $product . '"
-        ;';
-
-        if (($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT)) !== false) {
-            if ($this->rs->num_rows === 1) {
-                $this->row = $this->rs->fetch_array(MYSQLI_ASSOC);
-                $this->rs->free();
-
-                if (true === (boolean)$this->row['ws']) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    public function checkBancaComunal($id, $type = false)
-    {
-    	$tbl = array('s_de_cot_cabecera', 'id_cotizacion');
-    	if ($type === true) {
-    		$tbl = array('s_de_em_cabecera', 'id_emision');
-    	}
-
-    	$this->sql = 'select 
-    		count(spc.id_prcia) as flag
-    	from ' . $tbl[0] . ' as sdc
-    		inner join
-    			s_producto_cia as spc on (spc.id_prcia = sdc.id_prcia)
-    	where sdc.' . $tbl[1] . ' = "' . base64_decode($id) . '"
-    		and lower(spc.nombre) = "banca comunal"
-    	;';
-
-    	if (($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT)) !== false) {
-    		if ($this->rs->num_rows === 1) {
-    			$this->row = $this->rs->fetch_array(MYSQLI_ASSOC);
-    			$this->rs->free();
-
-    			if ((int)$this->row['flag'] === 1) {
-    				return true;
-    			} else {
-    				return false;
-    			}
-    		} else {
-    			return false;
-    		}
-    	} else {
-    		return false;
-    	}
-    }
 
     public function setDatabcCot($idc)
     {
@@ -630,83 +513,6 @@ class SibasDB extends MySQLi
             return false;
         }
     }
-	
-	public function verify_customer($dni, $ext, $idef, $pr = 'DE')
-	{
-		$table = '';
-		
-		switch($pr){
-		case 'DE':
-			$table = 's_de_cot_cliente as sc';
-			break;
-		case 'AU':
-			$table = 's_au_cot_cliente as sc';
-			break;
-		case 'TRD':
-			$table = 's_trd_cot_cliente as sc';
-			break;
-		case 'TRM':
-			$table = 's_trm_cot_cliente as sc';
-			break;
-		case 'TH':
-			$table = 's_th_cot_cliente as sc';
-			break;
-		}
-		
-		$this->sql = 'SELECT sc.id_cliente 
-				FROM '.$table.' 
-					INNER JOIN s_entidad_financiera as sef ON (sef.id_ef = sc.id_ef)
-				WHERE sc.ci = "'.$dni.'" AND sc.extension = '.$ext.' 
-					AND sef.id_ef = "'.$idef.'" ;';
-		if (($this->rs = $this->query($this->sql,MYSQLI_STORE_RESULT))) {
-			if($this->rs->num_rows === 1){
-				$this->row = $this->rs->fetch_array(MYSQLI_ASSOC);
-				$this->rs->free();
-				return array(TRUE, $this->row['id_cliente']);
-			}else{
-				return array(FALSE, 0);
-			}
-		} else {
-			return array(FALSE, 0);
-		}
-	}
-	
-	public function number_clients($idc, $idef, $flag, $pr = 'DE')
-	{
-		$this->sql = 'select 
-		    sdc.id_cotizacion, COUNT(scl.id_cliente) as numCl
-		from
-		    s_de_cot_cabecera as sdc
-		        inner join
-		    s_de_cot_detalle as sdd ON (sdd.id_cotizacion = sdc.id_cotizacion)
-		        inner join
-		    s_de_cot_cliente as scl ON (scl.id_cliente = sdd.id_cliente)
-		        inner join
-		    s_entidad_financiera as sef ON (sef.id_ef = sdc.id_ef)
-		where
-		    sdc.id_cotizacion = "'.$idc.'"
-		        and sef.id_ef = "'.$idef.'"
-		        and sef.activado = true
-		;';
-		
-		if (($this->rs = $this->query($this->sql,MYSQLI_STORE_RESULT))) {
-			$this->row = $this->rs->fetch_array(MYSQLI_ASSOC);
-			
-			$nCl = (int)$this->row['numCl'];
-			
-			if ($flag === FALSE) {
-				if ($nCl === 0) {
-					return 'DD';
-				} elseif($nCl > 0) {
-					return 'CC';
-				}
-			} else {
-				return $nCl;
-			}
-		} else {
-			return 'NN';
-		}
-	}
 
     public function getExtenssionCode($code)
     {
@@ -790,40 +596,6 @@ class SibasDB extends MySQLi
 		}
 	}
 	
-	public function get_depto($idef = NULL)
-	{
-		$where = 'sef.id_ef = "'.base64_decode($idef).'"';
-		if (is_null($idef) === TRUE) {
-			$where = 'sef.id_ef is null';
-		}
-		
-		$this->sql = 'SELECT 
-		    sdep.id_depto,
-		    sdep.departamento,
-		    sdep.codigo,
-		    sdep.tipo_ci,
-		    sdep.tipo_re,
-		    sdep.tipo_dp,
-		    sdep.id_ef
-		FROM
-		    s_departamento as sdep
-		        left join
-		    s_entidad_financiera as sef ON (sef.id_ef = sdep.id_ef)
-		where
-		    '.$where.'
-		ORDER BY id_depto ASC;';
-		//echo $this->sql;
-		if (($this->rs = $this->query($this->sql,MYSQLI_STORE_RESULT))) {
-			if ($this->rs->num_rows > 0) {
-				return $this->rs;
-			} else {
-				return FALSE;
-			}
-		} else {
-			return FALSE;
-		}
-	}
-	
 	public function get_policy($idef, $product = 'DE')
 	{
 		$this->sql = 'select 
@@ -844,27 +616,6 @@ class SibasDB extends MySQLi
 		;';
 		
 		if (($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT))) {
-			if ($this->rs->num_rows > 0) {
-				return $this->rs;
-			} else {
-				return FALSE;
-			}
-		} else {
-			return FALSE;
-		}
-	}
-	
-	public function get_occupation($idef, $product = 'DE')
-	{
-		$this->sql = 'SELECT soc.id_ocupacion, soc.ocupacion 
-			FROM s_ocupacion as soc
-				INNER JOIN s_entidad_financiera as sef ON (sef.id_ef = soc.id_ef)
-			WHERe soc.producto = "'.$product.'"
-				and sef.id_ef = "'.base64_decode($idef).'"
-				and sef.activado = true
-			ORDER BY id_ocupacion ASC ;';
-		
-		if (($this->rs = $this->query($this->sql,MYSQLI_STORE_RESULT))) {
 			if ($this->rs->num_rows > 0) {
 				return $this->rs;
 			} else {
@@ -1633,35 +1384,6 @@ class SibasDB extends MySQLi
 				and sef.activado = true
 				and sh.producto = "'.$product.'"
 		;';
-		if(($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT))) {
-			if($this->rs->num_rows === 1) {
-				return $this->rs->fetch_array(MYSQLI_ASSOC);
-			} else {
-				return FALSE;
-			}
-		} else {
-			return FALSE;
-		}
-	}
-	
-	public function get_max_amount_optional($idef, $product = 'AU')
-	{
-		$this->sql = 'select 
-				sh.max_detalle as max_item,
-				sh.monto_facultativo as max_monto,
-				sh.anio as max_anio,
-				sh.max_emision_bs as monto_max_bs,
-				sh.max_emision_usd as monto_max_usd
-			from
-				s_sgc_home as sh
-					inner join
-				s_entidad_financiera as sef ON (sef.id_ef = sh.id_ef)
-			where
-				sh.producto = "'.$product.'"
-					and sef.id_ef = "'.base64_decode($idef).'"
-					and sef.activado = true
-			;';
-		//echo $this->sql;
 		if(($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT))) {
 			if($this->rs->num_rows === 1) {
 				return $this->rs->fetch_array(MYSQLI_ASSOC);

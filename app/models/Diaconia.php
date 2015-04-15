@@ -19,6 +19,8 @@ class Diaconia
 
 	protected $productCia = array();
 
+	protected $ws = false;
+
 	public function __construct()
 	{
 		$this->cx = new SibasDB();
@@ -32,6 +34,36 @@ class Diaconia
 	{
 		return $this->typeTerm;
 	}
+
+	public function getDataProduct($idef, $product = 'DE')
+    {
+    	$sql = 'select 
+			sh.edad_min,
+			sh.edad_max,
+			sh.max_detalle,
+			sh.web_service as ws,
+			sh.data
+    	from 
+    		s_sgc_home as sh
+    			inner join
+    		s_entidad_financiera as sef ON (sef.id_ef = sh.id_ef)
+    	where
+    		sef.id_ef = "' . base64_decode($idef) . '"
+    			and sh.producto = "' . $product . '"
+    	limit 0, 1
+    	;';
+
+    	if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
+    		if ($rs->num_rows === 1) {
+    			$row = $rs->fetch_array(MYSQLI_ASSOC);
+    			$rs->free();
+
+    			return $row;
+    		}
+    	}
+
+    	return false;
+    }
 
 	protected function getProduct($idef)
 	{
@@ -133,6 +165,46 @@ class Diaconia
 		}
 
 		return false;
+	}
+
+	public function getNumberClients($idc, $idef, $flag, $pr = 'DE')
+	{
+		$sql = 'select 
+		    sdc.id_cotizacion, 
+		    count(scl.id_cliente) as numCl
+		from
+		    s_de_cot_cabecera as sdc
+		        inner join
+		    s_de_cot_detalle as sdd ON (sdd.id_cotizacion = sdc.id_cotizacion)
+		        inner join
+		    s_de_cot_cliente as scl ON (scl.id_cliente = sdd.id_cliente)
+		        inner join
+		    s_entidad_financiera as sef ON (sef.id_ef = sdc.id_ef)
+		where
+		    sdc.id_cotizacion = "' . $idc . '"
+		        and sef.id_ef = "' . $idef . '"
+		        and sef.activado = true
+	    limit 0, 1
+		;';
+		
+		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT))) {
+			$row = $rs->fetch_array(MYSQLI_ASSOC);
+			$rs->free();
+			
+			$nCl = (int)$row['numCl'];
+			
+			if ($flag === false) {
+				if ($nCl === 0) {
+					return 'DD';
+				} elseif($nCl > 0) {
+					return 'CC';
+				}
+			} else {
+				return $nCl;
+			}
+		}
+
+		return '';
 	}
 	
 }

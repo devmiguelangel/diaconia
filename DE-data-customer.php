@@ -1,60 +1,21 @@
-<script type="text/javascript">
-$(document).ready(function(e) {
-	$("#fde-customer").validateForm({
-		action: 'DE-customer-record.php'
-	});
-	
-	$(".dc-date-birth").datepicker({
-		changeMonth: true,
-		changeYear: true,
-		showButtonPanel: true,
-		dateFormat: 'yy-mm-dd',
-		yearRange: "c-100:c+100"
-	});
-	
-	$(".dc-date-birth").datepicker($.datepicker.regional[ "es" ]);
-	
-	$("#dc-next").click(function(e){
-		e.preventDefault();
-		location.href = 'de-quote.php?ms=<?=$_GET['ms'];?>&page=<?=$_GET['page'];?>&pr=<?=base64_encode('DE|03');?>&idc=<?=$_GET['idc']?>';
-	});
-	
-	$("input[type='text'].fbin, textarea.fbin").keyup(function(e){
-		var arr_key = new Array(37, 39, 8, 16, 32, 18, 17, 46, 36, 35, 186);
-		var _val = $(this).prop('value');
-		
-		if($.inArray(e.keyCode, arr_key) < 0 && $(this).hasClass('email') === false){
-			$(this).prop('value',_val.toUpperCase());
-		}
-	});
-	
-});
-</script>
 <?php
-require_once('sibas-db.class.php');
-$link = new SibasDB();
+
+require __DIR__ . '/app/controllers/DiaconiaController.php';
+require __DIR__ . '/app/controllers/ClientController.php';
+
+$Diaconia = new DiaconiaController();
+$ClientController = new ClientController();
 
 $bc = false;
-if ($link->checkBancaComunal($_GET['idc']) === true) {
+if ($Diaconia->checkBancaComunal($_GET['idc'])) {
 	$bc = true;
 }
 
-$max_item = 0;
-if (($row_cov = $link->getTypeCoverage($_GET['idc'])) !== false) {
-	if (1 === (int)$row_cov['cobertura']) {
-		$max_item = 1;
-	} else {
-		MaxItem:
-		if (($rowDE = $link->get_max_amount_optional($_SESSION['idEF'], 'DE')) !== FALSE) {
-			$max_item = (int)$rowDE['max_item'];
-		}
-	}
-} else {
-	goto MaxItem;
-}
+$max_item = $Diaconia->getMaxItem($_GET['idc'], $_SESSION['idEF']);
+$depto = $ClientController->getDepto();
+$data_list = array();
 
-
-$swCl = FALSE;
+$swCl = false;
 
 $arr_cl = array();
 $temp_data = array(
@@ -93,7 +54,7 @@ $title_btn = 'Agregar Titular';
 $err_search = '';
 $web_service = false;
 
-if(isset($_POST['dsc-dni'])){
+/*if(isset($_POST['dsc-dni'])){
 	$dni = $link->real_escape_string(trim($_POST['dsc-dni']));
     $web_service = $link->checkWebService($_SESSION['idEF'], 'DE');
 
@@ -355,211 +316,58 @@ if(isset($_POST['dsc-dni'])){
 		} else {
 			$err_search = 'Error: Adjunte un archivo';
 		}
-
-		/*$array = file('files/' . );
-        $especiales = array("-", "s/n");
-	    $reemplazos = array("", "");
-
-		foreach ($array as $clave => $valor){
-			$data = explode("|", $valor);
-			$dc_code_client = $data[0];
-			$dc_name = $data[1];
-			$dc_lnpatern = $data[2];
-            $dc_lnmatern = $data[3];
-            $dc_lnmarried = $data[4];
-            $dc_status = '';
-
-			if ($data[5] == 1) {
-				$dc_status = 'SOL';
-			} elseif ($data[5] == 2) {
-				$dc_status = 'CAS';
-			} elseif ($data[5] == 3) {
-				$dc_status = 'VIU';
-			} elseif ($data[5] == 4) {
-				$dc_status = 'DIV';
-			} elseif ($data[5] == 5) {
-				$dc_status = 'CON';
-			}
-
-			$dc_type_doc = '';
-			if ($data[6] == 1) {
-				$dc_type_doc = 'CI';
-			} elseif ($data[6] == 2) {
-				$dc_type_doc = 'RUN';
-			} elseif ($data[6] == 3) {
-				$dc_type_doc = 'CE';
-			}
-			
-            $dc_doc_id = $data[7];
-            $dc_comp = $data[8];
-			$dc_ext = '';
-
-			if (($rowExt = $link->getExtenssionCode($data[9])) !== false) {
-                $dc_ext = $rowExt['id_depto'];
-            }
-
-			$fc = explode('/', $data[10]);
-			$dc_birth = $fc[2] . '-' . $fc[1] . '-' . $fc[0];
-			$dc_country = $data[11];
-			$dc_place_birth = $data[12];
-			$dc_workplace = $data[13];
-			$dc_locality = $data[14];
-			$dc_address = $data[15];
-			$dc_phone_1 = str_replace($especiales, $reemplazos, $data[16]);
-			$dc_phone_2 = $data[17];
-			$dc_phone_office = $data[18];
-			$code = '';
-
-			if ($data[19] == 'PRIVADA') {
-				$code = 'PR';
-		    } elseif ($data[19] == 'PUBLICA') {
-				$code = 'PU';
-			} elseif ($data[19] == 'RURAL') {
-				$code = 'RU';
-			}
-
-			$dc_occupation = '';
-			if (($rowOcc = $link->get_occupation_code(
-                    $_SESSION['idEF'], $code, 'DE')) !== false) {
-                $dc_occupation = $rowOcc['id_ocupacion'];
-            }
-			$dc_desc_occ = $data[20];
-			$dc_gender = '';
-
-			if($data[21] == 1) {
-			   $dc_gender = 'M';
-			} elseif ($data[21] == 2) {
-			   $dc_gender = 'F';
-			}
-			$dc_weight = $data[22];
-			$dc_height = $data[23];
-			$dc_amount = $data[24];
-		}
-		unlink('files/'.base64_decode($_POST['dc-attached']));*/
 	} else {
 		$err_search = 'Error: Seleccione un archivo';
 	}
-}
+}*/
 
-if(isset($_GET['idCl'])){
-	$swCl = TRUE;
+if (isset($_GET['idCl'])) {
+	$swCl = true;
 	$title_btn = 'Actualizar datos';
 	
-	$sqlUp = 'select 
-			scl.id_cliente,
-			scl.paterno,
-			scl.materno,
-			scl.nombre,
-			scl.ap_casada,
-			scl.fecha_nacimiento,
-			scl.lugar_nacimiento,
-			scl.ci,
-			scl.extension,
-			scl.complemento,
-			scl.tipo_documento,
-			scl.estado_civil,
-			scl.lugar_residencia,
-			scl.localidad,
-			scl.direccion,
-			scl.pais,
-			scl.id_ocupacion,
-			scl.desc_ocupacion,
-			scl.telefono_domicilio,
-			scl.telefono_oficina,
-			scl.telefono_celular,
-			scl.email,
-			scl.peso,
-			scl.estatura,
-			scl.genero,
-			scl.saldo_deudor as cl_saldo,
-			sdd.monto_banca_comunal as cl_monto_bc
-		from
-			s_de_cot_cliente as scl
-				inner join 
-			s_de_cot_detalle as sdd on (sdd.id_cliente = scl.id_cliente)
-				inner join
-			s_entidad_financiera as sef ON (sef.id_ef = scl.id_ef)
-		where
-			scl.id_cliente = "'.base64_decode($_GET['idCl']).'"
-				and sef.id_ef = "'.base64_decode($_SESSION['idEF']).'"
-				and sef.activado = true
-				and sdd.id_cotizacion = "' . base64_decode($_GET['idc']) . '"
-		;';
-	
-	$rsUp = $link->query($sqlUp);
-
-	if($rsUp->num_rows === 1){
-		$rowUp = $rsUp->fetch_array(MYSQLI_ASSOC);
-		$rsUp->free();
-
-		$temp_data['code'] = '';
-		$temp_data['name'] = $rowUp['nombre'];
-		$temp_data['patern'] = $rowUp['paterno'];
-		$temp_data['matern'] = $rowUp['materno'];
-		$temp_data['married'] = $rowUp['ap_casada'];
-		$temp_data['status'] = $rowUp['estado_civil'];
-		$temp_data['type_doc'] = $rowUp['tipo_documento'];
-		$temp_data['doc_id'] = $rowUp['ci'];
-		$temp_data['comp'] = $rowUp['complemento'];
-		$temp_data['ext'] = $rowUp['extension'];
-		$temp_data['country'] = $rowUp['pais'];
-		$temp_data['birth'] = $rowUp['fecha_nacimiento'];
+	if (($rowUp = $ClientController->getClient($_GET['idc'], $_SESSION['idEF'], $_GET['idCl'])) !== false) {
+		$temp_data['code'] 		= '';
+		$temp_data['name'] 		= $rowUp['nombre'];
+		$temp_data['patern'] 	= $rowUp['paterno'];
+		$temp_data['matern'] 	= $rowUp['materno'];
+		$temp_data['married'] 	= $rowUp['ap_casada'];
+		$temp_data['status'] 	= $rowUp['estado_civil'];
+		$temp_data['type_doc'] 	= $rowUp['tipo_documento'];
+		$temp_data['doc_id'] 	= $rowUp['ci'];
+		$temp_data['comp'] 		= $rowUp['complemento'];
+		$temp_data['ext'] 		= $rowUp['extension'];
+		$temp_data['country'] 	= $rowUp['pais'];
+		$temp_data['birth'] 	= $rowUp['fecha_nacimiento'];
 		$temp_data['place_birth'] = $rowUp['lugar_nacimiento'];
 		$temp_data['place_res'] = $rowUp['lugar_residencia'];
-		$temp_data['locality'] = $rowUp['localidad'];
-		$temp_data['address'] = $rowUp['direccion'];
-		$temp_data['phone_1'] = $rowUp['telefono_domicilio'];
-		$temp_data['phone_2'] = $rowUp['telefono_celular'];
-		$temp_data['email'] = $rowUp['email'];
+		$temp_data['locality'] 	= $rowUp['localidad'];
+		$temp_data['address'] 	= $rowUp['direccion'];
+		$temp_data['phone_1'] 	= $rowUp['telefono_domicilio'];
+		$temp_data['phone_2'] 	= $rowUp['telefono_celular'];
+		$temp_data['email'] 	= $rowUp['email'];
 		$temp_data['phone_office'] = $rowUp['telefono_oficina'];
 		$temp_data['occupation'] = $rowUp['id_ocupacion'];
-		$temp_data['occ_desc'] = $rowUp['desc_ocupacion'];
-		$temp_data['gender'] = $rowUp['genero'];
-		$temp_data['weight'] = $rowUp['peso'];
-		$temp_data['height'] = $rowUp['estatura'];
-		$temp_data['amount'] = $rowUp['cl_saldo'];
+		$temp_data['occ_desc'] 	= $rowUp['desc_ocupacion'];
+		$temp_data['gender'] 	= $rowUp['genero'];
+		$temp_data['weight'] 	= $rowUp['peso'];
+		$temp_data['height'] 	= $rowUp['estatura'];
+		$temp_data['amount'] 	= $rowUp['cl_saldo'];
 		$temp_data['amount_bc'] = $rowUp['cl_monto_bc'];
 
 		$arr_cl[0] = $temp_data;
 	}
 }
 ?>
+
 <h3>Datos del Titular</h3>
+
 <?php
 $nCl = 0;
-if($swCl === FALSE){
-	$sqlCl = 'select 
-		scl.id_cliente,
-		scl.nombre as cl_nombre,
-		scl.paterno as cl_paterno,
-		scl.materno as cl_materno,
-		concat(scl.ci, scl.complemento, " ", sde.codigo) as cl_dni,
-		date_format(scl.fecha_nacimiento, "%d/%m/%Y") as cl_fn,
-		(case scl.genero
-			when "M" then "Hombre"
-			when "F" then "Mujer"
-		end) as cl_genero,
-		sdd.porcentaje_credito as cl_pc
-	from
-		s_de_cot_cliente as scl
-			inner join
-		s_departamento as sde ON (sde.id_depto = scl.extension)
-			inner join
-		s_de_cot_detalle as sdd ON (sdd.id_cliente = scl.id_cliente)
-			inner join
-		s_de_cot_cabecera as sdc ON (sdc.id_cotizacion = sdd.id_cotizacion)
-			inner join 
-		s_entidad_financiera as sef ON (sef.id_ef = scl.id_ef)
-	where
-		sdc.id_cotizacion = "'.base64_decode($_GET['idc']).'"
-			and sef.id_ef = "'.base64_decode($_SESSION['idEF']).'"
-			and sef.activado = true
-	order by sdd.id_detalle asc
-	limit 0, '.$max_item.'
-	;';
 
-	$rsCl = $link->query($sqlCl,MYSQLI_STORE_RESULT);
-	$nCl = $rsCl->num_rows;
+if($swCl === false){
+	$data_list = $ClientController->getListClient($_GET['idc'], $_SESSION['idEF'], $max_item);
+	$nCl = count($data_list);
+
 	if ($nCl < $max_item) {
 		if($web_service === true){
 ?>
@@ -600,7 +408,7 @@ if($swCl === FALSE){
 
 <form id="fde-customer" name="fde-customer" action="" method="post" class="form-quote form-customer">
 <?php
-if($swCl === FALSE){
+if($swCl === false){
 	if($nCl > 0){
 	?>
 		<table class="list-cl">
@@ -618,10 +426,7 @@ if($swCl === FALSE){
 				</tr>
 			</thead>
 			<tbody>
-	<?php
-		$cont = 1;
-		while($rowCl = $rsCl->fetch_array(MYSQLI_ASSOC)){
-	?>
+			<?php $cont = 1; foreach ($data_list as $key => $rowCl): ?>
 				<tr>
 					<td style="font-weight:bold;">T<?=$cont;?></td>
 					<td><?=$rowCl['cl_dni'];?></td>
@@ -633,27 +438,23 @@ if($swCl === FALSE){
 					<td><?=$rowCl['cl_pc'];?></td>
 					<td><a href="de-quote.php?ms=<?=$_GET['ms'];?>&page=<?=$_GET['page'];?>&pr=<?=$_GET['pr'];?>&idc=<?=$_GET['idc'];?>&idCl=<?=base64_encode($rowCl['id_cliente']);?>" title="Editar Información"><img src="img/edit-user-icon.png" width="40" height="40" alt="Editar Información" title="Editar Información"></a></td>
 				</tr>
-<?php
-			$cont += 1;
-		}
-		$rsCl->free();
-?>
+			<?php endforeach ?>
 			</tbody>
 		</table>
 		
 		<div class="mess-cl">
-<?php
-		for ($i=1; $i <= $nCl; $i++) { 
-			echo 'T' . $i . ': Titular ' . $i . '<br>';
-		}
-?>
+		<?php for ($i = 1; $i <= $nCl; $i++): ?>
+			T <?= $i ;?>: Titular <?= $i ;?><br>
+		<?php endfor ?>
+
 		</div>
 		<input type="button" id="dc-next" name="dc-next" value="Continuar" class="btn-next" >
 		<hr>
 	<?php
 	}
 }
-if($nCl < $max_item || $swCl === TRUE){
+
+if($nCl < $max_item || $swCl === true){
 	$client = count($arr_cl);
 ?>
 	<p style="margin: 10px 0; font-size: 80%; font-style: italic; 
@@ -662,7 +463,7 @@ if($nCl < $max_item || $swCl === TRUE){
 	</p>
 
 <?php
-	for ($k = 0; $k < $client ; $k++) { 
+	for ($k = 0; $k < $client ; $k++) {
 		$data = $arr_cl[$k];
 
 ?>
@@ -695,17 +496,11 @@ if($nCl < $max_item || $swCl === TRUE){
 		<div class="content-input">
 			<select id="dc-status-<?=$k?>" name="dc-status-<?=$k?>" class="required fbin">
             	<option value="">Seleccione...</option>
-<?php
-$arr_status = $link->status;
-for($i = 0; $i < count($arr_status); $i++){
-	$status = explode('|',$arr_status[$i]);
-	if($status[0] === $data['status']) {
-		echo '<option value="'.$status[0].'" selected>'.$status[1].'</option>';
-    } else {
-		echo '<option value="'.$status[0].'">'.$status[1].'</option>';
-    }
-}
-?>
+		    	<?php foreach ($ClientController->getStatus() as $key => $value): $selected = '' ?>
+		    		<?php if ($value === $data['status']): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= $key ;?>" selected><?= $value ;?></option>';
+		    	<?php endforeach ?>
 			</select>
 		</div><br>
 
@@ -713,16 +508,11 @@ for($i = 0; $i < count($arr_status); $i++){
 		<div class="content-input">
 			<select id="dc-type-doc-<?=$k?>" name="dc-type-doc-<?=$k?>" class="required fbin">
 				<option value="">Seleccione...</option>
-<?php
-$arr_type_doc = $link->typeDoc;
-for($i = 0; $i < count($arr_type_doc); $i++){
-	$type_doc = explode('|',$arr_type_doc[$i]);
-	if($type_doc[0] === $data['type_doc'])
-		echo '<option value="'.$type_doc[0].'" selected>'.$type_doc[1].'</option>';
-	else
-		echo '<option value="'.$type_doc[0].'">'.$type_doc[1].'</option>';
-}
-?>
+				<?php foreach ($ClientController->getTypeDoc() as $key => $value): ?>
+					<?php if ($value === $data['type_doc']): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= $key ;?>" selected><?= $value ;?></option>';
+				<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -743,22 +533,14 @@ for($i = 0; $i < count($arr_type_doc); $i++){
 		<div class="content-input">
 			<select id="dc-ext-<?=$k?>" name="dc-ext-<?=$k?>" class="required fbin">
             	<option value="">Seleccione...</option>
-<?php
-$rsDep = null;
-if (($rsDep = $link->get_depto()) === FALSE) {
-	$rsDep = null;
-}
-if ($rsDep->data_seek(0) === TRUE) {
-	while($rowDep = $rsDep->fetch_array(MYSQLI_ASSOC)){
-		if((boolean)$rowDep['tipo_ci'] === TRUE){
-			if($rowDep['id_depto'] === $data['ext'])
-				echo '<option value="'.$rowDep['id_depto'].'" selected>'.$rowDep['departamento'].'</option>';
-			else
-				echo '<option value="'.$rowDep['id_depto'].'">'.$rowDep['departamento'].'</option>';
-		}
-	}
-}
-?>
+            	<?php foreach ($depto as $key => $value): $selected = '' ?>
+            		<?php if ((boolean)$value['tipo_ci'] === true): ?>
+	            		<?php if ($value['id_depto'] === $data['ext']): $selected = 'selected' ?>
+			    		<?php endif ?>
+						<option value="<?= $value['id_depto'] ;?>" 
+							selected><?= $value['departamento'] ;?></option>';
+            		<?php endif ?>
+            	<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -785,18 +567,14 @@ if ($rsDep->data_seek(0) === TRUE) {
 		<div class="content-input">
 			<select id="dc-place-res-<?=$k?>" name="dc-place-res-<?=$k?>" class="not-required fbin">
 				<option value="">Seleccione...</option>
-<?php
-if ($rsDep->data_seek(0) === TRUE) {
-	while($rowDep = $rsDep->fetch_array(MYSQLI_ASSOC)){
-		if((boolean)$rowDep['tipo_dp'] === TRUE){
-			if($rowDep['id_depto'] === $data['place_res'])
-				echo '<option value="'.$rowDep['id_depto'].'" selected>'.$rowDep['departamento'].'</option>';
-			else
-				echo '<option value="'.$rowDep['id_depto'].'">'.$rowDep['departamento'].'</option>';
-		}
-	}
-}
-?>
+				<?php foreach ($depto as $key => $value): $selected = '' ?>
+					<?php if ((boolean)$value['tipo_dp'] === true): ?>
+	            		<?php if ($value['id_depto'] === $data['place_res']): $selected = 'selected' ?>
+			    		<?php endif ?>
+						<option value="<?= $value['id_depto'] ;?>" 
+							selected><?= $value['departamento'] ;?></option>';
+					<?php endif ?>
+            	<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -839,17 +617,13 @@ if ($rsDep->data_seek(0) === TRUE) {
 		<div class="content-input">
 			<select id="dc-occupation-<?=$k?>" name="dc-occupation-<?=$k?>" class="required fbin">
 				<option value="">Seleccione...</option>
-<?php
-if (($rsOcc = $link->get_occupation($_SESSION['idEF'])) !== FALSE) {
-	while($rowOcc = $rsOcc->fetch_array(MYSQLI_ASSOC)){
-		if($rowOcc['id_ocupacion'] === $data['occupation']) {
-			echo '<option value="'.base64_encode($rowOcc['id_ocupacion']).'" selected>'.$rowOcc['ocupacion'].'</option>';
-		} else {
-			echo '<option value="'.base64_encode($rowOcc['id_ocupacion']).'">'.$rowOcc['ocupacion'].'</option>';
-		}
-	}
-}
-?>
+				<?php foreach ($ClientController->getOccupation($_SESSION['idEF']) as $key => $value):
+					$selected = '' ?>
+					<?php if ($value['id_ocupacion'] === $data['occupation']): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= base64_encode($value['id_ocupacion']) ;?>" 
+						<?= $selected ;?>><?= $value['ocupacion'] ;?></option>';
+				<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -861,16 +635,11 @@ if (($rsOcc = $link->get_occupation($_SESSION['idEF'])) !== FALSE) {
 		<div class="content-input">
 			<select id="dc-gender-<?=$k?>" name="dc-gender-<?=$k?>" class="required fbin">
 				<option value="">Seleccione...</option>
-<?php
-$arr_gender = $link->gender;
-for($i = 0; $i < count($arr_gender); $i++){
-	$gender = explode('|',$arr_gender[$i]);
-	if($gender[0] === $data['gender'])
-		echo '<option value="'.$gender[0].'" selected>'.$gender[1].'</option>';
-	else
-		echo '<option value="'.$gender[0].'">'.$gender[1].'</option>';
-}
-?>
+				<?php foreach ($ClientController->getGender() as $key => $value): $selected = '' ?>
+					<?php if ($key === $data['gender']): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>';
+				<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -888,17 +657,13 @@ for($i = 0; $i < count($arr_gender); $i++){
             <input type="hidden" id="dc-amount-<?=$k?>" name="dc-amount-<?=$k?>" 
             	value="<?=base64_encode($data['amount']);?>">
 		</div><br>
-<?php
-	if ($bc === true) {
-?>
+		<?php if ($bc === true): ?>
 		<label>Monto<br>Banca Comunal: <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-amount-bc-<?=$k?>" name="dc-amount-bc-<?=$k?>" 
 				autocomplete="off" value="<?=$data['amount_bc'];?>" class="required real fbin">
 		</div><br>
-<?php
-	}
-?>
+		<?php endif ?>
 	</div>
 	<hr>
 <?php
@@ -912,11 +677,9 @@ for($i = 0; $i < count($arr_gender); $i++){
     <input type="hidden" id="id-ef" name="id-ef" value="<?=$_SESSION['idEF'];?>" >
     <input type="hidden" id="dc-bc" name="dc-bc" value="<?=base64_encode((int)$bc);?>">
     <input type="hidden" id="dc-ncl" name="dc-ncl" value="<?=base64_encode($client);?>">
-<?php
-if($swCl === TRUE) {
-	echo '<input type="hidden" id="dc-idCl" name="dc-idCl" value="'.$_GET['idCl'].'" >';
-}
-?>
+    <?php if ($swCl): ?>
+	<input type="hidden" id="dc-idCl" name="dc-idCl" value="<?= $_GET['idCl'] ;?>" >
+    <?php endif ?>
 	<input type="submit" id="dc-customer" name="dc-customer" value="<?=$title_btn;?>" class="btn-next" >
 <?php
 }
@@ -925,3 +688,36 @@ if($swCl === TRUE) {
 		<img src="img/loading-01.gif" width="35" height="35" />
 	</div>
 </form>
+
+<script type="text/javascript">
+$(document).ready(function(e) {
+	$("#fde-customer").validateForm({
+		action: 'DE-customer-record.php'
+	});
+	
+	$(".dc-date-birth").datepicker({
+		changeMonth: true,
+		changeYear: true,
+		showButtonPanel: true,
+		dateFormat: 'yy-mm-dd',
+		yearRange: "c-100:c+100"
+	});
+	
+	$(".dc-date-birth").datepicker($.datepicker.regional[ "es" ]);
+	
+	$("#dc-next").click(function(e){
+		e.preventDefault();
+		location.href = 'de-quote.php?ms=<?=$_GET['ms'];?>&page=<?=$_GET['page'];?>&pr=<?=base64_encode('DE|03');?>&idc=<?=$_GET['idc']?>';
+	});
+	
+	$("input[type='text'].fbin, textarea.fbin").keyup(function(e){
+		var arr_key = new Array(37, 39, 8, 16, 32, 18, 17, 46, 36, 35, 186);
+		var _val = $(this).prop('value');
+		
+		if($.inArray(e.keyCode, arr_key) < 0 && $(this).hasClass('email') === false){
+			$(this).prop('value',_val.toUpperCase());
+		}
+	});
+	
+});
+</script>
