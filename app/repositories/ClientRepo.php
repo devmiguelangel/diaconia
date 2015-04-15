@@ -249,26 +249,38 @@ class ClientRepo
 
 		$sql = 'select 
 			scl.id_cliente,
+			sdd.id_detalle,
 			scl.nombre as cl_nombre,
 			scl.paterno as cl_paterno,
 			scl.materno as cl_materno,
+			concat(scl.nombre,
+				" ",
+				scl.paterno,
+				" ",
+				scl.materno) as cl_name,
 			concat(scl.ci, scl.complemento, " ", sde.codigo) as cl_dni,
 			date_format(scl.fecha_nacimiento, "%d/%m/%Y") as cl_fn,
 			(case scl.genero
 				when "M" then "Hombre"
 				when "F" then "Mujer"
 			end) as cl_genero,
-			sdd.porcentaje_credito as cl_pc
+			sdd.porcentaje_credito as cl_pc,
+			stc.valor_boliviano,
+			(if(sdc.moneda = "BS",
+			    sdc.monto,
+			    (sdc.monto * stc.valor_boliviano))) as monto
 		from
-			s_de_cot_cliente as scl
+			s_de_cot_cabecera as sdc
+				inner join
+			s_de_cot_detalle as sdd ON (sdd.id_cotizacion = sdc.id_cotizacion)
+				inner join
+			s_de_cot_cliente as scl ON (scl.id_cliente = sdd.id_cliente)
 				inner join
 			s_departamento as sde ON (sde.id_depto = scl.extension)
 				inner join
-			s_de_cot_detalle as sdd ON (sdd.id_cliente = scl.id_cliente)
-				inner join
-			s_de_cot_cabecera as sdc ON (sdc.id_cotizacion = sdd.id_cotizacion)
-				inner join 
 			s_entidad_financiera as sef ON (sef.id_ef = scl.id_ef)
+				inner join
+			s_tipo_cambio as stc ON (stc.id_ef = sdc.id_ef)
 		where
 			sdc.id_cotizacion = "' . $idc . '"
 				and sef.id_ef = "' . $idef . '"

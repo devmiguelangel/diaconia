@@ -538,38 +538,6 @@ class SibasDB extends MySQLi
         }
     }
 	
-	public function get_question($idef, $product = 'DE')
-	{
-		$this->sql = 'select 
-		    spr.id_pregunta, spr.orden, spr.pregunta, spr.respuesta
-		from
-		    s_pregunta as spr
-		        inner join
-		    s_ef_compania as sec ON (sec.id_ef_cia = spr.id_ef_cia)
-		        inner join
-		    s_entidad_financiera as sef ON (sef.id_ef = sec.id_ef)
-		        inner join
-		    s_compania as scia ON (scia.id_compania = sec.id_compania)
-		where
-		    sef.id_ef = "'.base64_decode($idef).'"
-		        and sef.activado = true
-		        and scia.activado = true
-		        and spr.producto = "'.$product.'"
-		        and spr.activado = true
-		order by spr.orden asc
-		;';
-		
-		if (($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT))) {
-			if ($this->rs->num_rows > 0) {
-				return $this->rs;
-			} else {
-				return FALSE;
-			}
-		} else {
-			return FALSE;
-		}
-	}
-	
 	public function get_method_payment($product, $idef)
 	{
 		$this->sql = 'select 
