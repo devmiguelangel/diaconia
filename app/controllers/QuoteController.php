@@ -1,7 +1,7 @@
 <?php 
 
 require_once __DIR__ . '/../../sibas-db.class.php';
-require __DIR__ . '/../models/Diaconia.php';
+require_once __DIR__ . '/../models/Diaconia.php';
 require __DIR__ . '/../repositories/QuoteRepo.php';
 
 class QuoteController extends Diaconia
@@ -53,6 +53,22 @@ class QuoteController extends Diaconia
 
 		return false;
 	}
+
+	public function getResultQuote($idc, $idef)
+	{
+		$idc 	= $this->cx->real_escape_string(trim(base64_decode($idc)));
+		$idef 	= $this->cx->real_escape_string(trim(base64_decode($idef)));
+
+		$QuoteRepo = new QuoteRepo($this->cx);
+		$data = $QuoteRepo->getResultQuoteData($idc, $idef);
+
+		if (count($data) > 0) {
+			return $data;
+		}
+
+		return false;		
+	}
+
 
 }
 
