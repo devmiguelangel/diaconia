@@ -17,6 +17,12 @@ class Diaconia
 			'D' => 'Días'
 		];
 
+	protected
+		$currency = [
+			'BS' 	=> 'Bolivianos', 
+			'USD' 	=> 'Dolares Estadounidenses'
+		];
+
 	protected $productCia = array();
 
 	protected $ws = false;
@@ -35,12 +41,19 @@ class Diaconia
 		return $this->typeTerm;
 	}
 
+	public function getCurrency()
+	{
+		return $this->currency;
+	}
+
 	public function getDataProduct($idef, $product = 'DE')
     {
     	$sql = 'select 
 			sh.edad_min,
 			sh.edad_max,
 			sh.max_detalle,
+			sh.max_emision_bs,
+			sh.max_emision_usd,
 			sh.web_service as ws,
 			sh.data
     	from 
@@ -52,7 +65,7 @@ class Diaconia
     			and sh.producto = "' . $product . '"
     	limit 0, 1
     	;';
-
+    	
     	if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
     		if ($rs->num_rows === 1) {
     			$row = $rs->fetch_array(MYSQLI_ASSOC);
@@ -126,7 +139,7 @@ class Diaconia
 		return 0;
 	}
 
-	public function checkAmount($amount, $currency, $idef, $product = 'DE')
+	public function checkAmount($amount, $currency, $idef, &$data_amount, $product = 'DE')
 	{
 		$sql = 'select 
 		    sh.max_cotizacion_usd AS maxc_usd,
@@ -147,17 +160,22 @@ class Diaconia
 		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
 			if ($rs->num_rows === 1) {
 				$row = $rs->fetch_array(MYSQLI_ASSOC);
+				$data_amount = $row;
 				$rs->free();
 
 				switch ($currency) {
 				case 'BS':
 					if ($amount <= $row['maxe_bs']) {
 						return true;
+					} else {
+						$data_amount['amount'] = $row['maxe_bs'];
 					}
 					break;
 				case 'USD':
 					if ($amount <= $row['maxe_usd']) {
 						return true;
+					} else {
+						$data_amount['amount'] = $row['maxe_usd'];
 					}
 					break;
 				}

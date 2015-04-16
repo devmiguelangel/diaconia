@@ -28,6 +28,18 @@ class ClientController extends Diaconia
 			'M' => 'Masculino', 
 			'F' => 'Femenino'
 		];
+
+	protected
+		$hand = [
+			'DE' => 'Derecha', 
+			'IZ' => 'Izquierda'
+		];
+
+	protected
+		$avc = [
+			'AV' => 'Avenida', 
+			'CA' => 'Calle'
+		];
 	
 	public function __construct()
 	{
@@ -47,6 +59,16 @@ class ClientController extends Diaconia
 	public function getGender()
 	{
 		return $this->gender;
+	}
+
+	public function getHand()
+	{
+		return $this->hand;
+	}
+
+	public function getAvc()
+	{
+		return $this->avc;
 	}
 
 	public function getDepto()
@@ -109,7 +131,7 @@ class ClientController extends Diaconia
 		return $data;
 	}
 
-	public function verifyYearUser ($min_year, $max_year, $date)
+	public function verifyYearUser($min_year, $max_year, $date)
 	{
 		$datetime1 = new DateTime($date);
 		$datetime2 = new DateTime(date('Y-m-d'));

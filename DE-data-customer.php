@@ -497,9 +497,9 @@ if($nCl < $max_item || $swCl === true){
 			<select id="dc-status-<?=$k?>" name="dc-status-<?=$k?>" class="required fbin">
             	<option value="">Seleccione...</option>
 		    	<?php foreach ($ClientController->getStatus() as $key => $value): $selected = '' ?>
-		    		<?php if ($value === $data['status']): $selected = 'selected' ?>
+		    		<?php if ($key === $data['status']): $selected = 'selected' ?>
 		    		<?php endif ?>
-					<option value="<?= $key ;?>" selected><?= $value ;?></option>';
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
 		    	<?php endforeach ?>
 			</select>
 		</div><br>
@@ -508,10 +508,10 @@ if($nCl < $max_item || $swCl === true){
 		<div class="content-input">
 			<select id="dc-type-doc-<?=$k?>" name="dc-type-doc-<?=$k?>" class="required fbin">
 				<option value="">Seleccione...</option>
-				<?php foreach ($ClientController->getTypeDoc() as $key => $value): ?>
-					<?php if ($value === $data['type_doc']): $selected = 'selected' ?>
+				<?php foreach ($ClientController->getTypeDoc() as $key => $value): $selected = '' ?>
+					<?php if ($key === $data['type_doc']): $selected = 'selected' ?>
 		    		<?php endif ?>
-					<option value="<?= $key ;?>" selected><?= $value ;?></option>';
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
 				<?php endforeach ?>
 			</select>
 		</div><br>
@@ -538,7 +538,7 @@ if($nCl < $max_item || $swCl === true){
 	            		<?php if ($value['id_depto'] === $data['ext']): $selected = 'selected' ?>
 			    		<?php endif ?>
 						<option value="<?= $value['id_depto'] ;?>" 
-							selected><?= $value['departamento'] ;?></option>';
+							<?= $selected ;?>><?= $value['departamento'] ;?></option>';
             		<?php endif ?>
             	<?php endforeach ?>
 			</select>
@@ -572,7 +572,7 @@ if($nCl < $max_item || $swCl === true){
 	            		<?php if ($value['id_depto'] === $data['place_res']): $selected = 'selected' ?>
 			    		<?php endif ?>
 						<option value="<?= $value['id_depto'] ;?>" 
-							selected><?= $value['departamento'] ;?></option>';
+							<?= $selected ;?>><?= $value['departamento'] ;?></option>
 					<?php endif ?>
             	<?php endforeach ?>
 			</select>
@@ -622,7 +622,7 @@ if($nCl < $max_item || $swCl === true){
 					<?php if ($value['id_ocupacion'] === $data['occupation']): $selected = 'selected' ?>
 		    		<?php endif ?>
 					<option value="<?= base64_encode($value['id_ocupacion']) ;?>" 
-						<?= $selected ;?>><?= $value['ocupacion'] ;?></option>';
+						<?= $selected ;?>><?= $value['ocupacion'] ;?></option>
 				<?php endforeach ?>
 			</select>
 		</div><br>

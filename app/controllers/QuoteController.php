@@ -19,6 +19,7 @@ class QuoteController extends Diaconia
 			$ms 	= $this->cx->real_escape_string(trim($data['ms']));
 			$page 	= $this->cx->real_escape_string(trim($data['page']));
 			$data['tc'] 	= $this->getRateExchange();
+			$data_amount	= 0;
 
 			$cp 	= null;
 			$sql 	= '';
@@ -31,7 +32,7 @@ class QuoteController extends Diaconia
 			$data['product'] 	= $this->cx->real_escape_string(trim($data['dl-product']));
 			$data['modality'] 	= 'null';
 			
-			if ($this->checkAmount($data['amount'], $data['currency'], $data['idef'])) {
+			if ($this->checkAmount($data['amount'], $data['currency'], $data['idef'], $data_amount)) {
 				$QuoteRepo = new QuoteRepo($this->cx);
 
 				if ($QuoteRepo->postQuoteRepo($data)) {
@@ -47,7 +48,7 @@ class QuoteController extends Diaconia
 				}
 			} else {
 				$mess[2] = 'El monto no debe sobrepasar los ' 
-					. number_format($ca[1], 2, '.', ',') . ' ' . $data['currency'];
+					. number_format($data_amount['amount'], 2, '.', ',') . ' ' . $data['currency'];
 			}
 		}
 

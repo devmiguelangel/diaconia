@@ -11,15 +11,6 @@ class SibasDB extends MySQLi
 			1 => 'AU|Automotores', 
 			2 => 'TRD|Todo Riesgo Domiciliario',
 			3 => 'TRM|Todo Riesgo Equipo Móvil'),
-		$hand = array(
-			0 => 'DE|Derecha', 
-			1 => 'IZ|Izquierda'),
-		$avc = array(
-			0 => 'AV|Avenida', 
-			1 => 'CA|Calle'),
-		$currency = array(
-			0 => 'BS|Bolivianos', 
-			1 => 'USD|Dolares Estadounidenses'),
 		$moviment = array(
 			0 => 'PU|Primera/Única', 
 			1 => 'AD|Adicional', 
@@ -642,15 +633,15 @@ class SibasDB extends MySQLi
 			}
 		} elseif($flag === TRUE){
 			switch($sw){
-				case 1:
-					return 'Peso Normal';
-					break;
-				case 2:
-					return 'Desnutrición';
-					break;
-				case 3:
-					return 'Sobrepeso y Obesidad';
-					break;
+			case 1:
+				return 'Peso Normal';
+				break;
+			case 2:
+				return 'Desnutrición';
+				break;
+			case 3:
+				return 'Sobrepeso y Obesidad';
+				break;
 			}
 		}
 	}
@@ -2301,6 +2292,6 @@ class SibasDB extends MySQLi
 		else
 			return FALSE;
 	}
-	
+
 }
 ?>

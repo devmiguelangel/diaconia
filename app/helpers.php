@@ -2,7 +2,8 @@
 
 $data = array(
 	1 => array(
-		'name' => 'FC',
+		'name' => 'Free Cover',
+		'slug' => 'FC',
 		'range' => array(
 			1 => array(
 				'edad_min' => 15,
@@ -19,7 +20,8 @@ $data = array(
 		)
 	),
 	2 => array(
-		'name' => 'AA',
+		'name' => 'Afiliación Automatica',
+		'slug' => 'AA',
 		'range' => array(
 			1 => array(
 				'edad_min' => 15,
@@ -36,7 +38,8 @@ $data = array(
 		)
 	),
 	3 => array(
-		'name' => 'FA',
+		'name' => 'Facultativo',
+		'slug' => 'FA',
 		'range' => array(
 			1 => array(
 				'edad_min' => 15,

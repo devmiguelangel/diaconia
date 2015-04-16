@@ -1,4 +1,15 @@
 <?php
+
+require __DIR__ . '/app/controllers/DiaconiaController.php';
+require __DIR__ . '/app/controllers/ClientController.php';
+require __DIR__ . '/app/controllers/QuestionController.php';
+
+$Diaconia = new DiaconiaController();
+$ClientController = new ClientController();
+$QuestionController = new QuestionController();
+
+$depto = $ClientController->getDepto();
+
 require_once('sibas-db.class.php');
 $link = new SibasDB();
 $ide = 0;
@@ -18,8 +29,11 @@ if (isset($_GET['target'])) {
 }
 
 $max_item = 0;
-if (($rowDE = $link->get_max_amount_optional($_SESSION['idEF'], 'DE')) !== FALSE) {
+/*if (($rowDE = $link->get_max_amount_optional($_SESSION['idEF'], 'DE')) !== FALSE) {
 	$max_item = (int)$rowDE['max_item'];
+}*/
+if (($data = $Diaconia->getDataProduct($_SESSION['idEF'])) !== false) {
+	$max_item = (int)$data['max_detalle'];
 }
 
 $flag = $_GET['flag'];
@@ -64,9 +78,9 @@ switch($flag){
 $sql = '';
 switch($sw){
 	case 1:
-		if ($link->checkBancaComunal(base64_encode($idc)) === true) {
+		/*if ($link->checkBancaComunal(base64_encode($idc)) === true) {
 			$bc = true;
-		}
+		}*/
 
 		$sql = 'select 
 			sdc.id_cotizacion as idc,
@@ -133,9 +147,9 @@ switch($sw){
 }
 
 if($sw !== 1){
-	if ($link->checkBancaComunal(base64_encode($ide), true) === true) {
+	/*if ($link->checkBancaComunal(base64_encode($ide), true) === true) {
 		$bc = true;
-	}
+	}*/
 
 	$sql = 'select 
 		sdc.id_emision as idc,
@@ -490,25 +504,29 @@ while($row = $rs->fetch_array(MYSQLI_ASSOC)){
 		<label>Nombres: <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-name" name="dc-<?=$cont;?>-name" 
-				autocomplete="off" value="<?=$row['cl_nombre'];?>" class="required text fbin" <?=$read_new;?>>
+				autocomplete="off" value="<?=$row['cl_nombre'];?>" 
+				class="required text fbin" <?=$read_new;?>>
 		</div><br>
 		
 		<label>Apellido Paterno: <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-ln-patert" name="dc-<?=$cont;?>-ln-patern" 
-				autocomplete="off" value="<?=$row['cl_paterno'];?>" class="required text fbin" <?=$read_new;?>>
+				autocomplete="off" value="<?=$row['cl_paterno'];?>" 
+				class="required text fbin" <?=$read_new;?>>
 		</div><br>
 		
 		<label>Apellido Materno: </label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-ln-matern" name="dc-<?=$cont;?>-ln-matern" 
-				autocomplete="off" value="<?=$row['cl_materno'];?>" class="not-required text fbin" <?=$read_new;?>>
+				autocomplete="off" value="<?=$row['cl_materno'];?>" 
+				class="not-required text fbin" <?=$read_new;?>>
 		</div><br>
 		
 		<label>Apellido de Casada: </label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-ln-married" name="dc-<?=$cont;?>-ln-married" 
-				autocomplete="off" value="<?=$row['cl_casada'];?>" class="not-required text fbin" <?=$read_new;?>>
+				autocomplete="off" value="<?=$row['cl_casada'];?>" 
+				class="not-required text fbin" <?=$read_new;?>>
 		</div><br>
 		
 		<label>Género: <span>*</span></label>
@@ -516,36 +534,25 @@ while($row = $rs->fetch_array(MYSQLI_ASSOC)){
 			<select id="dc-<?=$cont;?>-gender" name="dc-<?=$cont;?>-gender" 
 				class="required fbin <?=$read_new;?>" <?=$read_save;?>>
 				<option value="">Seleccione...</option>
-<?php
-$arr_gender = $link->gender;
-for($i = 0; $i < count($arr_gender); $i++){
-	$gender = explode('|',$arr_gender[$i]);
-	if($gender[0] === $row['cl_genero']) {
-		echo '<option value="'.$gender[0].'" selected>'.$gender[1].'</option>';
-	} else {
-		echo '<option value="'.$gender[0].'">'.$gender[1].'</option>';
-	}
-}
-?>
+				<?php foreach ($ClientController->getGender() as $key => $value): $selected = '' ?>
+					<?php if ($key === $row['cl_genero']): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>';
+				<?php endforeach ?>
 			</select>
 		</div><br>
-		
+
 		<label>Estado Civil: <span>*</span></label>
 		<div class="content-input">
-			<select id="dc-<?=$cont;?>-status" name="dc-<?=$cont;?>-status" class="required fbin <?=$read_new;?>" <?=$read_save;?>>
+			<select id="dc-<?=$cont;?>-status" name="dc-<?=$cont;?>-status" 
+				class="required fbin <?=$read_new;?>" <?=$read_save;?>>
 				<option value="">Seleccione...</option>
-<?php
-$arr_status = $link->status;
-for($i = 0; $i < count($arr_status); $i++){
-	$status = explode('|',$arr_status[$i]);
-	if($status[0] === $row['cl_estado_civil']) {
-		echo '<option value="'.$status[0].'" selected>'.$status[1].'</option>';
-	} else {
-		echo '<option value="'.$status[0].'">'.$status[1].'</option>';
-	}
-}
-?>
-			</select>
+				<?php foreach ($ClientController->getStatus() as $key => $value): $selected = '' ?>
+		    		<?php if ($key === $row['cl_estado_civil']): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
+		    	<?php endforeach ?>
+		</select>
 		</div><br>
 		
 		<label>Tipo de Documento: <span>*</span></label>
@@ -553,24 +560,19 @@ for($i = 0; $i < count($arr_status); $i++){
 			<select id="dc-<?=$cont;?>-type-doc" name="dc-<?=$cont;?>-type-doc" 
 				class="required fbin <?=$read_new;?>" <?=$read_save;?>>
 				<option value="">Seleccione...</option>
-<?php
-$arr_type_doc = $link->typeDoc;
-for($i = 0; $i < count($arr_type_doc); $i++){
-	$type_doc = explode('|',$arr_type_doc[$i]);
-	if($type_doc[0] === $row['cl_tipo_documento']) {
-		echo '<option value="'.$type_doc[0].'" selected>'.$type_doc[1].'</option>';
-	} else {
-		echo '<option value="'.$type_doc[0].'">'.$type_doc[1].'</option>';
-	}
-}
-?>
+				<?php foreach ($ClientController->getTypeDoc() as $key => $value): $selected = '' ?>
+					<?php if ($key === $row['cl_tipo_documento']): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
+				<?php endforeach ?>
 			</select>
 		</div><br>
 		
 		<label>Documento de Identidad: <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-doc-id" name="dc-<?=$cont;?>-doc-id" 
-				autocomplete="off" value="<?=$row['cl_ci'];?>" class="required dni fbin" <?=$read_new.$read_edit;?>>
+				autocomplete="off" value="<?=$row['cl_ci'];?>" 
+				class="required dni fbin" <?=$read_new.$read_edit;?>>
 		</div><br>
 		
 		<label>Complemento: </label>
@@ -585,24 +587,14 @@ for($i = 0; $i < count($arr_type_doc); $i++){
 			<select id="dc-<?=$cont;?>-ext" name="dc-<?=$cont;?>-ext" 
 				class="required fbin <?=$read_new;?>" <?=$read_save;?>>
 				<option value="">Seleccione...</option>
-<?php
-$rsDep = null;
-if (($rsDep = $link->get_depto()) === FALSE) {
-	$rsDep = null;
-}
-
-if ($rsDep->data_seek(0) === TRUE) {
-	while($rowDep = $rsDep->fetch_array(MYSQLI_ASSOC)){
-		if((boolean)$rowDep['tipo_ci'] === TRUE){
-			if($rowDep['id_depto'] === $row['cl_extension']) {
-				echo '<option value="'.$rowDep['id_depto'].'" selected>'.$rowDep['departamento'].'</option>';
-			} else {
-				echo '<option value="'.$rowDep['id_depto'].'">'.$rowDep['departamento'].'</option>';
-			}
-		}
-	}
-}
-?>
+				<?php foreach ($depto as $key => $value): $selected = '' ?>
+            		<?php if ((boolean)$value['tipo_ci'] === true): ?>
+	            		<?php if ($value['id_depto'] === $row['cl_extension']): $selected = 'selected' ?>
+			    		<?php endif ?>
+						<option value="<?= $value['id_depto'] ;?>" 
+							<?= $selected ;?>><?= $value['departamento'] ;?></option>';
+            		<?php endif ?>
+            	<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -618,7 +610,8 @@ if ($rsDep->data_seek(0) === TRUE) {
 		<label>País: <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-country" name="dc-<?=$cont;?>-country" 
-				autocomplete="off" value="<?=$row['cl_pais'];?>" class="required text fbin" <?=$read_new;?>>
+				autocomplete="off" value="<?=$row['cl_pais'];?>" 
+				class="required text fbin" <?=$read_new;?>>
 		</div><br>
 		
 		<label>Lugar de Nacimiento: <span></span></label>
@@ -633,19 +626,14 @@ if ($rsDep->data_seek(0) === TRUE) {
 			<select id="dc-<?=$cont;?>-place-res" name="dc-<?=$cont;?>-place-res" 
 				class="not-required fbin <?=$read_new;?>" <?=$read_save;?>>
 				<option value="">Seleccione...</option>
-<?php
-if ($rsDep->data_seek(0) === TRUE) {
-	while($rowDep = $rsDep->fetch_array(MYSQLI_ASSOC)){
-		if((boolean)$rowDep['tipo_dp'] === TRUE){
-			if($rowDep['id_depto'] === $row['cl_lugar_residencia']) {
-				echo '<option value="'.$rowDep['id_depto'].'" selected>'.$rowDep['departamento'].'</option>';
-			} else {
-				echo '<option value="'.$rowDep['id_depto'].'">'.$rowDep['departamento'].'</option>';
-			}
-		}
-	}
-}
-?>
+				<?php foreach ($depto as $key => $value): $selected = '' ?>
+					<?php if ((boolean)$value['tipo_dp'] === true): ?>
+	            		<?php if ($value['id_depto'] === $row['cl_lugar_residencia']): $selected = 'selected' ?>
+			    		<?php endif ?>
+						<option value="<?= $value['id_depto'] ;?>" 
+							<?= $selected ;?>><?= $value['departamento'] ;?></option>
+					<?php endif ?>
+            	<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -658,19 +646,14 @@ if ($rsDep->data_seek(0) === TRUE) {
         
         <label>Mano utilizada para escribir y/o firmar: <span></span></label>
 		<div class="content-input">
-			<select id="dc-<?=$cont;?>-hand" name="dc-<?=$cont;?>-hand" class="not-required fbin <?=$read_save;?>" <?=$read_save;?>>
+			<select id="dc-<?=$cont;?>-hand" name="dc-<?=$cont;?>-hand" 
+				class="not-required fbin <?=$read_save;?>" <?=$read_save;?>>
             	<option value="">Seleccione...</option>
-<?php
-$arr_HA = $link->hand;
-for($i = 0; $i < count($arr_HA); $i++){
-	$HA = explode('|',$arr_HA[$i]);
-	if($HA[0] === $cl_hand) {
-		echo '<option value="'.$HA[0].'" selected>'.$HA[1].'</option>';
-	} else {
-		echo '<option value="'.$HA[0].'">'.$HA[1].'</option>';
-	}
-}
-?>
+            	<?php foreach ($ClientController->getHand() as $key => $value): ?>
+					<?php if ($key === $cl_hand): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
+				<?php endforeach ?>
             </select>
 		</div><br>
 	</div><!--
@@ -680,17 +663,11 @@ for($i = 0; $i < count($arr_HA); $i++){
         	<select id="dc-<?=$cont;?>-avc" name="dc-<?=$cont;?>-avc" 
         		class="not-required fbin <?=$read_save;?>" <?=$read_save;?>>
             	<option value="">Seleccione...</option>
-<?php
-	$arr_AC = $link->avc;
-	for($i = 0; $i < count($arr_AC); $i++){
-		$AC = explode('|',$arr_AC[$i]);
-		if($AC[0] === $cl_avc) {
-			echo '<option value="'.$AC[0].'" selected>'.$AC[1].'</option>';
-		} else {
-			echo '<option value="'.$AC[0].'">'.$AC[1].'</option>';
-		}
-	}
-?>
+            	<?php foreach ($ClientController->getAvc() as $key => $value): ?>
+					<?php if ($key === $cl_avc): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
+				<?php endforeach ?>
             </select>
 		</div><br>
 		
@@ -701,7 +678,8 @@ for($i = 0; $i < count($arr_HA); $i++){
 		<label>Número de domicilio: <span></span></label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-nhome" name="dc-<?=$cont;?>-nhome" 
-				autocomplete="off" value="<?=$cl_nd;?>" class="not-required number fbin" <?=$read_save;?>>
+				autocomplete="off" value="<?=$cl_nd;?>" 
+				class="not-required number fbin" <?=$read_save;?>>
 		</div><br>
 		
 		<label>Teléfono 1: <span>*</span></label>
@@ -721,7 +699,8 @@ for($i = 0; $i < count($arr_HA); $i++){
 		<label>Email: </label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-email" name="dc-<?=$cont;?>-email" 
-			autocomplete="off" value="<?=$row['cl_email'];?>" class="not-required email fbin" <?=$read_new;?>>
+			autocomplete="off" value="<?=$row['cl_email'];?>" 
+			class="not-required email fbin" <?=$read_new;?>>
 		</div><br>
 		
 		<label>Ocupación: <span>*</span></label>
@@ -729,17 +708,13 @@ for($i = 0; $i < count($arr_HA); $i++){
 			<select id="dc-<?=$cont;?>-occupation" name="dc-<?=$cont;?>-occupation" 
 				class="required fbin <?=$read_new;?>" <?=$read_save;?>>
 				<option value="">Seleccione...</option>
-<?php
-if (($rsOcc = $link->get_occupation($_SESSION['idEF'])) !== FALSE) {
-	while($rowOcc = $rsOcc->fetch_array(MYSQLI_ASSOC)){
-		if($rowOcc['id_ocupacion'] === $row['cl_ocupacion']) {
-			echo '<option value="'.base64_encode($rowOcc['id_ocupacion']).'" selected>'.$rowOcc['ocupacion'].'</option>';
-		} else {
-			echo '<option value="'.base64_encode($rowOcc['id_ocupacion']).'">'.$rowOcc['ocupacion'].'</option>';
-		}
-	}
-}
-?>
+				<?php foreach ($ClientController->getOccupation($_SESSION['idEF']) as $key => $value):
+					$selected = '' ?>
+					<?php if ($value['id_ocupacion'] === $row['cl_ocupacion']): $selected = 'selected' ?>
+		    		<?php endif ?>
+					<option value="<?= base64_encode($value['id_ocupacion']) ;?>" 
+						<?= $selected ;?>><?= $value['ocupacion'] ;?></option>
+				<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -755,13 +730,15 @@ if (($rsOcc = $link->get_occupation($_SESSION['idEF'])) !== FALSE) {
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-phone-office" 
 				name="dc-<?=$cont;?>-phone-office" autocomplete="off" 
-				value="<?=$row['cl_telefono_oficina'];?>" class="not-required phone fbin" <?=$read_new;?>>
+				value="<?=$row['cl_telefono_oficina'];?>" 
+				class="not-required phone fbin" <?=$read_new;?>>
 		</div><br>
 		
 		<label>Peso (kg): <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-weight" name="dc-<?=$cont;?>-weight" 
-				autocomplete="off" value="<?=$row['cl_peso'];?>" class="required fbin" <?=$read_new.$read_edit;?>>
+				autocomplete="off" value="<?=$row['cl_peso'];?>" 
+				class="required fbin" <?=$read_new.$read_edit;?>>
 		</div><br>
 		
 		<label>Estatura (cm): <span>*</span></label>
@@ -795,7 +772,9 @@ if($sw === 1){
 	$row['id_cliente'] = uniqid('@S#1$2013-'.$cont.'-',true);
 }
 ?>
-		<input type="hidden" id="dc-<?=$cont;?>-idcl" name="dc-<?=$cont;?>-idcl" autocomplete="off" value="<?=base64_encode($row['id_cliente']);?>" class="required fbin" <?=$read_new;?>>
+		<input type="hidden" id="dc-<?=$cont;?>-idcl" name="dc-<?=$cont;?>-idcl" 
+			autocomplete="off" value="<?=base64_encode($row['id_cliente']);?>" 
+			class="required fbin" <?=$read_new;?>>
 	</div><br>
 <?php
 if($cont === 1) {
@@ -804,301 +783,14 @@ if($cont === 1) {
 	echo '<input type="hidden" id="dc-'.$cont.'-titular" name="dc-'.$cont.'-titular" value="CC">';
 }
 
-//$sp_idb = '';	$sp_name = '';	$sp_patern = '';	$sp_matern = '';	$sp_relation = '';	$sp_ci = '';	$sp_ext = '';
-//$vg_idb = '';	$vg_name = '';	$vg_patern = '';	$vg_matern = '';	$vg_relation = '';	$vg_age = '';
-//$pr_idb = '';	$pr_name = '';	$pr_patern = '';	$pr_matern = '';	$pr_relation = '';	$pr_ci = '';	$pr_ext = '';
-//$co_idb = '';	$co_name = '';	$co_patern = '';	$co_matern = '';	$co_relation = '';	$co_ci = '';	$co_ext = '';
-
-/*if($sw !== 1){
-$sqlBN = 'select 
-		max(if(sdb.cobertura = "SP", sdb.id_beneficiario, "")) as sp_id,
-		max(if(sdb.cobertura = "SP", sdb.nombre, "")) as sp_nombre,
-		max(if(sdb.cobertura = "SP", sdb.paterno, "")) as sp_paterno,
-		max(if(sdb.cobertura = "SP", sdb.materno, "")) as sp_materno,
-		max(if(sdb.cobertura = "SP", sdb.parentesco, "")) as sp_parentesco,
-		max(if(sdb.cobertura = "SP", sdb.ci, "")) as sp_ci,
-		max(if(sdb.cobertura = "SP", sdb.id_depto, "")) as sp_ext,
-		max(if(sdb.cobertura = "VG", sdb.id_beneficiario, "")) as vg_id,
-		max(if(sdb.cobertura = "VG", sdb.nombre, "")) as vg_nombre,
-		max(if(sdb.cobertura = "VG", sdb.paterno, "")) as vg_paterno,
-		max(if(sdb.cobertura = "VG", sdb.materno, "")) as vg_materno,
-		max(if(sdb.cobertura = "VG", sdb.parentesco, "")) as vg_parentesco,
-		max(if(sdb.cobertura = "VG", sdb.edad, "")) as vg_edad,
-		max(if(sdb.cobertura = "PR", sdb.id_beneficiario, "")) as pr_id,
-		max(if(sdb.cobertura = "PR", sdb.nombre, "")) as pr_nombre,
-		max(if(sdb.cobertura = "PR", sdb.paterno, "")) as pr_paterno,
-		max(if(sdb.cobertura = "PR", sdb.materno, "")) as pr_materno,
-		max(if(sdb.cobertura = "PR", sdb.parentesco, "")) as pr_parentesco,
-		max(if(sdb.cobertura = "PR", sdb.ci, "")) as pr_ci,
-		max(if(sdb.cobertura = "PR", sdb.id_depto, "")) as pr_ext,
-		max(if(sdb.cobertura = "CO", sdb.id_beneficiario, "")) as co_id,
-		max(if(sdb.cobertura = "CO", sdb.nombre, "")) as co_nombre,
-		max(if(sdb.cobertura = "CO", sdb.paterno, "")) as co_paterno,
-		max(if(sdb.cobertura = "CO", sdb.materno, "")) as co_materno,
-		max(if(sdb.cobertura = "CO", sdb.parentesco, "")) as co_parentesco,
-		max(if(sdb.cobertura = "CO", sdb.ci, "")) as co_ci,
-		max(if(sdb.cobertura = "CO", sdb.id_depto, "")) as co_ext
-	from
-		s_de_beneficiario as sdb
-			inner join
-		s_de_em_detalle as sdd ON (sdd.id_detalle = sdb.id_detalle)
-	where
-		sdb.id_detalle = "'.$row['id_detalle'].'"
-	;';
-	//echo $sqlBN;
-	$rsBN = $link->query($sqlBN,MYSQLI_STORE_RESULT);
-	if($rsBN->num_rows === 1){
-		$rowBN = $rsBN->fetch_array(MYSQLI_ASSOC);
-		$rsBN->free();
-		$sp_name = $rowBN['sp_nombre'];
-		$sp_patern = $rowBN['sp_paterno'];
-		$sp_matern = $rowBN['sp_materno'];
-		$sp_relation = $rowBN['sp_parentesco'];
-		$sp_ci = $rowBN['sp_ci'];
-		$sp_idb = $rowBN['sp_id'];
-		
-		if(empty($sp_ci) === FALSE) {
-			$sp_ext = $rowBN['sp_ext'];
-		}
-		
-		$vg_name = $rowBN['vg_nombre'];
-		$vg_patern = $rowBN['vg_paterno'];
-		$vg_matern = $rowBN['vg_materno'];
-		$vg_relation = $rowBN['vg_parentesco'];
-		$vg_age = $rowBN['vg_edad'];
-		$vg_idb = $rowBN['vg_id'];
-		
-		$pr_name = $rowBN['pr_nombre'];
-		$pr_patern = $rowBN['pr_paterno'];
-		$pr_matern = $rowBN['pr_materno'];
-		$pr_relation = $rowBN['pr_parentesco'];
-		$pr_ci = $rowBN['pr_ci'];
-		$pr_idb = $rowBN['pr_id'];
-		if(empty($pr_ci) === FALSE) {
-			$pr_ext = $rowBN['pr_ext'];
-		}
-
-		$co_name = $rowBN['co_nombre'];
-		$co_patern = $rowBN['co_paterno'];
-		$co_matern = $rowBN['co_materno'];
-		$co_relation = $rowBN['co_parentesco'];
-		$co_ci = $rowBN['co_ci'];
-		$co_idb = $rowBN['co_id'];
-		if(empty($co_ci) === FALSE) {
-			$co_ext = $rowBN['co_ext'];
-		}
-	}
-}*/
-	/*if (true) {
-?>
-	<div class="form-col">
-		<h4>Beneficiario para la indemnización de Sepelio - Titular <?=$cont;?></h4>
-		<label>Nombres: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dsp-<?=$cont;?>-name" name="dsp-<?=$cont;?>-name" autocomplete="off" value="<?=$sp_name;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>		
-		
-		<label>Apellido Paterno: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dsp-<?=$cont;?>-ln-patert" name="dsp-<?=$cont;?>-ln-patern" autocomplete="off" value="<?=$sp_patern;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Apellido Materno: </label>
-		<div class="content-input">
-			<input type="text" id="dsp-<?=$cont;?>-ln-matern" name="dsp-<?=$cont;?>-ln-matern" autocomplete="off" value="<?=$sp_matern;?>" class="not-required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Parentesco: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dsp-<?=$cont;?>-relation" name="dsp-<?=$cont;?>-relation" autocomplete="off" value="<?=$sp_relation;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Documento de Identidad: <span></span></label>
-		<div class="content-input">
-			<input type="text" id="dsp-<?=$cont;?>-doc-id" name="dsp-<?=$cont;?>-doc-id" autocomplete="off" value="<?=$sp_ci;?>" class="not-required dni fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Extensión: <span></span></label>
-		<div class="content-input">
-			<select id="dsp-<?=$cont;?>-ext" name="dsp-<?=$cont;?>-ext" class="not-required fbin" <?=$read_save;?>>
-				<option value="">Seleccione...</option>
-<?php
-if (($rsDep->data_seek(0)) === TRUE) {
-	while($rowDep = $rsDep->fetch_array(MYSQLI_ASSOC)){
-		if((boolean)$rowDep['tipo_ci'] === TRUE){
-			if($rowDep['id_depto'] === $sp_ext) {
-				echo '<option value="'.$rowDep['id_depto'].'" selected>'.$rowDep['departamento'].'</option>';
-			} else {
-				echo '<option value="'.$rowDep['id_depto'].'">'.$rowDep['departamento'].'</option>';
-			}
-		}
-	}
-}
-?>
-			</select>
-		</div><br>
-<?php
-if($sw !== 1) {
-	echo '<input type="hidden" id="dsp-'.$cont.'-idb" name="dsp-'.$cont.'-idb" value="'.base64_encode($sp_idb).'">';
-}
-?>
-	</div>
-<?php
-	}*/
-
-/*if($swMo === false){
-?>
-	<div class="form-col">
-		<h4>Beneficiario para el Seguro de Vida en Grupo - Titular <?=$cont;?></h4>
-		<label>Nombres: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dvg-<?=$cont;?>-name" name="dvg-<?=$cont;?>-name" autocomplete="off" value="<?=$vg_name;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>		
-		
-		<label>Apellido Paterno: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dvg-<?=$cont;?>-ln-patert" name="dvg-<?=$cont;?>-ln-patern" autocomplete="off" value="<?=$vg_patern;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Apellido Materno: </label>
-		<div class="content-input">
-			<input type="text" id="dvg-<?=$cont;?>-ln-matern" name="dvg-<?=$cont;?>-ln-matern" autocomplete="off" value="<?=$vg_matern;?>" class="not-required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Parentesco: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dvg-<?=$cont;?>-relation" name="dvg-<?=$cont;?>-relation" autocomplete="off" value="<?=$vg_relation;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Edad: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dvg-<?=$cont;?>-age" name="dvg-<?=$cont;?>-age" autocomplete="off" value="<?=$vg_age;?>" class="required number fbin" <?=$read_save;?>>
-		</div><br>
-<?php
-if($sw !== 1) {
-	echo '<input type="hidden" id="dvg-'.$cont.'-idb" name="dvg-'.$cont.'-idb" value="'.base64_encode($vg_idb).'">';
-}
-?>
-	</div>
-<?php
-}*/
 ?>
 	<br>
 <?php
-		/*if($swMo === false){
-?>
-	<!--Beneficiarios Primario - Contingente-->
-	<div class="form-col">
-		<h4>Beneficiario Primario VG - Titular <?=$cont;?></h4>
-		<label>Nombres: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dpr-<?=$cont;?>-name" name="dpr-<?=$cont;?>-name" autocomplete="off" value="<?=$pr_name;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>		
-		
-		<label>Apellido Paterno: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dpr-<?=$cont;?>-ln-patert" name="dpr-<?=$cont;?>-ln-patern" autocomplete="off" value="<?=$pr_patern;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Apellido Materno: </label>
-		<div class="content-input">
-			<input type="text" id="dpr-<?=$cont;?>-ln-matern" name="dpr-<?=$cont;?>-ln-matern" autocomplete="off" value="<?=$pr_matern;?>" class="not-required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Parentesco: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dpr-<?=$cont;?>-relation" name="dpr-<?=$cont;?>-relation" autocomplete="off" value="<?=$pr_relation;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Documento de Identidad: <span></span></label>
-		<div class="content-input">
-			<input type="text" id="dpr-<?=$cont;?>-doc-id" name="dpr-<?=$cont;?>-doc-id" autocomplete="off" value="<?=$pr_ci;?>" class="not-required dni fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Extensión: <span></span></label>
-		<div class="content-input">
-			<select id="dpr-<?=$cont;?>-ext" name="dpr-<?=$cont;?>-ext" class="not-required fbin" <?=$read_save;?>>
-				<option value="">Seleccione...</option>
-<?php
-if (($rsDep->data_seek(0)) === TRUE) {
-	while($rowDep = $rsDep->fetch_array(MYSQLI_ASSOC)){
-		if((boolean)$rowDep['tipo_ci'] === TRUE){
-			if($rowDep['id_depto'] === $pr_ext) {
-				echo '<option value="'.$rowDep['id_depto'].'" selected>'.$rowDep['departamento'].'</option>';
-			} else {
-				echo '<option value="'.$rowDep['id_depto'].'">'.$rowDep['departamento'].'</option>';
-			}
-		}
-	}
-}
-?>
-			</select>
-		</div><br>
-<?php
-if($sw !== 1) {
-	echo '<input type="hidden" id="dpr-'.$cont.'-idb" name="dpr-'.$cont.'-idb" value="'.base64_encode($pr_idb).'">';
-}
-?>
-	</div>
-	<div class="form-col">
-		<h4>Beneficiario Contingente VG - Titular <?=$cont;?></h4>
-		<label>Nombres: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dco-<?=$cont;?>-name" name="dco-<?=$cont;?>-name" autocomplete="off" value="<?=$co_name;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>		
-		
-		<label>Apellido Paterno: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dco-<?=$cont;?>-ln-patert" name="dco-<?=$cont;?>-ln-patern" autocomplete="off" value="<?=$co_patern;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Apellido Materno: </label>
-		<div class="content-input">
-			<input type="text" id="dco-<?=$cont;?>-ln-matern" name="dco-<?=$cont;?>-ln-matern" autocomplete="off" value="<?=$co_matern;?>" class="not-required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Parentesco: <span>*</span></label>
-		<div class="content-input">
-			<input type="text" id="dco-<?=$cont;?>-relation" name="dco-<?=$cont;?>-relation" autocomplete="off" value="<?=$co_relation;?>" class="required text fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Documento de Identidad: <span></span></label>
-		<div class="content-input">
-			<input type="text" id="dco-<?=$cont;?>-doc-id" name="dco-<?=$cont;?>-doc-id" autocomplete="off" value="<?=$co_ci;?>" class="not-required dni fbin" <?=$read_save;?>>
-		</div><br>
-		
-		<label>Extensión: <span></span></label>
-		<div class="content-input">
-			<select id="dco-<?=$cont;?>-ext" name="dco-<?=$cont;?>-ext" class="not-required fbin" <?=$read_save;?>>
-				<option value="">Seleccione...</option>
-<?php
-if (($rsDep->data_seek(0)) === TRUE) {
-	while($rowDep = $rsDep->fetch_array(MYSQLI_ASSOC)){
-		if((boolean)$rowDep['tipo_ci'] === TRUE){
-			if($rowDep['id_depto'] === $co_ext) {
-				echo '<option value="'.$rowDep['id_depto'].'" selected>'.$rowDep['departamento'].'</option>';
-			} else {
-				echo '<option value="'.$rowDep['id_depto'].'">'.$rowDep['departamento'].'</option>';
-			}
-		}
-	}
-}
-?>
-			</select>
-		</div><br>
-<?php
-if($sw !== 1) {
-	echo '<input type="hidden" id="dco-'.$cont.'-idb" name="dco-'.$cont.'-idb" value="'.base64_encode($co_idb).'">';
-}
-?>
-	</div>
-<?php
-		}*/
 	}
 }
 
 if($rs->data_seek(0) === TRUE){
-	if (($rsQs = $link->get_question($_SESSION['idEF'])) !== FALSE) {
+	if (($questions = $QuestionController->getQuestion($_SESSION['idEF'])) !== false) {
 ?>
 	<hr>
 	<h4>Resultado de las Preguntas</h4>
@@ -1106,37 +798,37 @@ if($rs->data_seek(0) === TRUE){
 		<div class="question result-question" style="width: 600%;">
 			<span class="qs-no">&nbsp;</span>
 			<p class="qs-title" style="text-align:center; font-weight:bold;">Preguntas</p>
-<?php
-		$resp = array();
-		$required = array();
-		$fac = array();
+	<?php 
+		$resp 		= array();
+		$required 	= array();
+		$fac 		= array();
 
-		for ($i=1; $i <= $nCl; $i++) {
-			echo '<div class="qs-option">Titular ' . $i . '</div>';
-			$resp[$i] = '';
-			$required[$i] = '';
-			$fac[$i] = 1;
-		}
-?>
+		for ($i = 1; $i <= $nCl; $i++): 
+			$resp[$i] 		= '';
+			$required[$i] 	= '';
+			$fac[$i] 		= 1;
+		?>
+			<div class="qs-option">Titular <?= $i ;?></div>
+	<?php endfor ?>
 		</div>
+
+		<?php foreach ($questions as $key => $question): ?>
+			<div class="question result-question" style="width: 600%;">
+				<span class="qs-no"><?= $question['orden'] ;?></span>
+				<p class="qs-title"><?= $question['pregunta'] ;?></p>
 <?php
-		while($rowQs = $rsQs->fetch_array(MYSQLI_ASSOC)){
-			echo '<div class="question result-question" style="width: 600%;">
-				<span class="qs-no">' . $rowQs['orden'] . '</span>
-				<p class="qs-title">' . $rowQs['pregunta'] . '</p>
-			';
-			for ($i=1; $i <= $nCl; $i++) { 
+			for ($i = 1; $i <= $nCl; $i++) { 
 				if (count($rsCl[$i]) > 0) {
-					$respCl = explode('|', $rsCl[$i][$rowQs['id_pregunta']]);
+					$respCl = $rsCl[$i][$question['orden']];
 					
-					if ($rowQs['id_pregunta'] === $respCl[0]) {
-						if ($respCl[1] == 1) {
+					if ($question['id_pregunta'] == $respCl['id']) {
+						if ($respCl['value'] === 1) {
 							$resp[$i] = 'SI';
-						} elseif($respCl[1] == 0) {
+						} elseif($respCl['value'] === 0) {
 							$resp[$i] = 'NO';
 						}
 							
-						if ($respCl[1] != $rowQs['respuesta']) {
+						if ($respCl['value'] != $question['respuesta']) {
 							$required[$i] = 'required';
 							$fac[$i] += 1;
 						}
@@ -1145,12 +837,11 @@ if($rs->data_seek(0) === TRUE){
 
 				echo '<div class="qs-option">' . $resp[$i] . '</div>';
 			}
-			echo '</div>';
-		}
 ?>
-	</div>
+			</div>
+		<?php endforeach ?>
+		</div>
 <?php
-		
 		if($rs->data_seek(0) === TRUE){
 			$cont = 0;
 			$required_qs = '';
@@ -1174,8 +865,6 @@ if($rs->data_seek(0) === TRUE){
 <?php
 			}
 		}
-	}else{
-		exit();
 	}
 }
 ?>
@@ -1184,26 +873,24 @@ if($rs->data_seek(0) === TRUE){
 	<div class="form-col">
 		<label>Tipo de Cobertura: <span>*</span></label>
 		<div class="content-input">
-        	<select id="dcr-coverage" name="dcr-coverage" class="not-required fbin <?=$read_new.$read_edit;?>" <?=$read_save;?>>
+        	<select id="dcr-coverage" name="dcr-coverage" 
+        		class="not-required fbin <?=$read_new.$read_edit;?>" <?=$read_save;?>>
 				<option value="">Seleccione...</option>
-<?php
-$arr_coverage = $link->coverage;
-for($i = 0; $i < count($arr_coverage); $i++){
-	$coverage = explode('|',$arr_coverage[$i]);
-	if($coverage[0] == $cr_coverage) {
-		echo '<option value="'.$coverage[0].'" selected>'.$coverage[1].'</option>';
-	} else {
-		echo '<option value="'.$coverage[0].'">'.$coverage[1].'</option>';
-	}
-}
-?>
+				<?php foreach ($Diaconia->getCoverage() as $key => $value): $selected = '' ?>
+					<?php if ($key === $cr_coverage): $selected = 'selected' ?>
+					<?php endif ?>
+				<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
+				<?php endforeach ?>
 			</select>
 		</div><br>
 		
 		<label>Monto Actual Solicitado: <span>*</span></label>
 		<div class="content-input">
-        	<input type="hidden" id="dcr-amount-r" name="dcr-amount-r" value="<?=(int)$cr_amount;?>">
-			<input type="text" id="dcr-amount" name="dcr-amount" autocomplete="off" value="<?=(int)$cr_amount;?>" class="required number fbin" <?=$read_new.$read_edit;?>>
+        	<input type="hidden" id="dcr-amount-r" name="dcr-amount-r" 
+        		value="<?=(int)$cr_amount;?>">
+			<input type="text" id="dcr-amount" name="dcr-amount" 
+				autocomplete="off" value="<?=(int)$cr_amount;?>" 
+				class="required number fbin" <?=$read_new . $read_edit;?>>
 		</div><br>
 		
 		<label>Moneda: <span>*</span></label>
@@ -1212,17 +899,11 @@ for($i = 0; $i < count($arr_coverage); $i++){
         	<select id="dcr-currency" name="dcr-currency" 
         		class="required fbin  <?=$read_new . $read_edit;?>" <?=$read_save ;?>>
 				<option value="">Seleccione...</option>
-<?php
-$arr_currency = $link->currency;
-for($i = 0; $i < count($arr_currency); $i++){
-	$currency = explode('|',$arr_currency[$i]);
-	if($currency[0] === $cr_currency) {
-		echo '<option value="'.$currency[0].'" selected>'.$currency[1].'</option>';
-	} else {
-		echo '<option value="'.$currency[0].'">'.$currency[1].'</option>';
-	}
-}
-?>
+				<?php foreach ($Diaconia->getCurrency() as $key => $value): $selected = '' ?>
+					<?php if ($key === $cr_currency): $selected = 'selected' ?>
+					<?php endif ?>
+				<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
+				<?php endforeach ?>
 			</select>
 		</div><br>
 		
@@ -1238,87 +919,32 @@ for($i = 0; $i < count($arr_currency); $i++){
 			<select id="dcr-type-term" name="dcr-type-term" 
 				class="required fbin <?=$read_new . $read_edit;?>" <?=$read_save;?>>
 				<option value="">Seleccione...</option>
-<?php
-$arr_term = $link->typeTerm;
-for($i = 0; $i < count($arr_term); $i++){
-	$term = explode('|',$arr_term[$i]);
-	if($term[0] === $cr_type_term) {
-		echo '<option value="'.$term[0].'" selected>'.$term[1].'</option>';
-	} else {
-		echo '<option value="'.$term[0].'">'.$term[1].'</option>';
-	}
-}
-?>
+				<?php foreach ($Diaconia->getTypeTerm() as $key => $value): $selected = '' ?>
+					<?php if ($key === $cr_type_term): $selected = 'selected' ?>
+					<?php endif ?>
+				<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
+				<?php endforeach ?>
 			</select>
 		</div><br>
 	</div><!--
 	--><div class="form-col">
+	<?php if (count(($products = $Diaconia->getProductData($_SESSION['idEF']))) > 0): ?>
+	<label>Producto: <span>*</span></label>
+	<div class="content-input">
+		<select id="dl-product" name="dl-product" class="required 
+			fbin <?= $read_new . $read_edit ;?>" <?=$read_save;?>>
+			<option value="">Seleccione...</option>
+			<?php foreach ($products as $key => $value): $selected = '' ?>
+				<?php if ($value['id'] === $cr_product): $selected = 'selected' ?>
+				<?php endif ?>
+			<option value="<?= $value['id'] ;?>" <?= $selected ;?>><?= $value['producto'] ;?></option>
+			<?php endforeach ?>
+		</select>
+	</div>
+	<?php else: ?>
+		<input type="hidden" id="prcia" name="prcia" value="<?= base64_encode($cr_product) ;?>">
+	<?php endif ?>
 <?php
-if($sw > 0){
-	$sqlPr = 'select 
-			spr.id_producto, spr.nombre
-		from
-			s_producto as spr
-				inner join s_ef_compania as sec ON (sec.id_ef_cia = spr.id_ef_cia)
-				inner join s_entidad_financiera as sef ON (sef.id_ef = sec.id_ef)
-		where
-			spr.activado = true
-				and sef.id_ef = "'.base64_decode($_SESSION['idEF']).'"
-				and sef.activado = true
-		limit 0 , 1
-		;';
-	
-	$sqlPr .= 'select 
-			spc.id_prcia, spc.nombre, spc.id_producto, spr.nombre as pr_nombre
-		from
-			s_producto_cia as spc
-				inner join
-			s_producto as spr ON (spr.id_producto = spc.id_producto)
-				inner join 
-			s_ef_compania as sec ON (sec.id_ef_cia = spr.id_ef_cia)
-				inner join 
-			s_entidad_financiera as sef ON (sef.id_ef = sec.id_ef)
-		where
-			spr.activado = true
-				and sef.id_ef = "'.base64_decode($_SESSION['idEF']).'"
-				and sef.activado = true
-		order by id_prcia asc
-		;';
-	
-	$swPr = FALSE;
-	if($link->multi_query($sqlPr) === TRUE){
-		do{
-			if($swPr === TRUE) {
-				echo ' <select id="prcia" name="prcia" class="required fbin ' 
-					. $readMo . $read_new . $read_edit . '" ' . $read_save . '>
-					<option value="">Seleccione...</option>';
-			}
-			if($rsPr = $link->store_result()){
-				if($rsPr->num_rows === 1){
-					$rowPr = $rsPr->fetch_array(MYSQLI_ASSOC);
-					if($rowPr['nombre'] === 'PRODUCTO'){
-						echo ' <label>Producto: <span>*</span></label>';
-						$swPr = TRUE;
-					}
-				}else{
-					while($rowPr = $rsPr->fetch_array(MYSQLI_ASSOC)){
-						if($rowPr['id_prcia'] === $cr_product) {
-							echo '<option value="'.$rowPr['id_prcia'].'" selected>'.$rowPr['nombre'].'</option>';
-						} else {
-							echo '<option value="'.$rowPr['id_prcia'].'">'.$rowPr['nombre'].'</option>';
-						}
-					}
-				}
-			}
-		}while($link->next_result());
-		if($swPr === TRUE) {
-			echo '</select>';
-		}
-	}else{
-		echo '<input type="hidden" id="prcia" name="prcia" value="'.base64_encode($cr_product).'">';
-	}
-}
-
 if ($swMo === true) {
 ?>
 		<input type="hidden" id="dcr-modality" name="dcr-modality" value="<?=base64_encode($cr_modality);?>">
@@ -1457,7 +1083,8 @@ if ($rs->data_seek(0) === true) {
 ?>
 		<label>Saldo <?=$sub_title;?> actual del asegurado (Bs.) : </label>
 		<div class="content-input" style="width:auto;">
-			<input type="hidden" id="tcm" name="tcm" value="<?=$link->get_rate_exchange(true);?>" >
+			<input type="hidden" id="tcm" name="tcm" 
+				value="<?= $Diaconia->getRateExchange(true) ;?>" >
 			<input type="text" id="dcr-amount-de-<?=$k;?>" name="dcr-amount-de-<?=$k;?>" 
 				autocomplete="off" value="<?=(float)$cr_amount_de;?>" 
 				class="required real fbin dcr-amount-de" <?=$opp_read.' '.$read_save;?> rel="<?=$k;?>">
@@ -1483,26 +1110,6 @@ if ($rs->data_seek(0) === true) {
 <?php
 	}
 }
-	/*if($nCl > 1){
-?>
-		<label>Saldo codeudor actual del asegurado (Bs.) : </label>
-        <div class="content-input" style="width:auto;">
-			<input type="text" id="dcr-amount-cc" name="dcr-amount-cc" autocomplete="off" value="<?=(float)$cr_amount_cc;?>" class="not-required real fbin" <?=$opp_read.' '.$read_save;?> rel="2">
-            <span class="amount-mess">
-            	<div class="amount-icon" style=" <?=$opp_dis1;?> "></div>
-            	<div class="amount-text <?=$opp_class;?>" style=" <?=$opp_dis1;?> "><?=$opp_txt1;?></div>
-            </span>
-		</div>
-        <div class="amout-total" style=" <?=$opp_dis2;?> ">
-			Monto Total Acumulado<br>
-			<span class="amount-type" style=" <?=$opp_dis3;?> "> Bs.</span>
-			<span class="amount-2" style=" <?=$opp_dis3;?> "><?=$cr_amount_acc?></span>
-            <br>
-            <input type="text" id="dcr-amount-acc-2" name="dcr-amount-acc-2" autocomplete="off" value="<?=$cr_amount_acc;?>" class="real fbin" style=" <?=$opp_dis4;?> " rel="2"><br>
-            <!--<span class="amount-mess-lc" style=" <?=$opp_dis4;?> ">Sumatoria del total de operaciones vigentes, incluyendo el Monto Actual Solicitado.</span>-->
-		</div>
-<?php
-	}*/
 ?>
 	</div>
     <input type="hidden" id="ms" name="ms" value="<?=$_GET['ms'];?>">

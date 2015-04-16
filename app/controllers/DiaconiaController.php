@@ -1,6 +1,6 @@
 <?php 
 
-require __DIR__ . '/../models/Diaconia.php';
+require_once __DIR__ . '/../models/Diaconia.php';
 require_once __DIR__ . '/../../sibas-db.class.php';
 
 class DiaconiaController extends Diaconia
@@ -82,7 +82,7 @@ class DiaconiaController extends Diaconia
 					return 2;
 					break;
 				case 'BC':
-					if (($data = $this->getDataProduct($idef, $product)) !== false) {
+					if (($data = $this->getDataProduct(base64_encode($idef), $product)) !== false) {
 						return (int)$data['max_detalle'];
 					}
 					break;

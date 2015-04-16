@@ -1,4 +1,11 @@
 <?php
+
+require __DIR__ . '/app/controllers/DiaconiaController.php';
+require __DIR__ . '/app/controllers/ClientController.php';
+
+$Diaconia = new DiaconiaController();
+$ClientController = new ClientController();
+
 require('session.class.php');
 date_default_timezone_set('America/La_Paz');
 
@@ -8,7 +15,7 @@ $token = $session->check_session();
 $arrDE = array(0 => 0, 1 => 'R', 2 => '');
 
 if($token === TRUE){
-require('sibas-db.class.php');
+// require('sibas-db.class.php');
 $link = new SibasDB();
 
 if (isset($_POST['flag']) 
@@ -17,25 +24,33 @@ if (isset($_POST['flag'])
 	&& isset($_POST['ms']) 
 	&& isset($_POST['page']) 
 	&& isset($_POST['pr']) 
-	&& isset($_POST['cia']) 
-	&& isset($_POST['prcia'])) {
+	&& isset($_POST['cia'])) {
 
 	if($_POST['pr'] === base64_encode('DE|05')){
-		$sw = 0;
-        $data = array();
-        $client = array();
+		$sw 		= 0;
+        $data 		= array();
+        $data_pr 	= array();
+        $data_range 	= array();
+        $client 	= array();
 		
-		$ms = $link->real_escape_string(trim($_POST['ms']));
-		$page = $link->real_escape_string(trim($_POST['page']));
-		$pr = $link->real_escape_string(trim($_POST['pr']));
+		$ms 	= $link->real_escape_string(trim($_POST['ms']));
+		$page 	= $link->real_escape_string(trim($_POST['page']));
+		$pr 	= $link->real_escape_string(trim($_POST['pr']));
 		
 		$max_item = $amount_max_bs = $amount_max_usd = 0;
 
-		if (($rowDE = $link->get_max_amount_optional($_SESSION['idEF'], 'DE')) !== FALSE) {
+		if (($data_pr = $Diaconia->getDataProduct($_SESSION['idEF'])) !== false) {
+			$max_item 		= (int)$data_pr['max_detalle'];
+			$amount_max_bs 	= (float)$data_pr['max_emision_bs'];
+			$amount_max_usd = (float)$data_pr['max_emision_usd'];
+			$data_range			= json_decode($data_pr['data'], true);
+		}
+
+		/*if (($rowDE = $link->get_max_amount_optional($_SESSION['idEF'], 'DE')) !== FALSE) {
 			$max_item = (int)$rowDE['max_item'];
 			$amount_max_bs = (float)$rowDE['monto_max_bs'];
 			$amount_max_usd = (float)$rowDE['monto_max_usd'];
-		}
+		}*/
 		
 		$target = '';
 		if(isset($_POST['target'])) {
@@ -50,20 +65,20 @@ if (isset($_POST['flag'])
 		$flag = $_POST['flag'];
 		
 		switch($flag){
-			case md5('i-new'):		//POLIZA NUEVA
-				$sw = 1;
-				break;
-			case md5('i-read'):		//
-				$sw = 2;
-				break;
-			case md5('i-edit'):		//POLIZA ACTUALIAZADA
-				$sw = 3;
-				break;
+		case md5('i-new'):		//POLIZA NUEVA
+			$sw = 1;
+			break;
+		case md5('i-read'):		//
+			$sw = 2;
+			break;
+		case md5('i-edit'):		//POLIZA ACTUALIAZADA
+			$sw = 3;
+			break;
 		}
 
 		if($sw !== 0){
 			$arr_cl = array();
-			$nCl = 0;
+			$nCl 	= 0;
 			if (isset($_POST['ncl-data'])) {
 				$nCl = $link->real_escape_string(trim(base64_decode($_POST['ncl-data'])));
 			}
@@ -75,26 +90,26 @@ if (isset($_POST['flag'])
 			}*/
 			
 			if($nCl > 0 && $nCl <= $max_item){		// VERIFICAR SI EXISTEN CLIENTES
-				$swDE = false;
-				$swMo = false;
-				$bc = false;
+				$swDE 		= false;
+				$swMo 		= false;
+				$bc 		= false;
 				$birth_flag = true;
 				$birth_mess = '';
 				
-				$dcr_cia = $link->real_escape_string(trim(base64_decode($_POST['cia'])));
-				$dcr_prcia = $link->real_escape_string(trim($_POST['prcia']));
-				$dcr_modality = 'null';
+				$dcr_cia 		= $link->real_escape_string(trim(base64_decode($_POST['cia'])));
+				$dcr_prcia 		= $link->real_escape_string(trim($_POST['dl-product']));
+				$dcr_modality 	= 'null';
 				if (isset($_POST['dcr-modality'])) {
 					$dcr_modality = '"' 
 						. $link->real_escape_string(trim(base64_decode($_POST['dcr-modality']))) . '"';
 					$swMo = true;
 				}
-				$dcr_coverage = $link->real_escape_string(trim($_POST['dcr-coverage']));
-				$dcr_amount = $link->real_escape_string(trim($_POST['dcr-amount']));
-				$dcr_currency = $link->real_escape_string(trim($_POST['dcr-currency']));
-				$dcr_term = $link->real_escape_string(trim($_POST['dcr-term']));
-				$dcr_type_term = $link->real_escape_string(trim($_POST['dcr-type-term']));
-				$dcr_type_mov = '';
+				$dcr_coverage 	= $link->real_escape_string(trim($_POST['dcr-coverage']));
+				$dcr_amount 	= $link->real_escape_string(trim($_POST['dcr-amount']));
+				$dcr_currency 	= $link->real_escape_string(trim($_POST['dcr-currency']));
+				$dcr_term 		= $link->real_escape_string(trim($_POST['dcr-term']));
+				$dcr_type_term 	= $link->real_escape_string(trim($_POST['dcr-type-term']));
+				$dcr_type_mov 	= '';
 				if (isset($_POST['dcr-type-mov'])) {
 					$dcr_type_mov = $link->real_escape_string(trim($_POST['dcr-type-mov']));
 				}
@@ -108,18 +123,10 @@ if (isset($_POST['flag'])
 				if(empty($dcr_amount_de) === TRUE) {
 					$dcr_amount_de = 0;
 				}
-				//$dcr_amount_acc = $link->real_escape_string(trim($_POST['dcr-amount-acc']));
-				$dcr_amount_acc = 0;
-
-				$dcr_amount_cc = 0;
-				$dcr_amount_acc_2 = 0;
-				/*if(isset($_POST['dcr-amount-cc'])){
-					$dcr_amount_cc = $link->real_escape_string(trim($_POST['dcr-amount-cc']));
-					if(empty($dcr_amount_cc) === TRUE) {
-						$dcr_amount_cc = 0;
-					}
-					$dcr_amount_acc_2 = $link->real_escape_string(trim($_POST['dcr-amount-acc-2']));
-				}*/
+				
+				$dcr_amount_acc 	= 0;
+				$dcr_amount_cc 		= 0;
+				$dcr_amount_acc_2 	= 0;
 				
 				$cp = NULL;
 				if($sw === 1 && isset($_POST['cp'])) {
@@ -221,7 +228,18 @@ if (isset($_POST['flag'])
                     $client[$cont]['cl_ci'] = $arr_cl[$cont]['cl-doc-id'];
                     $client[$cont]['cl_extension'] = $arr_cl[$cont]['cl-ext'];
 
-                    if ($link->verifyYearUser($rowAge['edad_min'], 
+                    if ($ClientController->verifyYearUser($rowAge['edad_min'], 
+                    		$rowAge['edad_max'], $arr_cl[$cont]['cl-date']) === false) {
+                    	$name = $client[$cont]['cl_nombre'] . ' ' 
+							. $client[$cont]['cl_paterno'] . ' ' 
+							. $client[$cont]['cl_materno'];
+
+						$birth_flag = false;
+						$birth_mess .= 'La Fecha de nacimiento del titular ' . $name 
+							. ' no esta en el rango permitido de edades <br>';
+                    }
+
+                    /*if ($link->verifyYearUser($rowAge['edad_min'], 
 						$rowAge['edad_max'], $arr_cl[$cont]['cl-date']) === false) {
 
 						$name = $client[$cont]['cl_nombre'] . ' ' 
@@ -231,78 +249,6 @@ if (isset($_POST['flag'])
 						$birth_flag = false;
 						$birth_mess .= 'La Fecha de nacimiento del titular ' . $name 
 							. ' no esta en el rango permitido de edades <br>';
-					}
-					
-					// Beneficiarios de Sepelio
-					/*if (isset($_POST['dsp-'.$cont.'-idb'])) {
-						$arr_cl[$cont]['cl-sp-idb'] = $link->real_escape_string(trim(base64_decode($_POST['dsp-'.$cont.'-idb'])));
-					} else {
-						$arr_cl[$cont]['cl-sp-idb'] = uniqid('@S#1$2013'.$cont, true);
-					}
-					$arr_cl[$cont]['cl-sp-name'] = $link->real_escape_string(trim($_POST['dsp-'.$cont.'-name']));
-					$arr_cl[$cont]['cl-sp-patern'] = $link->real_escape_string(trim($_POST['dsp-'.$cont.'-ln-patern']));
-					$arr_cl[$cont]['cl-sp-matern'] = $link->real_escape_string(trim($_POST['dsp-'.$cont.'-ln-matern']));
-					$arr_cl[$cont]['cl-sp-relation'] = $link->real_escape_string(trim($_POST['dsp-'.$cont.'-relation']));
-					$arr_cl[$cont]['cl-sp-doc-id'] = $link->real_escape_string(trim($_POST['dsp-'.$cont.'-doc-id']));
-					$arr_cl[$cont]['cl-sp-ext'] = $link->real_escape_string(trim($_POST['dsp-'.$cont.'-ext']));
-					$arr_cl[$cont]['cl-sp-cov'] = 'SP';
-					if(empty($arr_cl[$cont]['cl-sp-ext']) === TRUE) {
-						$arr_cl[$cont]['cl-sp-ext'] = 1;
-					}*/
-					
-					// Beneficiarios de Vida Grupo
-					/*if(($dcr_currency === 'BS' && $dcr_amount > 35000) || ($dcr_currency === 'USD' && $dcr_amount > 5000)){
-						$swDE = true;
-					}
-					
-					if ($swMo === false) {
-						if (isset($_POST['dvg-'.$cont.'-idb'])) {
-							$arr_cl[$cont]['cl-vg-idb'] = $link->real_escape_string(trim(base64_decode($_POST['dvg-'.$cont.'-idb'])));
-						} else {
-							$arr_cl[$cont]['cl-vg-idb'] = uniqid('@S#1$2013'.($cont + 1), true);
-						}
-						$arr_cl[$cont]['cl-vg-name'] = $link->real_escape_string(trim($_POST['dvg-'.$cont.'-name']));
-						$arr_cl[$cont]['cl-vg-patern'] = $link->real_escape_string(trim($_POST['dvg-'.$cont.'-ln-patern']));
-						$arr_cl[$cont]['cl-vg-matern'] = $link->real_escape_string(trim($_POST['dvg-'.$cont.'-ln-matern']));
-						$arr_cl[$cont]['cl-vg-relation'] = $link->real_escape_string(trim($_POST['dvg-'.$cont.'-relation']));
-						$arr_cl[$cont]['cl-vg-age'] = $link->real_escape_string(trim($_POST['dvg-'.$cont.'-age']));
-						$arr_cl[$cont]['cl-vg-cov'] = 'VG';
-					}*/
-					
-					/*if ($swMo === false) {
-						// Beneficiarios Primarios
-						if (isset($_POST['dpr-'.$cont.'-idb'])) {
-							$arr_cl[$cont]['cl-pr-idb'] = $link->real_escape_string(trim(base64_decode($_POST['dpr-'.$cont.'-idb'])));
-						} else {
-							$arr_cl[$cont]['cl-pr-idb'] = uniqid('@S#1$2013'.($cont + 2), true);
-						}
-						$arr_cl[$cont]['cl-pr-name'] = $link->real_escape_string(trim($_POST['dpr-'.$cont.'-name']));
-						$arr_cl[$cont]['cl-pr-patern'] = $link->real_escape_string(trim($_POST['dpr-'.$cont.'-ln-patern']));
-						$arr_cl[$cont]['cl-pr-matern'] = $link->real_escape_string(trim($_POST['dpr-'.$cont.'-ln-matern']));
-						$arr_cl[$cont]['cl-pr-relation'] = $link->real_escape_string(trim($_POST['dpr-'.$cont.'-relation']));
-						$arr_cl[$cont]['cl-pr-doc-id'] = $link->real_escape_string(trim($_POST['dpr-'.$cont.'-doc-id']));
-						$arr_cl[$cont]['cl-pr-ext'] = $link->real_escape_string(trim($_POST['dpr-'.$cont.'-ext']));
-						$arr_cl[$cont]['cl-pr-cov'] = 'PR';
-						if(empty($arr_cl[$cont]['cl-pr-ext']) === TRUE) {
-							$arr_cl[$cont]['cl-pr-ext'] = 1;
-						}
-						
-						// Beneficiarios Contingente
-						if (isset($_POST['dco-'.$cont.'-idb'])) {
-							$arr_cl[$cont]['cl-co-idb'] = $link->real_escape_string(trim(base64_decode($_POST['dco-'.$cont.'-idb'])));
-						} else {
-							$arr_cl[$cont]['cl-co-idb'] = uniqid('@S#1$2013'.($cont + 3), true);
-						}
-						$arr_cl[$cont]['cl-co-name'] = $link->real_escape_string(trim($_POST['dco-'.$cont.'-name']));
-						$arr_cl[$cont]['cl-co-patern'] = $link->real_escape_string(trim($_POST['dco-'.$cont.'-ln-patern']));
-						$arr_cl[$cont]['cl-co-matern'] = $link->real_escape_string(trim($_POST['dco-'.$cont.'-ln-matern']));
-						$arr_cl[$cont]['cl-co-relation'] = $link->real_escape_string(trim($_POST['dco-'.$cont.'-relation']));
-						$arr_cl[$cont]['cl-co-doc-id'] = $link->real_escape_string(trim($_POST['dco-'.$cont.'-doc-id']));
-						$arr_cl[$cont]['cl-co-ext'] = $link->real_escape_string(trim($_POST['dco-'.$cont.'-ext']));
-						$arr_cl[$cont]['cl-co-cov'] = 'CO';
-						if(empty($arr_cl[$cont]['cl-co-ext']) === TRUE) {
-							$arr_cl[$cont]['cl-co-ext'] = 1;
-						}
 					}*/
 					
 					$arr_cl[$cont]['cl-q-idd'] = $link->real_escape_string(trim(base64_decode($_POST['dq-'.$cont.'-idd'])));
@@ -312,62 +258,84 @@ if (isset($_POST['flag'])
 					$arr_cl[$cont]['cl-q-resp'] = $link->real_escape_string(trim($_POST['dq-'.$cont.'-resp']));
 				}
 				
-				$tipo_pr = 0;
-				$tipo_cm = $link->get_type_exch($_SESSION['idEF']);
-				$tcm = $link->get_rate_exchange(true);
-				$prefix = array();
-				$arrPrefix = 'null';
-				$FAC = false;
-				$FAC_BC = false;
-				$fac_reason = '';
-				$fac_reason_bc = '';
+				// $tcm = $link->get_rate_exchange(true);
+				$tipo_pr 		= 0;
+				$tipo_cm 		= $link->get_type_exch($_SESSION['idEF']);
+				$tcm 			= $Diaconia->getRateExchange(true);
+				$prefix 		= array();
+				$arrPrefix 		= 'null';
+				$FAC 			= false;
+				$FAC_BC 		= false;
+				$fac_reason 	= '';
+				$fac_reason_bc 	= '';
+				$cu_amount 		= false;
 				$cu_amount_mess = '';
-				$IMC = false;
-				$QS = false;
-				$CU = false;
+				$IMC 			= false;
+				$QS 			= false;
+				$CU 			= false;
 				
-				$TASA = $link->get_tasa($dcr_cia, $dcr_prcia, $_SESSION['idEF']);
-				$PRIMA = $link->get_prima($dcr_amount, $TASA);
+				$TASA 	= $link->get_tasa($dcr_cia, $dcr_prcia, $_SESSION['idEF']);
+				$PRIMA 	= $link->get_prima($dcr_amount, $TASA);
+				$age	= $arr_cl[$cont]['cl-age'];
 				
-				$fac_mess = '';
-				$mess_aux = '';
-				$cont = 0;
+				$fac_mess 	= '';
+				$mess_aux 	= '';
+				$cont 		= 0;
+				$slug		= '';
 
 				while($cont < $nCl){
-					$cont += 1;
+					$cont 	+= 1;
+					$token_range = false; 
 
-					if($link->get_imc($arr_cl[$cont]['cl-weight'], $arr_cl[$cont]['cl-height']) === true){
-						$IMC = TRUE;
-						$mess_aux = ' | El Titular ' . $cont . ' no cumple con el IMC ';
+					foreach ($data_range as $key => $ranges) {
+						foreach ($ranges['range'] as $key1 => $range) {
+							if (($dcr_amount >= $range['amount_min'] && $dcr_amount <= $range['amount_max'])
+									&& ($age >= $range['edad_min'] && $age <= $range['edad_max'])) {
+								$slug 			= $ranges['slug'];
+								$token_range 	= true;
+								break;
+							}
+						}
+
+						if ($token_range) {
+							break;
+						}
+					}
+
+					if($link->get_imc($arr_cl[$cont]['cl-weight'], $arr_cl[$cont]['cl-height']) === true
+							&& $slug !== 'FC'){
+						$IMC 		= TRUE;
+						$mess_aux 	= ' | El Titular ' . $cont . ' no cumple con el IMC ';
 						
-						if ($bc === true && 
-							(($dcr_currency === 'BS' && $dcr_amount > (15000 * $tcm)) 
-								|| ($dcr_currency === 'USD' && $dcr_amount > 15000))) {
-							$arr_cl[$cont]['cl-approved'] = false;
-							$arr_cl[$cont]['cl-fac'] = true;
+						if ($bc === true) {
+							$arr_cl[$cont]['cl-approved'] 	= false;
+							$arr_cl[$cont]['cl-fac'] 		= true;
 							$arr_cl[$cont]['cl-fac-reason'] .= $mess_aux;
 						}
 
 						$fac_mess .= $mess_aux;
 					}
-
-					if($arr_cl[$cont]['cl-q-fac'] > 1){
+					
+					if($arr_cl[$cont]['cl-q-fac'] > 1 && $slug !== 'FC'){
 						$QS = TRUE;
 						$mess_aux = ' | El Titular ' . $cont . ' no cumple con las Preguntas ';
 
-						if ($bc === true && 
-							(($dcr_currency === 'BS' && $dcr_amount > (15000 * $tcm)) 
-								|| ($dcr_currency === 'USD' && $dcr_amount > 15000))) {
-							$arr_cl[$cont]['cl-approved'] = false;
-							$arr_cl[$cont]['cl-fac'] = true;
+						if ($bc === true) {
+							$arr_cl[$cont]['cl-approved'] 	= false;
+							$arr_cl[$cont]['cl-fac'] 		= true;
 							$arr_cl[$cont]['cl-fac-reason'] .= $mess_aux;
 						}
 
 						$fac_mess .= $mess_aux;
 					}
 
-					$cu_amount = $link->verify_amount($arr_cl[$cont]['cl-accumulation'], 
-						'BS', $amount_max_bs, $amount_max_usd);
+					/*$cu_amount = $link->verify_amount($arr_cl[$cont]['cl-accumulation'], 
+						'BS', $amount_max_bs, $amount_max_usd);*/
+					
+					$cu_amount = false;
+					if ($slug === 'FA') {
+						$cu_amount = true;
+					}
 					
 					if ($cu_amount === true) {
 						$CU = true;
@@ -378,20 +346,25 @@ if (isset($_POST['flag'])
 							. number_format($amount_max_bs, 2, '.', ',') . ' Bs. ';
 
 						if ($bc === true) {
-							$arr_cl[$cont]['cl-approved'] = false;
-							$arr_cl[$cont]['cl-fac'] = true;
+							$arr_cl[$cont]['cl-approved'] 	= false;
+							$arr_cl[$cont]['cl-fac'] 		= true;
 							$arr_cl[$cont]['cl-fac-reason'] .= $mess_aux;
 						}
 
 						$cu_amount_mess .= $mess_aux;
+
+						$cu_amount_mess = '
+							| El monto solicitado supera el monto maximo permitido. 
+							Monto maximo permitido ' . number_format($range['amount_min'], 2, '.', ',') 
+								. ' ' . $dcr_currency . '. ';
+						//$cu_amount_mess .= $cu_amount;
+						$fac_reason .= $cu_amount_mess;
 					}
 
-					// CODE
 					if ($bc === true) {
 						switch ($dcr_currency) {
 						case 'BS':
-							if ($arr_cl[$cont]['cl-amount-bc'] > (15000 * $tcm) 
-								&& $arr_cl[$cont]['cl-fac'] === true) {
+							if ($arr_cl[$cont]['cl-fac'] === true) {
 								FacBS_bc:
 								$FAC_BC = true;
 								$fac_reason_bc .= $arr_cl[$cont]['cl-fac-reason'];
@@ -404,8 +377,7 @@ if (isset($_POST['flag'])
 							}
 							break;
 						case 'USD':
-							if($arr_cl[$cont]['cl-amount-bc'] > 15000 
-								&& $arr_cl[$cont]['cl-fac'] === true){
+							if($arr_cl[$cont]['cl-fac'] === true){
 								FacUSD_bc:
 								$FAC_BC = true;
 								$fac_reason_bc .= $arr_cl[$cont]['cl-fac-reason'];
@@ -422,22 +394,18 @@ if (isset($_POST['flag'])
 
 				}
 				
-				if ($bc === false) {
+				/*if ($bc === false) {
 					$cu_amount = $link->verify_amount($dcr_amount, $dcr_currency, $amount_max_bs, $amount_max_usd);
-					/*
-					$cu_amount_acc = $link->get_cumulus($dcr_amount_acc, 'BS', $_SESSION['idEF']);
-					$cu_amount_acc_2 = $link->get_cumulus($dcr_amount_acc_2, 'BS', $_SESSION['idEF']);
-					*/
 					
 					if ($cu_amount === true) {
 						$CU = true;
 						switch ($dcr_currency) {
-							case 'BS':
-								$cu_amount = $amount_max_bs;
-								break;
-							case 'USD':
-								$cu_amount = $amount_max_usd;
-								break;
+						case 'BS':
+							$cu_amount = $amount_max_bs;
+							break;
+						case 'USD':
+							$cu_amount = $amount_max_usd;
+							break;
 						}
 
 						$cu_amount_mess .= '
@@ -446,57 +414,30 @@ if (isset($_POST['flag'])
 						//$cu_amount_mess .= $cu_amount;
 					}
 
-					/*
-					if(($cu_amount_acc > 1 || $cu_amount_acc === false)){
-						$CU = true;
-						$cu_amount_mess .= '
-							| El monto total acumulado del Titular 1 ' 
-							. number_format($dcr_amount_acc, 2, '.', ',') . ' Bs. 
-							supera el monto maximo permitido. Monto maximo permitido ' 
-							. number_format($cu_amount_acc, 2, '.', ',') . ' Bs. ';
-					}
-					if(($cu_amount_acc_2 > 1 || $cu_amount_acc_2 === false)){
-						$CU = true;
-						$cu_amount_mess .= '
-							| El monto total acumulado del Titular 2 ' 
-							. number_format($dcr_amount_acc_2, 2, '.', ',') . ' Bs. 
-							supera el monto maximo permitido. Monto maximo permitido ' 
-							. number_format($cu_amount_acc_2, 2, '.', ',') . ' Bs. ';
-					}
-					*/
 					if($CU === true){
 						$fac_reason .= $cu_amount_mess;
 					}
-				}
-				
+				}*/
 				
 				if ($swMo === false) {
-					/*if(($dcr_currency === 'BS' && $dcr_amount > (15000 * $tcm)) 
-						|| ($dcr_currency === 'USD' && $dcr_amount > 15000)){
-						$fac_reason .= $fac_mess;
-					}*/
 					$prefix[0] = 'DE';
 
 					if ($bc === false) {
 						switch ($dcr_currency) {
 						case 'BS':
-							if ($dcr_amount > (15000 * $tcm)) {
-								if ($IMC === TRUE || $QS === TRUE || $CU === TRUE) {
-									FacBS:
-									$FAC = TRUE;
-									$fac_reason .= $fac_mess;
-								}
+							if ($IMC === TRUE || $QS === TRUE || $CU === TRUE) {
+								FacBS:
+								$FAC = TRUE;
+								$fac_reason .= $fac_mess;
 							} elseif ($CU === true) {
 								goto FacBS;
 							}
 							break;
 						case 'USD':
-							if ($dcr_amount > 15000) {
-								if ($IMC === TRUE || $QS === TRUE || $CU === TRUE) {
-									FacUSD:
-									$FAC = TRUE;
-									$fac_reason .= $fac_mess;
-								}
+							if ($IMC === TRUE || $QS === TRUE || $CU === TRUE) {
+								FacUSD:
+								$FAC = TRUE;
+								$fac_reason .= $fac_mess;
 							} elseif ($CU === true) {
 								goto FacUSD;
 							}
@@ -513,36 +454,6 @@ if (isset($_POST['flag'])
 							$fac_reason = $fac_reason_bc;
 						}
 					}
-					
-				} else {
-					switch ($link->getTypeIssueIdeproDE($dcr_amount, $dcr_currency, $tcm)) {
-					case 'DE':
-						if ($IMC === true || $QS === true || $CU === true) {
-							$FAC = true;
-							$fac_reason .= $fac_mess;
-						}
-						break;
-					case 'FA':
-						if ($IMC === true || $QS === true || $CU === true) {
-							$fac_reason .= $fac_mess;
-						}
-						$FAC = true;
-						break;
-					default:
-						if ($CU === true) {
-							$FAC = true;
-							$fac_reason .= $fac_mess;
-						}
-						break;
-					}
-					
-					$link->getPrefixPolicyIdeproDE($dcr_currency, trim($dcr_modality, '"'), $prefix);
-					
-					$arrPrefix = array (
-						'policy' => $prefix[1],
-						'prefix' => $prefix[0]
-						);
-					$arrPrefix = '"' . $link->real_escape_string(json_encode($arrPrefix)) . '"';
 				}
 				
 				$fac_reason = preg_replace('/\s+/', ' ', $fac_reason);
@@ -574,21 +485,21 @@ if (isset($_POST['flag'])
 						$record = $link->getRegistrationNumber($_SESSION['idEF'], 'DE', 1, $prefix[0]);
 						
 						$sqlC = 'insert into s_de_em_cabecera 
-						(`id_emision`, `no_emision`, `id_ef`, `id_cotizacion`, 
-						`certificado_provisional`, `no_operacion`, `prefijo`, 
-						`prefix`, `cobertura`, `id_prcia`, `modalidad`, 
-						`monto_solicitado`, `moneda`, `monto_deudor`, 
-						`monto_codeudor`, `cumulo_deudor`, `cumulo_codeudor`, 
-						`id_tc`, `plazo`, `tipo_plazo`, `id_usuario`, 
-						`fecha_creacion`, `hora_creacion`, `anulado`, `and_usuario`, `fecha_anulado`, 
-						`motivo_anulado`, `emitir`, `fecha_emision`, `id_compania`, 
-						`id_poliza`, `operacion`, `facultativo`, `motivo_facultativo`, 
-						`tasa`, `prima_total`, `no_copia`, `no_copia_cob`, `leido`, 
-						`id_certificado`) 
+						(id_emision, no_emision, id_ef, id_cotizacion, 
+							certificado_provisional, no_operacion, prefijo, 
+							prefix, cobertura, id_prcia, modalidad, 
+							monto_solicitado, moneda, monto_deudor, 
+							monto_codeudor, cumulo_deudor, cumulo_codeudor, 
+							id_tc, plazo, tipo_plazo, id_usuario, 
+							fecha_creacion, hora_creacion, anulado, and_usuario, 
+							fecha_anulado, motivo_anulado, emitir, fecha_emision, 
+							id_compania, id_poliza, operacion, facultativo, 
+							motivo_facultativo, tasa, prima_total, no_copia, 
+							no_copia_cob, leido, id_certificado) 
 						values 
 						("'.$ID.'", '.$record.', "'.base64_decode($_SESSION['idEF']).'", 
 						"'.$idc.'", '.$cp.', "'.$dcr_opp.'", "'.$prefix[0].'", '.$arrPrefix.', 
-						'.$dcr_coverage.', '.$dcr_prcia.', '.$dcr_modality.', 
+						"'.$dcr_coverage.'", '.$dcr_prcia.', '.$dcr_modality.', 
 						'.$dcr_amount.', "'.$dcr_currency.'", '.$dcr_amount_de.', 
 						'.$dcr_amount_cc.', '.$dcr_amount_acc.', '.$dcr_amount_acc_2.', 
 						'.$tipo_cm.', '.$dcr_term.', "'.$dcr_type_term.'", 
@@ -596,18 +507,18 @@ if (isset($_POST['flag'])
 						"' . date('H:i:s') . '", FALSE, "'.base64_decode($_SESSION['idUser']).'", 
 						"", "", FALSE, "", "'.$dcr_cia.'", '.$dcr_policy.', "'.$dcr_type_mov.'", 
 						'.(int)$FAC.', "'.$fac_reason.'", '.$TASA.', '.$PRIMA.', 
-						0, 0, FALSE, 1);';
+						0, 0, FALSE, 1) ;';
 						
 						$sqlCL = '';
 						
 						$sqlD = 'INSERT INTO s_de_em_detalle 
-						(`id_detalle`, `id_emision`, `id_cliente`, `porcentaje_credito`, 
-							`tasa`, `monto_banca_comunal`, `saldo`, `cumulo`, 
-							`facultativo`, `motivo_facultativo`, `aprobado`, `titular`) 
+						(id_detalle, id_emision, id_cliente, porcentaje_credito, 
+							tasa, monto_banca_comunal, saldo, cumulo, 
+							facultativo, motivo_facultativo, aprobado, titular) 
 						VALUES ';
 						/*	
 						$sqlBN = 'INSERT INTO s_de_beneficiario 
-							(`id_beneficiario`, `id_detalle`, `cobertura`, `paterno`, `materno`, `nombre`, `ci`, `id_depto`, `edad`, `parentesco`) VALUES ';
+							(id_beneficiario, id_detalle, cobertura, paterno, materno, nombre, ci, id_depto, edad, parentesco) VALUES ';
 						*/
 						$k = 0;
 						while($k < $nCl){
@@ -630,26 +541,27 @@ if (isset($_POST['flag'])
 									$rsSCl->free();
 									
 									$sqlCL .= 'update s_cliente 
-									set `paterno` = "'.$arr_cl[$k]['cl-patern'].'", `materno` = "'.$arr_cl[$k]['cl-matern'].'", 
-										`nombre` = "'.$arr_cl[$k]['cl-name'].'", `ap_casada` = "'.$arr_cl[$k]['cl-married'].'", 
-										`fecha_nacimiento` = "'.$arr_cl[$k]['cl-date'].'", 
-										`lugar_nacimiento` = "'.$arr_cl[$k]['cl-place-birth'].'", 
-										`extension` = '.$arr_cl[$k]['cl-ext'].', `complemento` = "'.$arr_cl[$k]['cl-comp'].'", 
-										`tipo_documento` = "'.$arr_cl[$k]['cl-type-doc'].'", 
-										`estado_civil` = "'.$arr_cl[$k]['cl-status'].'", 
-										`lugar_residencia` = '.$arr_cl[$k]['cl-place-res'].', 
-										`localidad` = "'.$arr_cl[$k]['cl-locality'].'", `avenida` = "'.$arr_cl[$k]['cl-avc'].'", 
-										`direccion` = "'.$arr_cl[$k]['cl-address-home'].'", 
-										`no_domicilio` = "'.$arr_cl[$k]['cl-nhome'].'", 
-										`direccion_laboral` = "'.$arr_cl[$k]['cl-address-work'].'", 
-										`pais` = "'.$arr_cl[$k]['cl-country'].'", `id_ocupacion` = '.$arr_cl[$k]['cl-occupation'].', 
-										`desc_ocupacion` = "'.$arr_cl[$k]['cl-desc-occ'].'", 
-										`telefono_domicilio` = "'.$arr_cl[$k]['cl-phone-1'].'", 
-										`telefono_oficina` = "'.$arr_cl[$k]['cl-phone-office'].'", 
-										`telefono_celular` = "'.$arr_cl[$k]['cl-phone-2'].'", 
-										`email` = "'.$arr_cl[$k]['cl-email'].'", `genero` = "'.$arr_cl[$k]['cl-gender'].'", 
-										`edad` = '.$arr_cl[$k]['cl-age'].', `mano` = "'.$arr_cl[$k]['cl-hand'].'", 
-										`peso` = '.$arr_cl[$k]['cl-weight'].', `estatura` = '.$arr_cl[$k]['cl-height'].'
+									set paterno = "'.$arr_cl[$k]['cl-patern'].'", materno = "'.$arr_cl[$k]['cl-matern'].'", 
+										nombre = "'.$arr_cl[$k]['cl-name'].'", ap_casada = "'.$arr_cl[$k]['cl-married'].'", 
+										fecha_nacimiento = "'.$arr_cl[$k]['cl-date'].'", 
+										lugar_nacimiento = "'.$arr_cl[$k]['cl-place-birth'].'", 
+										extension = '.$arr_cl[$k]['cl-ext'].', complemento = "'.$arr_cl[$k]['cl-comp'].'", 
+										tipo_documento = "'.$arr_cl[$k]['cl-type-doc'].'", 
+										estado_civil = "'.$arr_cl[$k]['cl-status'].'", 
+										lugar_residencia = '.$arr_cl[$k]['cl-place-res'].', 
+										localidad = "'.$arr_cl[$k]['cl-locality'].'", avenida = "'.$arr_cl[$k]['cl-avc'].'", 
+										direccion = "'.$arr_cl[$k]['cl-address-home'].'", 
+										no_domicilio = "'.$arr_cl[$k]['cl-nhome'].'", 
+										direccion_laboral = "'.$arr_cl[$k]['cl-address-work'].'", 
+										pais = "'.$arr_cl[$k]['cl-country'].'", id_ocupacion = '.$arr_cl[$k]['cl-occupation'].', 
+										desc_ocupacion = "'.$arr_cl[$k]['cl-desc-occ'].'", 
+										telefono_domicilio = "'.$arr_cl[$k]['cl-phone-1'].'", 
+										telefono_oficina = "'.$arr_cl[$k]['cl-phone-office'].'", 
+										telefono_celular = "'.$arr_cl[$k]['cl-phone-2'].'", 
+										email = "'.$arr_cl[$k]['cl-email'].'", genero = "'.$arr_cl[$k]['cl-gender'].'", 
+										edad = TIMESTAMPDIFF(YEAR, "' . $arr_cl[$k]['cl-date'] . '", curdate()), 
+										mano = "'.$arr_cl[$k]['cl-hand'].'", 
+										peso = '.$arr_cl[$k]['cl-weight'].', estatura = '.$arr_cl[$k]['cl-height'].'
 									WHERE id_cliente = "'.$rowSCl['idCl'].'" ;';
 									
 									$arr_cl[$k]['cl-id'] = $rowSCl['idCl'];
@@ -659,16 +571,16 @@ if (isset($_POST['flag'])
 							
 							if($flagCl === FALSE){
 								$sqlCL .= 'INSERT INTO s_cliente 
-								(`id_cliente`, `id_ef`, `tipo`, `razon_social`, 
-									`paterno`, `materno`, `nombre`, `ap_casada`, 
-									`fecha_nacimiento`, `lugar_nacimiento`, `ci`, 
-									`extension`, `complemento`, `tipo_documento`, 
-									`estado_civil`, `ci_archivo`, `lugar_residencia`, 
-									`localidad`, `avenida`, `direccion`, `no_domicilio`, 
-									`direccion_laboral`, `pais`, `id_ocupacion`, 
-									`desc_ocupacion`, `telefono_domicilio`, 
-									`telefono_oficina`, `telefono_celular`, `email`, 
-									`peso`, `estatura`, `genero`, `edad`, `mano`) 
+								(id_cliente, id_ef, tipo, razon_social, 
+									paterno, materno, nombre, ap_casada, 
+									fecha_nacimiento, lugar_nacimiento, ci, 
+									extension, complemento, tipo_documento, 
+									estado_civil, ci_archivo, lugar_residencia, 
+									localidad, avenida, direccion, no_domicilio, 
+									direccion_laboral, pais, id_ocupacion, 
+									desc_ocupacion, telefono_domicilio, 
+									telefono_oficina, telefono_celular, email, 
+									peso, estatura, genero, edad, mano) 
 							VALUES ("'.$arr_cl[$k]['cl-id'].'", "'.base64_decode($_SESSION['idEF']).'", 0, "", 
 								"'.$arr_cl[$k]['cl-patern'].'", "'.$arr_cl[$k]['cl-matern'].'", "'.$arr_cl[$k]['cl-name'].'", 
 								"'.$arr_cl[$k]['cl-married'].'", "'.$arr_cl[$k]['cl-date'].'", "'.$arr_cl[$k]['cl-place-birth'].'", 
@@ -679,7 +591,8 @@ if (isset($_POST['flag'])
 								'.$arr_cl[$k]['cl-occupation'].', "'.$arr_cl[$k]['cl-desc-occ'].'", "'.$arr_cl[$k]['cl-phone-1'].'", 
 								"'.$arr_cl[$k]['cl-phone-office'].'", "'.$arr_cl[$k]['cl-phone-2'].'", "'.$arr_cl[$k]['cl-email'].'", 
 								'.$arr_cl[$k]['cl-weight'].', '.$arr_cl[$k]['cl-height'].', "'.$arr_cl[$k]['cl-gender'].'", 
-								'.$arr_cl[$k]['cl-age'].', "'.$arr_cl[$k]['cl-hand'].'") ;';
+								TIMESTAMPDIFF(YEAR, "' . $arr_cl[$k]['cl-date'] . '", curdate()), 
+								"'.$arr_cl[$k]['cl-hand'].'") ;';
 							}
 
 							if ($bc === false) {
@@ -745,19 +658,19 @@ if (isset($_POST['flag'])
 											while($k < $nCl){
 												$k += 1;
 												$sqlQs = 'INSERT INTO s_de_em_respuesta 
-													(`id_respuesta`, `id_detalle`, `respuesta`, 
-													`observacion`, `enfermedad`, `fecha_tratamiento`, 
-													`duracion`, `tratante`, `estado`) 
+													(id_respuesta, id_detalle, respuesta, 
+													observacion, enfermedad, fecha_tratamiento, 
+													duracion, tratante, estado) 
 													SELECT "'.uniqid('@S#1$2013'.$k, true).'", 
-													"'.$arr_cl[$k]['cl-d-idd'].'", `respuesta`, 
-													"'.$arr_cl[$k]['cl-q-resp'].'", `enfermedad`, 
-													`fecha_tratamiento`, `duracion`, `tratante`, 
-													`estado` FROM s_de_cot_respuesta 
+													"'.$arr_cl[$k]['cl-d-idd'].'", respuesta, 
+													"'.$arr_cl[$k]['cl-q-resp'].'", enfermedad, 
+													fecha_tratamiento, duracion, tratante, 
+													estado FROM s_de_cot_respuesta 
 													WHERE id_respuesta = "'.$arr_cl[$k]['cl-q-idr'].'" 
 														AND id_detalle = "'.$arr_cl[$k]['cl-q-idd'].'" ;';
 												
 												//$sqlQs = 'UPDATE s_de_respuesta 
-												//	SET `observacion` = "'.$arr_cl[$k]['cl-q-resp'].'"
+												//	SET observacion = "'.$arr_cl[$k]['cl-q-resp'].'"
 												//	WHERE id_respuesta = '.$arr_cl[$k]['cl-q-idr'].' AND 
 												//		id_detalle = "'.$arr_cl[$k]['cl-q-idd'].'" ;';
 												//
@@ -812,15 +725,15 @@ if (isset($_POST['flag'])
 						///////////////////////////////////////
 						
 						$sqlC = 'update s_de_em_cabecera 
-						set `no_operacion` = "'.$dcr_opp.'", `id_prcia` = '.$dcr_prcia.', 
-							`modalidad` = '.$dcr_modality.', `monto_solicitado` = '.$dcr_amount.', 
-							`moneda` = "'.$dcr_currency.'", `monto_deudor` = '.$dcr_amount_de.', 
-							`monto_codeudor` = '.$dcr_amount_cc.', `cumulo_deudor` = '.$dcr_amount_acc.', 
-							`cumulo_codeudor` = '.$dcr_amount_acc_2.', `plazo` = '.$dcr_term.', 
-							`tipo_plazo` = "'.$dcr_type_term.'", `id_poliza` = '.$dcr_policy.', 
-							`operacion` = "'.$dcr_type_mov.'", `facultativo` = '.(int)$FAC.', 
-							`motivo_facultativo` = "'.$fac_reason.'", `tasa` = '.$TASA.', 
-							`prima_total` = '.$PRIMA.', `leido` = false, `id_certificado` = 1
+						set no_operacion = "'.$dcr_opp.'", id_prcia = '.$dcr_prcia.', 
+							modalidad = '.$dcr_modality.', monto_solicitado = '.$dcr_amount.', 
+							moneda = "'.$dcr_currency.'", monto_deudor = '.$dcr_amount_de.', 
+							monto_codeudor = '.$dcr_amount_cc.', cumulo_deudor = '.$dcr_amount_acc.', 
+							cumulo_codeudor = '.$dcr_amount_acc_2.', plazo = '.$dcr_term.', 
+							tipo_plazo = "'.$dcr_type_term.'", id_poliza = '.$dcr_policy.', 
+							operacion = "'.$dcr_type_mov.'", facultativo = '.(int)$FAC.', 
+							motivo_facultativo = "'.$fac_reason.'", tasa = '.$TASA.', 
+							prima_total = '.$PRIMA.', leido = false, id_certificado = 1
 						where id_emision = "'.$ide.'" ;';
 						
 						$sw_UCl = false;
@@ -837,25 +750,26 @@ if (isset($_POST['flag'])
 								$k += 1;
 								
 								$sqlCL = 'UPDATE s_cliente 
-									SET `paterno` = "'.$arr_cl[$k]['cl-patern'].'", `materno` = "'.$arr_cl[$k]['cl-matern'].'", 
-										`nombre` = "'.$arr_cl[$k]['cl-name'].'", `ap_casada` = "'.$arr_cl[$k]['cl-married'].'", 
-										`fecha_nacimiento` = "'.$arr_cl[$k]['cl-date'].'", 
-										`lugar_nacimiento` = "'.$arr_cl[$k]['cl-place-birth'].'", 
-										`extension` = '.$arr_cl[$k]['cl-ext'].', `complemento` = "'.$arr_cl[$k]['cl-comp'].'", 
-										`tipo_documento` = "'.$arr_cl[$k]['cl-type-doc'].'", 
-										`estado_civil` = "'.$arr_cl[$k]['cl-status'].'", 
-										`lugar_residencia` = '.$arr_cl[$k]['cl-place-res'].', 
-										`localidad` = "'.$arr_cl[$k]['cl-locality'].'", `avenida` = "'.$arr_cl[$k]['cl-avc'].'", 
-										`direccion` = "'.$arr_cl[$k]['cl-address-home'].'", 
-										`no_domicilio` = "'.$arr_cl[$k]['cl-nhome'].'", 
-										`direccion_laboral` = "'.$arr_cl[$k]['cl-address-work'].'", 
-										`pais` = "'.$arr_cl[$k]['cl-country'].'", `id_ocupacion` = '.$arr_cl[$k]['cl-occupation'].', 
-										`desc_ocupacion` = "'.$arr_cl[$k]['cl-desc-occ'].'", 
-										`telefono_domicilio` = "'.$arr_cl[$k]['cl-phone-1'].'", 
-										`telefono_oficina` = "'.$arr_cl[$k]['cl-phone-office'].'", 
-										`telefono_celular` = "'.$arr_cl[$k]['cl-phone-2'].'", 
-										`email` = "'.$arr_cl[$k]['cl-email'].'", `genero` = "'.$arr_cl[$k]['cl-gender'].'", 
-										`edad` = '.$arr_cl[$k]['cl-age'].', `mano` = "'.$arr_cl[$k]['cl-hand'].'" 
+									SET paterno = "'.$arr_cl[$k]['cl-patern'].'", materno = "'.$arr_cl[$k]['cl-matern'].'", 
+										nombre = "'.$arr_cl[$k]['cl-name'].'", ap_casada = "'.$arr_cl[$k]['cl-married'].'", 
+										fecha_nacimiento = "'.$arr_cl[$k]['cl-date'].'", 
+										lugar_nacimiento = "'.$arr_cl[$k]['cl-place-birth'].'", 
+										extension = '.$arr_cl[$k]['cl-ext'].', complemento = "'.$arr_cl[$k]['cl-comp'].'", 
+										tipo_documento = "'.$arr_cl[$k]['cl-type-doc'].'", 
+										estado_civil = "'.$arr_cl[$k]['cl-status'].'", 
+										lugar_residencia = '.$arr_cl[$k]['cl-place-res'].', 
+										localidad = "'.$arr_cl[$k]['cl-locality'].'", avenida = "'.$arr_cl[$k]['cl-avc'].'", 
+										direccion = "'.$arr_cl[$k]['cl-address-home'].'", 
+										no_domicilio = "'.$arr_cl[$k]['cl-nhome'].'", 
+										direccion_laboral = "'.$arr_cl[$k]['cl-address-work'].'", 
+										pais = "'.$arr_cl[$k]['cl-country'].'", id_ocupacion = '.$arr_cl[$k]['cl-occupation'].', 
+										desc_ocupacion = "'.$arr_cl[$k]['cl-desc-occ'].'", 
+										telefono_domicilio = "'.$arr_cl[$k]['cl-phone-1'].'", 
+										telefono_oficina = "'.$arr_cl[$k]['cl-phone-office'].'", 
+										telefono_celular = "'.$arr_cl[$k]['cl-phone-2'].'", 
+										email = "'.$arr_cl[$k]['cl-email'].'", genero = "'.$arr_cl[$k]['cl-gender'].'", 
+										edad = TIMESTAMPDIFF(YEAR, "' . $arr_cl[$k]['cl-date'] . '", curdate()), 
+										mano = "'.$arr_cl[$k]['cl-hand'].'" 
 									WHERE id_cliente = "'.$arr_cl[$k]['cl-id'].'" ;';
 								
 								if($link->query($sqlCL) === TRUE) {
@@ -865,11 +779,11 @@ if (isset($_POST['flag'])
 								}
 
 								$sqlD = 'update s_de_em_detalle 
-								set `saldo` = ' . $arr_cl[$k]['cl-residue'] . ', 
-									`cumulo` = ' . $arr_cl[$k]['cl-accumulation'] . ', 
-									`facultativo` = ' . (int)$arr_cl[$k]['cl-fac'] . ', 
-									`motivo_facultativo` = "' . $arr_cl[$k]['cl-fac-reason'] . '", 
-									`aprobado` = ' . (int)$arr_cl[$k]['cl-approved'] . '
+								set saldo = ' . $arr_cl[$k]['cl-residue'] . ', 
+									cumulo = ' . $arr_cl[$k]['cl-accumulation'] . ', 
+									facultativo = ' . (int)$arr_cl[$k]['cl-fac'] . ', 
+									motivo_facultativo = "' . $arr_cl[$k]['cl-fac-reason'] . '", 
+									aprobado = ' . (int)$arr_cl[$k]['cl-approved'] . '
 								where id_detalle = "' . $arr_cl[$k]['cl-q-idd'] . '"
 									and id_emision = "' . $ide . '"
 								;';
@@ -881,7 +795,7 @@ if (isset($_POST['flag'])
 								}
 									
 								$sqlQs = 'UPDATE s_de_em_respuesta 
-									SET `observacion` = "'.$arr_cl[$k]['cl-q-resp'].'"
+									SET observacion = "'.$arr_cl[$k]['cl-q-resp'].'"
 									WHERE id_respuesta = "'.$arr_cl[$k]['cl-q-idr'].'" AND 
 										id_detalle = "'.$arr_cl[$k]['cl-q-idd'].'" ;';
 									
@@ -892,9 +806,9 @@ if (isset($_POST['flag'])
 								}
 								/*
 								$sqlBN = 'UPDATE s_de_beneficiario 
-									SET `paterno` = "'.$arr_cl[$k]['cl-sp-patern'].'", `materno` = "'.$arr_cl[$k]['cl-sp-matern'].'", 
-										`nombre` = "'.$arr_cl[$k]['cl-sp-name'].'", `ci` = "'.$arr_cl[$k]['cl-sp-doc-id'].'", 
-										`id_depto` = '.$arr_cl[$k]['cl-sp-ext'].', `parentesco` ="'.$arr_cl[$k]['cl-sp-relation'].'" 
+									SET paterno = "'.$arr_cl[$k]['cl-sp-patern'].'", materno = "'.$arr_cl[$k]['cl-sp-matern'].'", 
+										nombre = "'.$arr_cl[$k]['cl-sp-name'].'", ci = "'.$arr_cl[$k]['cl-sp-doc-id'].'", 
+										id_depto = '.$arr_cl[$k]['cl-sp-ext'].', parentesco ="'.$arr_cl[$k]['cl-sp-relation'].'" 
 									WHERE id_beneficiario = "'.$arr_cl[$k]['cl-sp-idb'].'" AND cobertura = "SP" ;';
 								
 								if($link->query($sqlBN) === true) {
@@ -905,9 +819,9 @@ if (isset($_POST['flag'])
 								
 								if($swMo === false){
 									$sqlBN = 'UPDATE s_de_beneficiario 
-									SET `paterno` = "'.$arr_cl[$k]['cl-vg-patern'].'", `materno` = "'.$arr_cl[$k]['cl-vg-matern'].'", 
-										`nombre` = "'.$arr_cl[$k]['cl-vg-name'].'", `edad` = "'.$arr_cl[$k]['cl-vg-age'].'", 
-										`parentesco` ="'.$arr_cl[$k]['cl-vg-relation'].'"
+									SET paterno = "'.$arr_cl[$k]['cl-vg-patern'].'", materno = "'.$arr_cl[$k]['cl-vg-matern'].'", 
+										nombre = "'.$arr_cl[$k]['cl-vg-name'].'", edad = "'.$arr_cl[$k]['cl-vg-age'].'", 
+										parentesco ="'.$arr_cl[$k]['cl-vg-relation'].'"
 									WHERE id_beneficiario = "'.$arr_cl[$k]['cl-vg-idb'].'" AND cobertura = "VG" ;';
 									
 									if($link->query($sqlBN) === true) {
@@ -919,12 +833,12 @@ if (isset($_POST['flag'])
 
 								if ($swMo === false) {
 									$sqlBN = 'UPDATE s_de_beneficiario 
-									SET `paterno` = "'.$arr_cl[$k]['cl-pr-patern'].'", 
-										`materno` = "'.$arr_cl[$k]['cl-pr-matern'].'", 
-										`nombre` = "'.$arr_cl[$k]['cl-pr-name'].'", 
-										`ci` = "'.$arr_cl[$k]['cl-pr-doc-id'].'", 
-										`id_depto` = '.$arr_cl[$k]['cl-pr-ext'].', 
-										`parentesco` ="'.$arr_cl[$k]['cl-pr-relation'].'" 
+									SET paterno = "'.$arr_cl[$k]['cl-pr-patern'].'", 
+										materno = "'.$arr_cl[$k]['cl-pr-matern'].'", 
+										nombre = "'.$arr_cl[$k]['cl-pr-name'].'", 
+										ci = "'.$arr_cl[$k]['cl-pr-doc-id'].'", 
+										id_depto = '.$arr_cl[$k]['cl-pr-ext'].', 
+										parentesco ="'.$arr_cl[$k]['cl-pr-relation'].'" 
 									WHERE id_beneficiario = "'.$arr_cl[$k]['cl-pr-idb'].'" 
 										AND cobertura = "PR" ;';
 									
@@ -935,12 +849,12 @@ if (isset($_POST['flag'])
 									}
 									
 									$sqlBN = 'UPDATE s_de_beneficiario 
-									SET `paterno` = "'.$arr_cl[$k]['cl-co-patern'].'", 
-										`materno` = "'.$arr_cl[$k]['cl-co-matern'].'", 
-										`nombre` = "'.$arr_cl[$k]['cl-co-name'].'", 
-										`ci` = "'.$arr_cl[$k]['cl-co-doc-id'].'", 
-										`id_depto` = '.$arr_cl[$k]['cl-co-ext'].', 
-										`parentesco` ="'.$arr_cl[$k]['cl-co-relation'].'" 
+									SET paterno = "'.$arr_cl[$k]['cl-co-patern'].'", 
+										materno = "'.$arr_cl[$k]['cl-co-matern'].'", 
+										nombre = "'.$arr_cl[$k]['cl-co-name'].'", 
+										ci = "'.$arr_cl[$k]['cl-co-doc-id'].'", 
+										id_depto = '.$arr_cl[$k]['cl-co-ext'].', 
+										parentesco ="'.$arr_cl[$k]['cl-co-relation'].'" 
 									WHERE id_beneficiario = "'.$arr_cl[$k]['cl-co-idb'].'" 
 										AND cobertura = "CO" ;';
 								

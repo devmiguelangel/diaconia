@@ -296,7 +296,7 @@ $.fn.extend({
 					url:option.action,
 					type:option.method,
 					data:_data,
-					dataType:"json",
+					// dataType:"json",
 					async:true,
 					cache:false,
 					beforeSend: function(){
@@ -310,7 +310,7 @@ $.fn.extend({
 					},
 					success: function(result){
 						//alert(result);
-						// $(".loading").html(result);
+						$(".loading").html(result);
 						$(option.nameLoading+" img:last").after('<span class="loading-text">'+result[2]+'</span>');
 						setTimeout(function(){
 							if (result[0] === 1) {
