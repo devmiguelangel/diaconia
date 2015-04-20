@@ -212,6 +212,12 @@ if (($data_pr = $Diaconia->getDataProduct($_SESSION['idEF'])) !== false) {
 $PolicyController->setLabelData($flag, $sw, $action, $title, $title_btn, $read_new, $read_save, $read_edit);
 
 if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF'])) !== false) {
+	switch ($data[0]['cobertura']) {
+	case 'BC':
+		$bc = true;
+		break;
+	}
+
 	$n_cl = count($data);
 
 	if ($n_cl <= $max_item) {

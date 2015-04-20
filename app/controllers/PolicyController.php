@@ -249,12 +249,12 @@ class PolicyController extends Diaconia
 						$cu_amount_mess = '
 							| El monto solicitado supera el monto maximo permitido. 
 							Monto maximo permitido ' . number_format($range['amount_min'], 2, '.', ',') 
-								. ' ' . $dcr_currency . '. ';
+								. ' ' . $vars['dcr_currency'] . '. ';
 						$fac_reason .= $cu_amount_mess;
 					}
 
 					if ($bc) {
-						switch ($dcr_currency) {
+						switch ($vars['dcr_currency']) {
 						case 'BS':
 							if ($client_data['cl-fac'] === true) {
 								FacBS_bc:
@@ -460,7 +460,7 @@ class PolicyController extends Diaconia
 			$arr_cl[$k]['cl-phone-office'] 	= $this->cx->real_escape_string(trim($vars['dc-'.$k.'-phone-office']));
 			$arr_cl[$k]['cl-weight'] 		= $this->cx->real_escape_string(trim($vars['dc-'.$k.'-weight']));
 			$arr_cl[$k]['cl-height'] 		= $this->cx->real_escape_string(trim($vars['dc-'.$k.'-height']));
-			$arr_cl[$k]['cl-amount-bc'] 		= 0;
+			$arr_cl[$k]['cl-amount-bc'] 	= 0;
 			if (isset($vars['dc-'.$k.'-amount-bc'])) {
 				$arr_cl[$k]['cl-amount-bc'] 	= $this->cx->real_escape_string(trim($vars['dc-'.$k.'-amount-bc']));
 			}
