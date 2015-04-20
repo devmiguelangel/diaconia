@@ -1,5 +1,5 @@
 <?php
-function de_em_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '') {
+function de_em_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '', $type) {
     $emitir = (boolean)$row['emitir'];
 
     if ($emitir === true) {
@@ -9,15 +9,8 @@ function de_em_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '
     }
 
     $row['fecha_emision'] = $row['u_departamento'] . ', ' . date('d/m/Y', strtotime($row['fecha_emision']));
-
-    ob_start();
-?>
-<div id="container-c" style="width: 785px; height: auto; 
-    border: 0px solid #0081C2; padding: 5px;">
-    <div id="main-c" style="width: 775px; font-weight: normal; font-size: 12px; 
-        font-family: Arial, Helvetica, sans-serif; color: #000000;">
-<?php
-    $nCl = $rsDt->num_rows;
+	
+	$nCl = $rsDt->num_rows;
     $_coverage = (int)$row['cobertura'];
 
     $coverage = array('', '', '');
@@ -30,1442 +23,1992 @@ function de_em_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '
         }
         break;
     case 2:
-        $coverage[2] = 'X';
+        $coverage[2] = '';
         break;
     }
 
     $k = 0;
-    $nbc = '';
-    while ($rowDt = $rsDt->fetch_array(MYSQLI_ASSOC)) {
-        $show_fac = true;
-        $show_tit = true;
-        $k += 1;
-
-        $status = $rowDt['estado_civil'];
-        $from = '';
-
-        /*if ($status === 'CAS' || $status === 'VIU') {
-            $rowDt['materno'] = '';
-        } else {
-            $rowDt['ap_casada'] = '';
-        }*/
-
-        if ($_coverage === 2) {
-            if ((boolean)$rowDt['facultativo'] === true) {
-                $detalle_f = array();
-                $detalle_p = array();
-
-                $detalle_f = json_decode($rowDt['detalle_f'], true);
-
-                if ((boolean)$rowDt['aprobado'] === true && $emitir === true) {
-                    if (count($detalle_f) > 0) {
-                        Det_fac:
-                        $row['aprobado'] = $detalle_f['aprobado'];
-                        $row['tasa_recargo'] = $detalle_f['tasa_recargo'];
-                        $row['porcentaje_recargo'] = $detalle_f['porcentaje_recargo'];
-                        $row['tasa_actual'] = $detalle_f['tasa_actual'];
-                        $row['tasa_final'] = $detalle_f['tasa_final'];
-                        $row['observacion'] = $detalle_f['observacion'];
-                    }
-                } else {
-                    if ($emitir === true) {
-                        $show_tit = false;
-                        $k = $k - 1;
-                    }
-
-                    $row['motivo_facultativo'] = $rowDt['motivo_facultativo'];
-                    
-                    if (count($detalle_f) > 0 && $emitir === true) {
-                        goto Det_fac;
-                    }
-                    //$detalle_p = json_decode($rowDt['detalle_p'], true);
-
-                    // if (count($detalle_p) > 0) {
-                    // }
-                }
-            } else {
-                $show_fac = false;
-            }
-
-            $nbc = ' - ' . $k;
-        }
-        
-        $ci = array('', '');
-        switch ($rowDt['tipo_documento']) {
-        case 'CI':
-            $ci[0] = 'X';
-            break;        
-        default:
-            $ci[1] = 'X';
-            break;
-        }
-
-        $sex = array('', '');
-        switch ($rowDt['genero']) {
-        case 'M':
-            $sex[0] = 'X';
-            break;
-        case 'F':
-            $sex[1] = 'X';
-            break;
-        }
-
-        $res = json_decode($rowDt['respuesta'], true);
-        $obs = json_decode($rowDt['observacion'], true);
-
-        if ($show_tit === true) {
+    
+    ob_start();
 ?>
-       <div style="width: 775px; border: 0px solid #FFFF00; ">
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-family: Arial;">
-                <tr>
-                    <td style="width: 80%; text-align: left; font-style: italic; 
-                        font-size: 180%; " >
-                        Declaración de Salud y/o Solicitud de Seguro de Desgravamen
-                    </td>
-                    <td style="width: 20%;">
-                        <img src="<?=$url;?>images/<?=$row['logo_cia'];?>" 
-                            height="40" class="container-logo" align="left" />
-                    </td>
-                </tr>
-                <!--<tr>
-                    <td style="width: 100%;" colspan="2">
-                        (Llenar si el Saldo Deudor en créditos con el Tomador + el crédito 
-                        solicitado es mayor a US$. 15,000.00)
-                    </td>
-                </tr>-->
-                <tr>
-                    <td style="width: 100%; text-align: right; font-size: 120%; color: #F00;" colspan="2">
-                        N° <?=$row['no_emision'] . $nbc;?>
-                    </td>
-                </tr>
-            </table>
-            <br>
-
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 85%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 20%; font-size: 130%; font-weight: bold; ">Tipo de Seguro</td>
-                    <td style="width: 5%;" align="center">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$coverage[0];?>
-                        </div>
-                    </td>
-                    <td style="width: 20%;">Individual</td>
-                    <td style="width: 5%;" align="center">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$coverage[1];?>
-                        </div>
-                    </td>
-                    <td style="width: 20%;">Mancomunada</td>
-                    <td style="width: 5%;" align="center">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$coverage[2];?>
-                        </div>
-                    </td>
-                    <td style="width: 25%;">Otros</td>
-                </tr>
-            </table>
-            <br>
-
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 50%;">
-                        Favor utilice letra de imprenta y legible.
-                        <!--Si hubiese más solicitantes (cotitulares), deben completar Declaraciones de Salud adicionales.-->
-                    </td>
-                    <td style="width: 50%;">
-                        <table cellpadding="0" cellspacing="0" border="0" 
-                            style="width: 100%; font-size: 100%; ">
-                            <tr>
-                                <td style="width: 20%;">Lugar y Fecha</td>
-                                <td style="width: 80%; border-bottom: 1px solid #000;
-                                    border-right: 1px solid #000; font-weight: bold; font-size: 120%; ">
-                                    <?=$row['fecha_emision'];?>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <!--<tr>
-                    <td style="width: 100%;" colspan="2">
-                        Favor utilice letra de imprenta y legible.
-                    </td>
-                </tr>-->
-            </table>
-        </div>
-        <br>
-
-        <div style="text-align: left; font-size: 90%; font-weight: bold;">
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 100%; background: #000; color: #fff;" colspan="4" >
-                        DATOS PERSONALES - TITULAR
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 25%; height: 10px; ">Nombres</td>
-                    <td style="width: 25%;">Apellido Paterno</td>
-                    <td style="width: 25%;">Apellido Materno</td>
-                    <td style="width: 25%;">Apellido de Casada</td>
-                </tr>
-                <tr>
-                    <td style="width: 25%; height: 10px; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000;">
-                        <?=$rowDt['nombre'];?>&nbsp;
-                    </td>
-                    <td style="width: 25%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$rowDt['paterno'];?>&nbsp;
-                    </td>
-                    <td style="width: 25%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$rowDt['materno'];?>&nbsp;
-                    </td>
-                    <td style="width: 25%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$rowDt['ap_casada'];?>&nbsp;
-                    </td>
-                </tr>
-            </table>
-
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 33%;">Fecha de nacimiento</td>
-                    <td style="width: 34%;">Peso (Kg.)</td>
-                    <td style="width: 33%;">Talla (m.)</td>
-                </tr>
-                <tr>
-                    <td style="width: 33%; height: 10px; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000;">
-                        <?=date('d/m/Y', strtotime($rowDt['fecha_nacimiento']));?>
-                    </td>
-                    <td style="width: 34%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$rowDt['peso'];?>
-                    </td>
-                    <td style="width: 33%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$rowDt['estatura'] / 100;?>
-                    </td>
-                </tr>
-            </table>
-
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 30%; height: 10px; font-weight: bold; ">Tipo de Documento</td>
-                    <td style="width: 20%;"></td>
-                    <td style="width: 15%;"></td>
-                    <td style="width: 35%;">Sexo</td>
-                </tr>
-                <tr>
-                    <td style="width: 30%; height: 10px; ">
-                        <table cellpadding="0" cellspacing="0" border="0" 
-                            style="width: 100%; font-size: 100%; ">
-                            <tr>
-                                <td style="width: 20%;" align="center">
-                                    <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                                        <?=$ci[0];?>
-                                    </div>
-                                </td>
-                                <td style="width: 30%;">CI</td>
-                                <td style="width: 10%;">
-                                    <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                                        <?=$ci[1];?>
-                                    </div>
-                                </td>
-                                <td style="width: 20%;">Otro</td>
-                                <td style="width: 20%; text-align: right;">
-                                    N° Ext.
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td style="width: 20%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$rowDt['dni'] . $rowDt['complemento'];?>
-                    </td>
-                    <td style="width: 15%; border-left: 1px solid #000; border-bottom: 1px solid #000;
-                        border-right: 1px solid #000;">
-                        <?=$rowDt['extension'];?>
-                    </td>
-                    <td style="width: 35%; ">
-                        <table cellpadding="0" cellspacing="0" border="0" 
-                            style="width: 100%; font-size: 100%; ">
-                            <tr>
-                                <td style="width: 25%;" align="center">
-                                    Mujer
-                                </td>
-                                <td style="width: 25%;">
-                                    <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                                        <?=$sex[1];?>
-                                    </div>
-                                </td>
-                                <td style="width: 25%;">Hombre</td>
-                                <td style="width: 25%;">
-                                    <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                                        <?=$sex[0];?>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 55%; height: 10px; ">Dirección</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 17%;">Barrio / Zona</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 18%;">Ciudad / Localidad</td>
-                </tr>
-                <tr>
-                    <td style="width: 55%; height: 10px; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$rowDt['direccion'];?>&nbsp;
-                    </td>
-                    <td style="width: 5%; "></td>
-                    <td style="width: 17%; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        &nbsp;
-                    </td>
-                    <td style="width: 5%; "></td>
-                    <td style="width: 18%; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$rowDt['lugar_residencia'];?>&nbsp;
-                    </td>
-                </tr>
-            </table>
-
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 12%; height: 10px; ">Telf. Dom.</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 11%;">Telf. Oficina</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 12%;">Tel. Celular</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 50%;">Actividad principal que desempeña</td>
-                </tr>
-                <tr>
-                    <td style="width: 12%; height: 10px; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$rowDt['telefono_domicilio'];?>&nbsp;
-                    </td>
-                    <td style="width: 5%; "></td>
-                    <td style="width: 11%; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$rowDt['telefono_oficina'];?>&nbsp;
-                    </td>
-                    <td style="width: 5%; "></td>
-                    <td style="width: 12%; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$rowDt['telefono_celular'];?>&nbsp;
-                    </td>
-                    <td style="width: 5%; "></td>
-                    <td style="width: 50%; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$rowDt['ocupacion'] . ' - ' . $rowDt['desc_ocupacion'];?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 100%;" colspan="7">
-                        <span style="font-weight: bold;">Nota</span> : 
-                        Los nombres y apellidos deben aparecer como en el documento de identidad.
-                    </td>
-                </tr>
-            </table>
-
-        </div>
-        <br>
+<div id="container-c" style="width: 785px; height: auto; 
+    border: 0px solid #0081C2; padding: 5px;">
+    <div id="main-c" style="width: 775px; font-weight: normal; font-size: 12px; 
+        font-family: Arial, Helvetica, sans-serif; color: #000000;">
 <?php
-        $response = array(
-            1 => array('', ''),
-            2 => array('', ''),
-            3 => array('', ''),
-            4 => array('', ''),
-            5 => array('', ''),
-            6 => array('', ''),
-            7 => array('', ''),
-            8 => array('', ''),
-            );
-
-        $res_client = json_decode($rowDt['respuesta'], true);
-
-        foreach ($res_client as $key => $value) {
-            $res = explode('|', $value);
+if($_coverage === 1){
+?>
+        <div style="width: 775px; border: 0px solid #FFFF00; text-align:center;">
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-family: Arial;">
+                <tr>
+                  <td style="width:100%; text-align:left;">
+                     <img src="<?=$url;?>images/<?=$row['logo_cia'];?>" height="60"/>
+                  </td> 
+                </tr>
+                <tr>
+                  <td style="width:100%; font-weight:bold; text-align:center; font-size: 80%;">
+                     DECLARACIÓN JURADA DE SALUD Nº<br />SOLICITUD DE SEGURO DE DESGRAVAMEN HIPOTECARIO
+                  </td> 
+                </tr>
+            </table>     
+        </div>
+        <br/>
+        
+        <div style="width: 775px; border: 0px solid #FFFF00;">
+			<span style="font-weight:bold; font-size:75%;">
+            Estimado Cliente, agradeceremos completar la información que se requiere a continuación: (utilice letra clara)<br>
+<?php
+     $titular=array();  
+     if($rsDt->data_seek(0)){ 
+	     while($rowcl = $rsDt->fetch_array(MYSQLI_ASSOC)){
+		    $k += 1;
+			$titular[$k]=$rowcl['nombre'].' '.$rowcl['paterno'].' '.$rowcl['materno'];  
+?>             
+            DATOS PERSONALES: (TITULAR <?=$k;?>):</span> 
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px; padding-bottom:3px;">
+                <tr> 
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size: 100%;">
+                        <tr>
+                          <td style="width:13%;">Nombres Completo: </td>
+                          <td style="border-bottom: 1px solid #333; width:87%;">
+                             <?=$rowcl['nombre_completo'];?> 
+                          </td>
+                        </tr>
+                     </table>
+                  </td>      
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                        <tr>
+                          <td style="width:19%;">Lugar y Fecha de Nacimiento: </td>
+                          <td style="border-bottom: 1px solid #333; width:81%;">
+                             <?=$rowcl['lugar_nacimiento'].' '.$rowcl['fecha_nacimiento'];?> 
+                          </td>
+                        </tr>
+                      </table>                                  
+                  </td>
+                </tr>   
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                        <tr>
+                          <td style="width:13%;">Carnet de Identidad: </td>
+                          <td style="border-bottom: 1px solid #333; width:39%;">
+                             <?=$rowcl['dni'].$rowcl['complemento'].$rowcl['extension'];?> 
+                          </td>
+                          <td style="width:4%;">Edad: </td>
+                          <td style="width:11%; border-bottom: 1px solid #333; text-align:center;">
+                              <?=$rowcl['edad'];?>
+                          </td>
+                          <td style="width:4%;">Peso: </td>
+                          <td style="width:11%; border-bottom: 1px solid #333; text-align:center;">
+                              <?=$rowcl['peso'];?>
+                          </td>
+                          <td style="width:6%;">Estatura: </td>
+                          <td style="width:12%; border-bottom: 1px solid #333; text-align:center;">
+                              <?=$rowcl['estatura'];?>
+                          </td>   
+                        </tr>
+                      </table> 
+                  </td>              
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                           <td style="width: 6%;">Dirección: </td>
+                           <td style="width: 41%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['direccion'];?>
+                           </td>
+                           <td style="width: 6%;">Tel Dom: </td>
+                           <td style="width: 15%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['telefono_domicilio'];?>
+                           </td>
+                           <td style="width: 7%;">Telf Oficina: </td>
+                           <td style="width: 15%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['telefono_oficina']?>
+                           </td>
+                         </tr>
+                      </table> 
+                  </td> 
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                          <td style="width:7%;">Ocupación: </td>
+                          <td style="width:93%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['ocupacion'];?>
+                          </td> 
+                         </tr> 
+                      </table>
+                  </td>     
+                </tr> 
+            </table>
+<?php
+		 }
+	 }
+	 if($nCl === 1){
+		 $titular[2]='';
+?>            
+            <span style="font-weight:bold; font-size:75%;">DATOS PERSONALES: (TITULAR 2)</span>
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px; padding-bottom:3px;">
+                <tr> 
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size: 100%;">
+                        <tr>
+                          <td style="width:13%;">Nombres Completo: </td>
+                          <td style="border-bottom: 1px solid #333; width:87%;">&nbsp;
+                              
+                          </td>
+                        </tr>
+                     </table>
+                  </td>      
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                        <tr>
+                          <td style="width:19%;">Lugar y Fecha de Nacimiento: </td>
+                          <td style="border-bottom: 1px solid #333; width:81%;">&nbsp;
+                              
+                          </td>
+                        </tr>
+                      </table>                                  
+                  </td>
+                </tr>   
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                        <tr>
+                          <td style="width:13%;">Carnet de Identidad: </td>
+                          <td style="border-bottom: 1px solid #333; width:39%;">&nbsp;
+                              
+                          </td>
+                          <td style="width:4%;">Edad: </td>
+                          <td style="width:11%; border-bottom: 1px solid #333;">&nbsp;
+                              
+                          </td>
+                          <td style="width:4%;">Peso: </td>
+                          <td style="width:11%; border-bottom: 1px solid #333;">&nbsp;
+                              
+                          </td>
+                          <td style="width:6%;">Estatura: </td>
+                          <td style="width:12%; border-bottom: 1px solid #333;">&nbsp;
+                              
+                          </td>   
+                        </tr>
+                      </table> 
+                  </td>              
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                           <td style="width: 7%;">Dirección: </td>
+                           <td style="width: 50%; border-bottom: 1px solid #333;">&nbsp;
+                             
+                           </td>
+                           <td style="width: 7%;">Tel Dom: </td>
+                           <td style="width: 14%; border-bottom: 1px solid #333;">&nbsp;
+                             
+                           </td>
+                           <td style="width: 8%;">Telf Oficina: </td>
+                           <td style="width: 14%; border-bottom: 1px solid #333;">&nbsp;
+                             
+                           </td>
+                         </tr>
+                      </table> 
+                  </td> 
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                          <td style="width:7%;">Ocupación: </td>
+                          <td style="width:93%; border-bottom: 1px solid #333;">&nbsp;
+                             
+                          </td> 
+                         </tr> 
+                      </table>
+                  </td>     
+                </tr> 
+            </table>
+<?php
+	 }
+?>            
+            <span style="font-weight:bold; font-size:75%;">DEL CRÉDITO SOLICITADO:</span> 
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px; padding-bottom:6px;">
+               <tr><td colspan="3" style="width:100%; text-align:left;">Usted(es) solicita(n) el seguro de tipo:</td></tr>
+               <tr><td style="width:100%; padding:3px;" colspan="3"></td></tr>
+               <tr>
+                  <td style="width:15%; text-align:left;">Individual</td>
+                  <td style="width:6%;">
+                    <div style="width: 25px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$coverage[0];?>
+                     </div> 
+                  </td>
+                  <td style="width:79%; text-align:left;">
+                      si marca esta opción, sólo debe completar la información requerida al TITULAR 1
+                  </td>
+               </tr>
+               <tr><td style="width:100%; padding:3px;" colspan="3"></td></tr>
+               <tr>
+                  <td style="width:15%; text-align:left;">Mancomunada</td>
+                  <td style="width:6%;">
+                    <div style="width: 25px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$coverage[1];?>
+                     </div> 
+                  </td>
+                  <td style="width:79%; text-align:left;">
+                      si marca esta opción, sólo debe completar la información requerida al TITULAR 1 y TITULAR 2
+                  </td>
+               </tr>
+               <tr>
+                  <td style="width:100%; padding-top:8px;" colspan="3">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                          <td style="width:20%;">Monto Actual solicitado en <?=$row['moneda'];?>: </td>
+                          <td style="width:30%; border-bottom: 1px solid #333;">
+                             <?=$row['monto_solicitado'];?>
+                          </td>
+                          <td style="width:20%;">Monto Actual Acumulado <?=$row['moneda']?>: </td>
+                          <td style="width:30%; border-bottom: 1px solid #333;">
+                             <?=$row['cumulo_deudor'];?>
+                          </td>  
+                         </tr> 
+                      </table>
+                  </td>
+               </tr>
+               <tr>
+                  <td style="width:100%; padding-top:6px;" colspan="3">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                          <td style="width:18%;">Plazo del presente crédito: </td>
+                          <td style="width:82%; border-bottom: 1px solid #333;">
+                             <?=$row['plazo'].' '.$row['tipo_plazo'];?>
+                          </td>  
+                         </tr> 
+                      </table>
+                  </td>
+               </tr>    
+            </table>     
             
-            switch ((int)$res[1]) {
-            case 1:
-                $response[(int)$res[0]] = array('X', '');
-                break;
-            case 0:
-                $response[(int)$res[0]] = array('', 'X');
-                break;
-            }
-        }
-?>
-        <div style="width: 775px; border: 0px solid #FFFF00; ">
+            <span style="font-weight:bold; font-size:75%;">CUESTIONARIO</span>
             <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 100%; background: #000; color: #fff;" colspan="5" >
-                        DECLARACIÓN DE SALUD DE LA PERSONA (Marque la respuesta según corresponda)
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 15%; height: 10px; "></td>
-                    <td style="width: 70%;"></td>
-                    <td style="width: 10%; text-align: center; border-top: 0px solid #000;
-                        border-bottom: 0px solid #000; border-left: 0px solid #000; 
-                        border-right: 0px solid #000;" colspan="2"></td>
-                    <td style="width: 5%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 15%; height: 10px; "></td>
-                    <td style="width: 70%;"></td>
-                    <td style="width: 5%; text-align: center; border-top: 1px solid #000; 
-                        border-left: 1px solid #000;">SI</td>
-                    <td style="width: 5%; text-align: center; border-top: 1px solid #000;
-                        border-right: 1px solid #000;">NO</td>
-                    <td style="width: 5%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 15%; height: 10px; text-align: right;">
-                        1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </td>
-                    <td style="width: 70%;">
-                        <!--¿Ha padecido o padece cualquier enfermedad que requiera tratamiento, medicación o control frecuente?-->
-                        ¿Ha padecido o padece cualquier enfermedad?
-                    </td>
-                    <td style="width: 5%; border-left: 1px solid #000;">
-                        <div style="width: 10px; height: 10px; margin-left: 12px; border: 1px solid #000;">
-                            <?=$response[1][0];?>
-                        </div>
-                    </td>
-                    <td style="width: 5%; border-right: 1px solid #000;">
-                        <div style="width: 10px; height: 10px; margin-left: 12px; border: 1px solid #000;">
-                            <?=$response[1][1];?>
-                        </div>
-                    </td>
-                    <td style="width: 5%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 15%; height: 10px; text-align: right;">
-                        2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </td>
-                    <td style="width: 70%;">
-                        ¿Tiene algún defecto físico o congénito?
-                    </td>
-                    <td style="width: 5%; border-left: 1px solid #000;">
-                        <div style="width: 10px; height: 10px; margin-left: 12px; border: 1px solid #000;">
-                            <?=$response[2][0];?>
-                        </div>
-                    </td>
-                    <td style="width: 5%; border-right: 1px solid #000;">
-                        <div style="width: 10px; height: 10px; margin-left: 12px; border: 1px solid #000;">
-                            <?=$response[2][1];?>
-                        </div>
-                    </td>
-                    <td style="width: 5%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 15%; height: 10px; text-align: right;">
-                        3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </td>
-                    <td style="width: 70%;">
-                        ¿Le han detectado algún tumor o efectuado alguna prueba para descartar cáncer?
-                    </td>
-                    <td style="width: 5%; border-left: 1px solid #000;">
-                        <div style="width: 10px; height: 10px; margin-left: 12px; border: 1px solid #000;">
-                            <?=$response[3][0];?>
-                        </div>
-                    </td>
-                    <td style="width: 5%; border-right: 1px solid #000;">
-                        <div style="width: 10px; height: 10px; margin-left: 12px; border: 1px solid #000;">
-                            <?=$response[3][1];?>
-                        </div>
-                    </td>
-                    <td style="width: 5%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 15%; height: 10px; text-align: right;">
-                        4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </td>
-                    <td style="width: 70%;">
-                        ¿Ha sido sometido o le recomendaron alguna operación quirúrgica (en los últimos 5 años)?
-                    </td>
-                    <td style="width: 5%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <div style="width: 10px; height: 10px; margin-left: 12px; border: 1px solid #000;">
-                            <?=$response[4][0];?>
-                        </div>
-                    </td>
-                    <td style="width: 5%; border-right: 1px solid #000; border-bottom: 1px solid #000;">
-                        <div style="width: 10px; height: 10px; margin-left: 12px; border: 1px solid #000;">
-                            <?=$response[4][1];?>
-                        </div>
-                    </td>
-                    <td style="width: 5%;"></td>
-                </tr>
-                <tr>
-                    <td colspan="5">
-                        <br>
-                        En caso de marcar SÍ en alguna de las preguntas 1 a 4, detallar las mismas 
-                        señalando además cuándo ocurrió, duración, tratamiento, fecha de curación,
-                        secuelas, observaciones u otros.
-                    </td>
-                </tr>
-                <!--<tr>
-                    <td style="width: 15%; height: 10px; ">TITULAR</td>
-                    <td style="width: 85%; border-bottom: 1px solid #000;" colspan="4">
-                        <?=$rowDt['observacion'];?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 15%; height: 10px; "></td>
-                    <td style="width: 85%; border-bottom: 1px solid #000;" colspan="4"></td>
-                </tr>
-                -->
-            </table>
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 95%; height: 8px; border-bottom: 1px solid #000;">
-                        <?=$rowDt['observacion'];?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 95%; height: 8px; border-bottom: 1px solid #000;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 95%; height: 8px; border-bottom: 1px solid #000;"></td>
-                </tr>
-            </table>
-            <br>
-        </div>
-
-        <div style="width: 775px; border: 0px solid #FFFF00; font-size: 75%;">
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 100%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 100%; background: #000; color: #fff;">
-                        DECLARACIONES Y AUTORIZACIONES
-                    </td>
-                </tr>
-            </table>
-            <br>
-
-            a)<span style="margin:0 15px;">Declaro</span> que las respuestas que he consignado 
-            en esta solicitud son verdaderas y completas y que es de mi conocimiento que 
-            cualquier declaración falsa, inexacta, omitida u oculta, hará perder todos los 
-            beneficios del seguro.
-            <br>
-            b)<span style="margin:0 15px;">Igualmente</span> declaro haber leído y estar de 
-            acuerdo con el Certificado de Cobertura Individual, que entrará en vigencia una 
-            vez aceptada la solicitud y desembolsado el crédito.
-            <br>
-            c)<span style="margin:0 15px;">Declaro</span> beneficiario a título oneroso de 
-            esta póliza al Tomador, para el pago de la suma asegurada existente, en caso de 
-            siniestro cubierto de acuerdo a los términos y condiciones del Seguro.
-            <br>
-            d)<span style="margin:0 15px;">Autorizo</span> a los médicos, clínicas, hospitales 
-            y otros centros de salud que me hayan atendido o que me atiendan en el futuro, para 
-            que proporcionen a Crediseguro S.A. Seguros Personales, todos los resultados de los 
-            informes referentes a mi salud, en caso de enfermedad o accidente, para lo cual 
-            releva a dichos médicos y centros médicos en relación con su secreto profesional, 
-            de toda responsabilidad en que pudiera incurrir al proporcionar tales informes. 
-            Asimismo, autorizo a Crediseguro S.A. Seguros Personales a proporcionar estos 
-            resultados al Tomador.
-            <br>
-            e)<span style="margin:0 15px;">El</span> ASEGURADO se compromete a realizarse las 
-            pruebas médicas que solicite La Compañía, incluyendo las de VIH/SIDA, de ser el caso, 
-            y autoriza a cualquier médico, hospital, clínica, compañía de seguros u otra 
-            institución o persona que tenga conocimiento o registros de su persona o salud, 
-            para que pueda dar cualquier información solicitada por La Compañía, incluyendo la 
-            referida al VIH/SIDA.
-            <br>
-            f)<span style="margin:0 15px;">EL</span> ASEGURADO acepta la presentación, con 
-            calidad de Declaración Jurada, de la documentación de respaldo que solicitara La 
-            Compañía misma que será requerida en virtud a la obligación normativa regulatoria 
-            que éste mantiene respecto a los controles e informes que realiza por instrucción 
-            de la Unidad de Investigaciones Financieras u otras entidades fiscalizadoras.
-            <br>
-            La firma de la presente Solicitud manifiesta de manera explícita voluntaria mi intención 
-            de tomar el seguro, cuyas condiciones generales conozco y cumplir con el pago de las primas 
-            correspondientes, sólo si la solicitud fuera aceptada por la Compañía.
-            <br>
-            <span style="font-weight: bold;">NOTA</span>: La Compañía se reserva el derecho de 
-            solicitar examen (es) médico (s) o confirmación adicional.
-            <br><br><br><br><br><br><br>
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 33%;"></td>
-                    <td style="width: 34%; border-top: 1px solid #000; text-align: center;">
-                        FIRMA DEL SOLICITANTE (TITULAR)
-                        <br><br>
-                    </td>
-                    <td style="width: 33%;"></td>
-                </tr>
-            </table>
-
-        </div>
+               cellpadding="0" cellspacing="0" border="0" 
+               style="width: 100%; height: auto; font-size: 75%; font-family: Arial;">
+               <tr>
+                  <td style="width:63%;"></td>
+                  <td style="width:16%; text-align:center;" colspan="4">TITULAR 1</td>
+                  <td style="width:5%;">&nbsp;</td>
+                  <td style="width:16%; text-align:center;" colspan="4">TITULAR 2</td>
+               </tr>
 <?php
-        $currency = array('', '');
-        switch ($row['moneda']) {
-        case 'USD':
-            $currency[0] = 'X';
-            break;
-        case 'BS':
-            $currency[1] = 'X';
-            break;
-        }
-
-        if ($_coverage === 2) {
-            $row['monto_solicitado'] = $rowDt['monto_bc'];
-        }
-
-        $product = array('', '', '', '');
-        switch ((int)$row['id_prcia']) {
-        case 6:
-            $product[0] = 'X';
-            break;
-        case 7:
-            $product[0] = 'X';
-            break;
-        case 2:
-            $product[1] = 'X';
-            break;
-        case 5:
-            $product[2] = 'X';
-            break;
-        default:
-            $product[3] = 'X';
-            break;
-        }
-        
-?>
-        <div style="width: 775px; border: 0px solid #FFFF00; ">
+      if($rsDt->data_seek(0)){
+		  $cont = 0;
+          $rsCl_1 = array();
+          $rsCl_2 = array();
+		  while($rowrp=$rsDt->fetch_array(MYSQLI_ASSOC)){
+			  $cont += 1;
+			  if($cont === 1) {
+				  $rsCl_1 = json_decode($rowrp['respuesta'],TRUE);
+			  } elseif($cont === 2) {
+				  $rsCl_2 = json_decode($rowrp['respuesta'],TRUE);
+			  }
+		  }  
+	  }
+	  if (($rsQs = $link->get_question($_SESSION['idEF'])) !== FALSE) {
+		  $resp1_yes = $resp1_no = '';	$resp2_yes = $resp2_no = '';
+		  while($rowQs = $rsQs->fetch_array(MYSQLI_ASSOC)){
+			  if(count($rsCl_1) > 0){
+				  $respCl = explode('|',$rsCl_1[$rowQs['id_pregunta']]);
+				  if($rowQs['id_pregunta'] === $respCl[0]){
+					  if($respCl[1] == 1) {
+						  $resp1_yes = 'X';
+					  } elseif($respCl[1] == 0) {
+						  $resp1_no = 'X';
+					  }
+				  }
+			  }
+			  
+			  if(count($rsCl_2) > 0){
+				  $respCl = explode('|',$rsCl_2[$rowQs['id_pregunta']]);
+				  if($rowQs['id_pregunta'] === $respCl[0]){
+					  if($respCl[1] == 1) {
+						  $resp2_yes = 'X';
+					  } elseif($respCl[1] == 0) {
+						  $resp2_no = 'X';
+					  }
+				  }
+			  }
+?>               
+               <tr>
+                  <td style="width:63%; text-align:left;">
+                      <?=$rowQs['orden'].' '.$rowQs['pregunta'];?>
+                  </td>
+                  <td style="width:3%;">SI</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp1_yes;?>
+                     </div> 
+                  </td>
+                  <td style="width:3%;">NO</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp1_no;?>
+                     </div> 
+                  </td>
+                  <td style="width:5%;">&nbsp;</td>
+                  <td style="width:3%;">SI</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp2_yes;?>
+                     </div> 
+                  </td>
+                  <td style="width:3%;">NO</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp2_no;?>
+                     </div> 
+                  </td>
+               </tr>
+<?php              
+		  }
+	  }
+?>               
+                
+            </table> <br>
+            
+            <span style="font-weight:bold; font-size:75%;">SI ALGUNA DE SUS RESPUESTAS ES AFIRMATIVA, FAVOR BRINDAR DETALLES:</span>
             <table 
                 cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 100%; background: #000; color: #fff;" colspan="4">
-                        DATOS A SER LLENADOS POR LA ENTIDAD FINANCIERA
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 5%; height: 5px;"></td>
-                    <td style="width: 10%;"></td>
-                    <td style="width: 45%;"></td>
-                    <td style="width: 40%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 10%;">Tipo de Crédito:</td>
-                    <td style="width: 45%; border-right: 1px solid #000; 
-                        border-bottom: 1px solid #000; height: 15px;">
-                        <?=$row['tipo_credito'];?>
-                    </td>
-                    <td style="width: 40%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 10%; height: 15px;">Moneda:</td>
-                    <td style="width: 45%;">
-                        <table cellpadding="0" cellspacing="0" border="0" 
-                            style="width: 100%; font-size: 100%;" >
-                            <tr>
-                                <td style="width: 20%; text-align: center;">Dólares</td>
-                                <td style="width: 20%;">
-                                    <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                                        <?=$currency[0];?>
-                                    </div>
-                                </td>
-                                <td style="width: 20%;">Bolivianos</td>
-                                <td style="width: 20%;">
-                                    <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                                        <?=$currency[1];?>
-                                    </div>
-                                </td>
-                                <td style="width: 20%;"></td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td style="width: 40%;"></td>
-                </tr>
-            </table>
-            <table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%;">1. Cúmulo de desembolsos anteriores (no incluye esta operación)</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%;">Funcionario (nombre completo)</td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%; height: 11px; border-left: 1px solid #000;
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=number_format($rowDt['saldo'], 2, '.', ',');?>
-                    </td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%; height: 11px; border-left: 1px solid #000;
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$row['u_nombre'];?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%;">2. Monto actual solicitado</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%;">Sucursal</td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%; height: 11px; border-left: 1px solid #000;
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=number_format($row['monto_solicitado'], 2, '.', ',');?>
-                    </td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%; height: 11px; border-left: 1px solid #000;
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$row['u_departamento'];?>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%;">Monto actual acumulado (1+2)</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%;">Plazo del presente crédito</td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%; height: 11px; border-left: 1px solid #000;
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=number_format($rowDt['cumulo'], 2, '.', ',');?>
-                    </td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%; height: 11px; border-left: 1px solid #000;
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=$row['plazo'] . ' ' . $row['tipo_plazo'];?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%;"></td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 45%;">
-                        <table cellpadding="0" cellspacing="0" border="0" 
-                            style="width: 100%; font-size: 100%;">
-                            <tr>
-                                <td style="width: 20%;"></td>
-                                <td style="width: 60%;">Sello y Firma</td>
-                                <td style="width: 20%;"></td>
-                            </tr>
-                            <tr>
-                                <td style="width: 20%; height: 15px; "></td>
-                                <td style="width: 60%; border-left: 1px solid #000; 
-                                    border-bottom: 1px solid #000; border-right: 1px solid #000;"></td>
-                                <td style="width: 20%;"></td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-
-            <!--<table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 100%; background: #000; color: #fff;" colspan="10">
-                        DATOS A SER LLENADOS POR LA ENTIDAD FINANCIERA
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 20%;" colspan="2">
-                        Tipo de Operación Solicitada:
-                    </td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 10%; text-align: right;">Única/Primera</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            X
-                        </div>
-                    </td>
-                    <td style="width: 10%; text-align: right;">Adicional</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;"></div>
-                    </td>
-                    <td style="width: 15%; text-align: right;">Línea de Crédito</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;"></div>
-                    </td>
-                    <td style="width: 20%;">Funcionario:</td>
-                </tr>
-                <tr>
-                    <td style="width: 10%;">Tipo de Crédito</td>
-                    <td style="width: 10%; text-align: right;">Hipotecario</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$product[0];?>
-                        </div>
-                    </td>
-                    <td style="width: 10%; text-align: right;">Comercial</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$product[1];?>
-                        </div>
-                    </td>
-                    <td style="width: 10%; text-align: right;">Consumo</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$product[2];?>
-                        </div>
-                    </td>
-                    <td style="width: 15%; text-align: right;">Otros *</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$product[3];?>
-                        </div>
-                    </td>
-                    <td style="width: 20%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$row['u_nombre'];?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 10%;">Moneda:</td>
-                    <td style="width: 10%; text-align: right;">Dólares</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$currency[0];?>
-                        </div>
-                    </td>
-                    <td style="width: 10%;">Bolivianos</td>
-                    <td style="width: 5%;">
-                        <div style="width: 10px; height: 10px; border: 1px solid #000;">
-                            <?=$currency[1];?>
-                        </div>
-                    </td>
-                    <td style="width: 10%;"></td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 15%;"></td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 20%;">Nombres</td>
-                </tr>
-                <tr>
-                    <td style="width: 50%;" colspan="6">
-                        1. Cúmulo de desembolsos anteriores (no incluye esta operación)
-                    </td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 15%;"></td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 20%; border-left: 1px solid #000; border-bottom: 1px solid #000;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 55%; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;" colspan="7">
-                        <?=number_format($rowDt['saldo'], 2, '.', ',');?>
-                    </td>
-                    <td style="width: 15%;"></td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 20%;">Apellidos</td>
-                </tr>
-            </table>-->
-            <!--<table 
-                cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 55%;">2. Monto actual solicitado</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 20%;">Sucursal</td>
-                    <td style="width: 20%;">Teléfono</td>
-                </tr>
-                <tr>
-                    <td style="width: 55%; height: 10px; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=number_format($row['monto_solicitado'], 2, '.', ',');?>
-                    </td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 20%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$row['u_departamento'];?>
-                    </td>
-                    <td style="width: 20%; border-left: 1px solid #000; border-bottom: 1px solid #000;">
-                        <?=$row['fono_agencia'];?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 55%;">Monto actual acumulado (1+2)</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 20%;">Plazo del presente crédito</td>
-                    <td style="width: 20%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 55%; height: 10px; border-left: 1px solid #000; 
-                        border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        <?=number_format($rowDt['cumulo'], 2, '.', ',');?>
-                    </td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 40%; border-left: 1px solid #000; border-bottom: 1px solid #000;" 
-                        colspan="2">
-                        <?=$row['plazo'] . ' ' . $row['tipo_plazo'];?>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 55%;">Observaciones / Aclaraciones</td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 20%;"></td>
-                    <td style="width: 20%;"></td>
-                </tr>
-                <tr>
-                    <td style="width: 55%; height: 10px; "></td>
-                    <td style="width: 5%;"></td>
-                    <td style="width: 40%; " colspan="2">
-                        <table cellpadding="0" cellspacing="0" border="0"  style="width: 100%;">
-                            <tr>
-                                <td style="width: 25%;"></td>
-                                <td style="width: 50%;">Sello y Firma</td>
-                                <td style="width: 25%;"></td>
-                            </tr>
-                            <tr>
-                                <td style="width: 25%; height: 10px; "></td>
-                                <td style="width: 50%; border-left: 1px solid #000; 
-                                    border-bottom: 1px solid #000; border-right: 1px solid #000;"></td>
-                                <td style="width: 25%;"></td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 100%;" colspan="4">
-                        * Debe aclararse a qué tipo de crédito se refiere.
-                    </td>
-                </tr>
-            </table>-->
-            <br>
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px;">
 <?php
-            if((boolean)$row['facultativo'] === true){
-                if ($show_fac === true) {
-                    if((boolean)$rowDt['aprobado'] === true && $emitir === true){
-?>
-            <table border="0" cellpadding="1" cellspacing="0" 
-                style="width: 100%; font-size: 8px; border-collapse: collapse;">
-                <tr>
-                    <td colspan="7" style="width:100%; text-align: center; 
-                        font-weight: bold; background: #e57474; color: #FFFFFF;">Caso Facultativo</td>
-                </tr>
-                <tr>
-                    <td style="width:5%; text-align: center; font-weight: bold; 
-                        border: 1px solid #dedede; background: #e57474;">Aprobado</td>
-                    <td style="width:12%; text-align: center; font-weight: bold; 
-                        border: 1px solid #dedede; background: #e57474;">Tasa de Recargo</td>
-                    <td style="width:14%; text-align: center; font-weight: bold; 
-                        border: 1px solid #dedede; background: #e57474;">Porcentaje de Recargo</td>
-                    <td style="width:12%; text-align: center; font-weight: bold; 
-                        border: 1px solid #dedede; background: #e57474;">Tasa Actual</td>
-
-                    <td style="width:12%; text-align: center; font-weight: bold; 
-                        border: 1px solid #dedede; background: #e57474;">Tasa Final</td>
-                    <td style="width:45%; text-align: center; font-weight: bold; 
-                        border: 1px solid #dedede; background: #e57474;">Observaciones</td>
-                </tr>
-                <tr>
-                    <td style="width:5%; text-align: center; background: #e78484; 
-                        color: #FFFFFF; border: 1px solid #dedede;"><?=$row['aprobado'];?></td>
-                    <td style="width:12%; text-align: center; background: #e78484; 
-                        color: #FFFFFF; border: 1px solid #dedede;"><?=$row['tasa_recargo'];?></td>
-                    <td style="width:14%; text-align: center; background: #e78484; 
-                        color: #FFFFFF; border: 1px solid #dedede;"><?=$row['porcentaje_recargo'];?> %</td>
-                    <td style="width:12%; text-align: center; background: #e78484; 
-                        color: #FFFFFF; border: 1px solid #dedede;"><?=$row['tasa_actual'];?> %</td>
-                    <td style="width:12%; text-align: center; background: #e78484; 
-                        color: #FFFFFF; border: 1px solid #dedede;"><?=$row['tasa_final'];?> %</td>
-                    <td style="width:45%; text-align: justify; background: #e78484; 
-                        color: #FFFFFF; border: 1px solid #dedede;"><?=$row['observacion'];?></td>
-                </tr>
-            </table>
+     if($rsDt->data_seek(0)){
+		 $cont=0;
+		 while($rowobs=$rsDt->fetch_array(MYSQLI_ASSOC)){
+			$cont += 1;   
+?>                
+               <tr>
+                <td style="width:10%;">TITULAR <?=$cont;?>: </td>
+                <td style="width:90%; border-bottom: 1px solid #333;">
+                  <?=$rowobs['observacion'];?>
+                </td> 
+               </tr>
 <?php
-                } else {
+             if($cont<$nCl){
+				echo'<tr><td colspan="2" style="width:100%; padding:3px;"></td></tr>'; 
+			 }
+		 }
+		 if($nCl===1){
 ?>
-            <table border="0" cellpadding="1" cellspacing="0" 
-                style="width: 100%; font-size: 8px; border-collapse: collapse;">
-                <tr>
-                    <td colspan="7" style="width:100%; text-align: center; font-weight: bold; 
-                        background: #e57474; color: #FFFFFF;">Caso Facultativo</td>
-                </tr>
-                <tr>
-                    <td style="width:100%; text-align: center; font-weight: bold; 
-                        border: 1px solid #dedede; background: #e57474;">Observaciones</td>
-                </tr>
-                <tr>               
-                    <td style="width:100%; text-align: justify; background: #e78484; 
-                        color: #FFFFFF; border: 1px solid #dedede;"><?=$row['motivo_facultativo'];?></td>
-                </tr>
-           </table>
-     <?php
-                }
-            }
-        }
-?>
-        </div>
-
+              <tr><td colspan="2" style="width:100%; padding:3px;"></td></tr>
+              <tr>
+                <td style="width:10%;">TITULAR 2: </td>
+                <td style="width:90%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td> 
+               </tr>
 <?php
-            if ($emitir === true) {
-?>
-        <page><div style="page-break-before: always;">&nbsp;</div></page>
-        <div style="width: 775px; border: 0px solid #FFFF00; ">
+		 }
+	 }
+?>                
+            </table><br>
+            <div style="font-size: 75%; text-align:justify;">  
+                Declaro(amos) haber contestado con total veracidad, máxima buena fe a todas las preguntas del presente cuestionario y no haber omitido u ocultado hechos y/o circunstancias que hubiera podido influir en la celebración del contrato de seguro. Las declaraciones de salud que hacen anulable el Contrato de Seguros y en la que el asegurado pierde su derecho a indemnización, se enmarcan en los articulos 992, 993, 999 y 1038 del Código de Comercio.<br>
+              Relevo expresamente del secreto profesional y legal, a cualquier médico que me hubiese asistido y/o tratado de dolencias y le autorizo (amos) a revelar a Nacional Vida Seguros de Personas S.A. todos los datos y antecedentes patológicos que pudiera (amos) tener o de los que hubiera (amos) adquirido conocimiento al prestarme sus servicios. Entiendo que de presentarse alguna eventualidad contemplada bajo la póliza de seguro como consecuencia de alguna enfermedad existente a la fecha de la firma de este documento o cuando haya alcanzado la edad límite estipulada en la póliza, la compañía aseguradora quedará liberada de toda la responsabilidad en lo que respecta a mí (nuestro) seguro. Finalmente, declaro (amos) conocer en su totalidad lo estipulado en mi (nuestra) póliza de seguro      
+            </div><br>
             <table 
                 cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 80%; font-weight: bold; font-family: Arial;">
-                <tr>
-                    <td style="width: 80%;"></td>
-                    <td style="width: 20%;">
-                        <img src="<?=$url;?>images/<?=$row['logo_cia'];?>" 
-                            height="40" class="container-logo" align="left" />
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width: 100%; text-align: center; font-size: 100%; 
-                        font-weight: bold; " colspan="2">
-                        Anexo 1 del Contrato de Crédito N°............
-                        <br>
-                        POLIZA DE SEGURO DE VIDA DESGRAVAMEN - CRECER
-                        <br><br>
-                        CERTIFICADO DE COBERTURA INDIVIDUAL 
-                        <br>
-                        <span style="font-weight: normal;">
-                            Registrada en Autoridad de Fiscalización y Control de Pensiones y 
-                            Seguros (APS) mediante
-                            <br>
-                            Resolución  Administrativa APS/DS/N° 734-2014 con Código de Registro 
-                            N° 209-934909-2014 10 012 4001
-                        </span>
-                    </td>
-                </tr>
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px;">
+               <tr>
+                <td style="width:10%;">Lugar y Fecha: </td>
+                <td style="width:30%; border-bottom: 1px solid #333;">
+                  <?=$row['fecha_emision'];?>
+                </td>
+                <td style="width:7%;">Firma:</td>
+                <td style="width:23%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:7%;">Firma:</td>
+                <td style="width:23%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td> 
+               </tr>
+               <tr>
+                <td style="width:10%;"></td>
+                <td style="width:30%; border-bottom: 0px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:7%;"></td>
+                <td style="width:23%; text-align:center;">
+                  TITULAR 1
+                </td>
+                <td style="width:7%;"></td>
+                <td style="width:23%; text-align:center;">
+                  TITULAR 2
+                </td> 
+               </tr>
             </table>
-        </div>
-        <br>
-        
-        <div style="width: 775px; border: 0px solid #FFFF00; font-size: 80%; ">
             <table 
                 cellpadding="0" cellspacing="0" border="0" 
-                style="width: 100%; height: auto; font-size: 85%; font-family: Arial;">
-                <tr>
-                    <td style="width: 50%; text-align: justify; padding: 5px;" valign="top">
-                        <span style="font-weight: bold;">CONTRATANTE:</span> 
-                        ASOCIACIÓN CRÉDITO CON EDUCACIÓN RURAL “CRECER” 
-                        <br>
-                        <span style="font-weight: bold;">PÓLIZA:</span> CRS-DESG-004
-                        <br>
-                        <span style="font-weight: bold;">ASEGURADO:</span> 
-                        Prestatario(a) de el contratante, nominado en el 
-                        Contrato de Crédito del que forma parte este Anexo y que 
-                        cumpla con los límites de edad y requisitos de asegurabilidad 
-                        de la Póliza.
-                        <br>
-                        <span style="font-weight: bold;">
-                            BENEFICIARIO A TITULO ONEROSO: 
-                        </span>
-                        ASOCIACIÓN CRÉDITO CON EDUCACIÓN RURAL “CRECER”
-                        <br>
-                        <span style="font-weight: bold;">
-                            CREDISEGURO S.A. SEGUROS PERSONALES
-                        </span>
-                         domiciliada en Av. José 
-                        Ballivian No. 1059 (Calacoto), tercer piso, zona Sur de la 
-                        ciudad de La Paz, teléfono 2175000, fax 2775716 (LA COMPAÑÍA), 
-                        certifica que la persona prestataria del TOMADOR nominado en el 
-                        contrato de Crédito del que forma parte este documento y que 
-                        cumpla con los límites de edad y requisitos de asegurabilidad 
-                        de la póliza se encuentra asegurada bajo la presente Póliza 
-                        (ASEGURADO), contratada por ASOCIACIÓN CRÉDITO CON EDUCACIÓN 
-                        RURAL CRECER  (EL TOMADOR).
-                        <br>
-                        La cobertura se inicia con el desembolso del Crédito, siempre 
-                        que se haya cumplido con los requisitos de asegurabilidad y 
-                        cuenten con la autorización de LA COMPAÑÍA.
-                        <br>
-                        <span style="font-weight: bold;">MANCOMUNOS</span> 
-                        En caso de Créditos mancomunados, cada uno de los 
-                        deudores es responsable por el 100% de la deuda. En caso de 
-                        fallecimiento de uno de los mancómunos responsable mancomunadamente 
-                        por el Crédito, LA COMPAÑÍA indemnizará el 100% del capital 
-                        asegurado al Beneficiario a la primera muerte, siempre y cuando 
-                        ambos mancómunos sean aceptados por LA COMPAÑÍA, firmen el contrato 
-                        de Crédito, sean declarados en los listados mensuales, y se 
-                        pague la prima correspondiente.
-                        <br>
-                        <span style="font-weight: bold;">COBERTURAS Y CAPITAL ASEGURADO: </span>
-                        <table 
-                            cellpadding="0" cellspacing="0" border="0" 
-                            style="width: 100%; height: auto; font-size: 100%; 
-                                font-weight: bold; font-family: Arial;">
-                            <tr style="background: #000000;">
-                                <td style="width: 75%; background: #000000; color: #ffffff; text-align: center;
-                                    border: 1px solid #000;">
-                                    COBERTURA PRINCIPAL 
-                                </td>
-                                <td style="width: 25%; background: #000000; color: #ffffff; text-align: center;
-                                    border: 1px solid #000;">
-                                    Capital Asegurado 
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width: 75%; font-weight: normal; border-left: 1px solid #000;">
-                                    Muerte (Natural o Accidental) 
-                                </td>
-                                <td style="width: 25%; font-weight: normal; border-right: 1px solid #000;
-                                    text-align: center;">
-                                    Saldo Deudor 
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width: 75%; background: #000; color: #fff; text-align: center;
-                                    border: 1px solid #000;">
-                                    COBERTURAS ADICIONALES 
-                                </td>
-                                <td style="width: 25%; background: #000; color: #fff; text-align: center;
-                                    border: 1px solid #000;">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="width: 75%; font-weight: normal; text-align: justify;
-                                    border: 1px solid #000; border-right: 0 none;">
-                                    Pago anticipado por Invalidez Total y Permanente: 
-                                    A los efectos de la presente cobertura se considera 
-                                    Invalidez Total y Permanente el hecho de que el 
-                                    ASEGURADO, antes de llegar a los 65 años de edad, 
-                                    quede incapacitado en por lo menos un 65%, a causa 
-                                    de un estado crónico, debido a enfermedad, o a 
-                                    lesión o a la pérdida de miembros o funciones, 
-                                    que impida ejecutar cualquier trabajo y siempre 
-                                    que el carácter de tal incapacidad sea reconocido.
-                                </td>
-                                <td style="width: 25%; font-weight: normal; border: 1px solid #000;
-                                    border-left: 0 none; text-align: center;">
-                                    Saldo Deudor
-                                </td>
-                            </tr>
-                        </table>
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:10px;">
+               <tr>
+                <td style="width:10%;">&nbsp;</td>
+                <td style="width:30%; border-bottom: 0px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:7%;">Nombre:</td>
+                <td style="width:23%; border-bottom: 1px solid #333; font-size:70%;">
+                  <?=$titular[1];?>
+                </td>
+                <td style="width:7%;">Nombre:</td>
+                <td style="width:23%; border-bottom: 1px solid #333; font-size:70%;">
+                  <?=$titular[2];?>
+                </td> 
+               </tr>
+            </table> 
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:20px;">
+               <tr>
+                <td style="width:10%;">No. de Crédito</td>
+                <td style="width:35%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:25%;"></td>
+                                
+                <td style="width:30%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td> 
+               </tr>
+               <tr>
+                <td style="width:10%;"></td>
+                <td style="width:35%; border-bottom: 0px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:25%;"></td>
+                                
+                <td style="width:30%; border-bottom: 0px solid #333; text-align:center; font-size:75%;">
+                  OFICIAL DE CRÉDITO<br>FIRMA Y SELLO
+                </td> 
+               </tr>
+            </table>
+            <div style="'width: 100%; height: auto; margin: 0 0 5px 0;">
+<?php
+           if((boolean)$row['facultativo']===true){
+			   if((boolean)$row['aprobado']===true){
+?>
+                 <table border="0" cellpadding="1" cellspacing="0" style="width: 100%; font-size: 8px; font-weight: normal; font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">
+                    <tr>
+                        <td colspan="7" style="width:100%; text-align: center; font-weight: bold; background: #e57474; color: #FFFFFF;">Caso Facultativo</td>
+                    </tr>
+                    <tr>
                         
-                        <span style="font-weight: bold;"></span>
-                        <span style="font-weight: bold;">LIMITES DE EDAD POR COBERTURAS</span>
-                        <br>
-                        <span style="font-weight: bold;">Para Muerte (Natural o Accidental):</span> 
-                        Ingreso desde los 15 años cumplidos hasta los 70 años 
-                        cumplidos al momento del inicio de la Cobertura, edad 
-                        límite de permanencia hasta los 75 años cumplidos.
-                        <br>
-                        <span style="font-weight: bold;">Para Invalidez Total y Permanente:</span> 
-                        Ingreso desde los 15 años cumplidos hasta los 64 años 
-                        cumplidos al momento del inicio de la Cobertura, edad 
-                        límite de permanencia hasta los 65 años cumplidos.
-                        <br>
-                        <span style="font-weight: bold;">EXCLUSIONES:</span> 
-                        <br>
-                        <span style="font-weight: bold;">
-                            Para la Cobertura de Muerte (Natural o Accidental):
-                        </span> 
-                        El contrato de seguro no cubre el fallecimiento del ASEGURADO 
-                        cuando el deceso se produjera como consecuencia de:
-                        <br>
-                        a)<span style="margin-left: 10px;"> </span>
-                        Pena de muerte o participación, directa o indirecta en 
-                        calidad de autor o cómplice en cualquier acto delictivo. 
-                        <br>
-                        b)<span style="margin-left: 10px;"> </span>  
-                        Guerra, guerra civil, invasión o acción de un enemigo 
-                        extranjero, hostilidades u operaciones bélicas, ya sea bajo 
-                        declaración de guerra o no. 
-                        <br>
-                        c)<span style="margin-left: 10px;"> </span>  
-                        Confiscación, nacionalización, requisición hecha u 
-                        ordenada por cualquier autoridad pública, nacional o local, 
-                        ley marcial o Estado de sitio, rebelión, revolución insurrección, 
-                        sedición, insubordinación, poder militar o usurpado, huelgas, 
-                        motines, asonada, conmoción civil o popular de cualquier clase, 
-                        daño malicioso, vandalismo, sabotaje y/o terrorismo, siempre 
-                        que el ASEGURADO tenga participación activa en dichos hechos. 
-                        <br>
-                        d)<span style="margin-left: 10px;"> </span>  
-                        Enfermedades prexistentes, o lesiones, o dolencias prexistentes, 
-                        entendiéndose por tales cualquier lesión o enfermedad, o 
-                        dolencia que afecte al ASEGURADO, que haya sido conocida por 
-                        él y que haya sido diagnosticada con anterioridad a la 
-                        incorporación del ASEGURADO a la Póliza. 
-                        <br>
-                        En todos estos casos, si ocurriese la muerte del Asegurado como 
-                        consecuencia de una causa excluida, no corresponderá la 
-                        devolución de Prima alguna.  
-                        <br>
-                        <span style="font-weight: bold;">Exclusiones para Invalidez Total y Permanente:</span>
-                        <br>
-                        a)<span style="margin-left: 10px;"> </span>   
-                        Participación directa o indirecta, en calidad de autor o 
-                        cómplice en cualquier acto delictivo.
-                        <br>
-                        b)<span style="margin-left: 10px;"> </span>   
-                        Guerra, invasión, actos de enemigos extranjeros, 
-                        hostilidades u operaciones bélicas, sea que haya habido 
-                        o no declaración de guerra, servicio militar, revolución, 
-                        insurrección, sublevación, rebelión, sedición, motín; o 
-                        hechos que las leyes califican como delitos contra la 
-                        Seguridad del Estado. 
-                        <br>
-                        c)<span style="margin-left: 10px;"> </span>   
-                        Enfermedades, o lesiones, o dolencias prexistentes, 
-                        entendiéndose por tales cualquier lesión o enfermedad, 
-                        o dolencia que afecte al ASEGURADO, que haya sido conocida 
-                        por él y que haya sido diagnosticada con anterioridad a la 
-                        fecha de incorporación del ASEGURADO a la Póliza.
-                        <br>
-                        d)<span style="margin-left: 10px;"> </span>   
-                        La práctica o el desempeño de alguna actividad, 
-                        profesión u oficio claramente riesgoso, que no haya sido 
-                        declarado por el ASEGURADO al momento de contratar el seguro 
-                        o durante su vigencia y que no haya sido aceptado por la 
-                        compañía mediante anexo expreso, sujeto a extra prima.
-                        <br>
-                        e)<span style="margin-left: 10px;"> </span>   
-                        Falsas declaraciones, omisión o reticencia del ASEGURADO 
-                        que puedan influir en la comprobación de su estado de invalidez.
-                        <br> 
-                        <span style="font-weight: bold;">PROCEDIMIENTO EN CASO DE SINIESTRO: </span>
-                        <br>
-                        El Beneficiario a título oneroso, tan pronto y a más tardar 
-                        dentro de los noventa (90) días calendario de tener conocimiento 
-                        del fallecimiento de alguno de los ASEGURADOS, deberá comunicar 
-                        tal hecho a LA COMPAÑÍA, salvo fuerza mayor o impedimento 
-                        justificado de acuerdo al artículo 1028 del Código de Comercio 
-                        adjuntando pruebas del siniestro correspondiente. En caso de 
-                        muerte presunta, ésta deberá acreditarse de acuerdo a ley.
-                        <br>
-                        Una vez recibidos los documentos probatorios  del fallecimiento 
-                        del ASEGURADO, LA COMPAÑÍA en caso de conformidad, pagará 
-                        el Capital Asegurado correspondiente al Beneficiario.
-                        <br>
-                        El asegurado o beneficiario, según el caso, tienen la 
-                        obligación de facilitar, a requerimiento de LA COMPAÑÍA 
-                        todas las informaciones que tengan sobre los hechos y 
-                        circunstancias del siniestro, a suministrar las evidencias 
-                        conducentes a la determinación de la causa, identidad de 
-                        las personas o intereses asegurados y cuantía de los daños, 
-                        así como permitir las indagaciones pertinentes necesarias a 
-                        tal objeto de acuerdo a lo establecido en el artículo 1031 
-                        del Código de Comercio. 
-                        <br>
-                        LA COMPAÑÍA podrá solicitar o recabar informes o pruebas 
-                        complementarias. LA COMPAÑÍA debe pronunciarse sobre el 
-                        derecho de EL TOMADOR dentro de los cinco (5) días de 
-                        recibidos todos los informes, evidencias, documentos y/o 
-                        requerimientos adicionales acerca de los hechos y circunstancias del 
-                    </td>
-                    <td style="width: 50%; text-align: justify; padding: 5px;" valign="top">
-                        siniestro. Esta solicitud no podrá excederse por mas de 
-                        dos veces a partir de la primera solicitud de informes y 
-                        evidencias debiendo LA COMPAÑÍA pronunciarse dentro del 
-                        plazo establecido y de manera definitiva sobre el derecho 
-                        del ASEGURADO después de la entrega por parte del ASEGURADO 
-                        del último requerimiento de información en base a lo 
-                        establecido en la Ley 365 de fecha 23 de abril de 2013, 
-                        Disposiciones Adicionales Segunda, Párrafo II. LA COMPAÑÍA 
-                        procederá al pago del beneficio en el plazo máximo de 15 
-                        días posteriores al aviso del siniestro o tan pronto sean 
-                        llenados los requerimientos señalados.
-                        <br>
-                        La obligación de pagar el Capital Asegurado deberá ser 
-                        cumplida por LA COMPAÑÍA en un solo acto, por su valor 
-                        total y en dinero. Y quedará sujeta a los términos y 
-                        condiciones establecidos en los Artículos 1031, 1033 y 
-                        1034 del Código de Comercio.
-                        <br>
-                        El beneficiario deberá presentar a LA COMPAÑÍA la 
-                        siguiente documentación además del Formulario de Aviso 
-                        de Siniestro debidamente llenado y Certificado de Cobertura:
-                        <br>
-                        <span style="font-weight: bold;">Para Muerte por cualquier causa:</span>
-                        <br>
-                        a)<span style="margin-left: 10px;"> </span>  
-                        Fotocopia del Certificado de Nacimiento o Fotocopia 
-                        del Carnet de Identidad del ASEGURADO.
-                        <br>
-                        b)<span style="margin-left: 10px;"> </span>  
-                        Certificado de Defunción Original
-                        <br>
-                        c)<span style="margin-left: 10px;"> </span>  
-                        Liquidación de cartera con el monto indemnizable
-                        <br>
-                        d)<span style="margin-left: 10px;"> </span>  
-                        Fotocopia del contrato de préstamo y la Planilla de 
-                        Desembolso o la Planilla de solicitud de Préstamo en 
-                        caso de Banca Comunal. 
-                        <br>
-                        e)<span style="margin-left: 10px;"> </span>  
-                        Extracto del préstamo por modalidad de Crédito.
-                        <br>
-                        LA COMPAÑÍA se reserva el derecho de exigir a las autoridades 
-                        competentes y a su costa, la autopsia o la exhumación del 
-                        cadáver para establecer las causas de la muerte. El beneficiario 
-                        y/o sucesores deben prestar su colaboración y concurso para 
-                        la obtención de las correspondientes autorizaciones oficiales. 
-                        Si el beneficiario y/o los sucesores se negaran a permitir 
-                        dicha autopsia o exhumación, o la retardaran en la forma que 
-                        ella sea útil para el fin perseguido, el beneficiario perderá 
-                        el derecho a la indemnización del Capital Asegurado por esta Póliza.
-                        <br>
-                        <span style="font-weight: bold;">Para Invalidez Total y Permanente</span>
-                        <br>
-                        a)<span style="margin-left: 10px;"> </span>  
-                        Fotocopia del Certificado de Nacimiento o Fotocopia 
-                        del Carnet de Identidad del ASEGURADO.
-                        <br>
-                        b)<span style="margin-left: 10px;"> </span>  
-                        Liquidación de cartera con el monto indemnizable
-                        <br>
-                        c)<span style="margin-left: 10px;"> </span>  
-                        Fotocopia del contrato de préstamo incluyendo la 
-                        Planilla de Desembolso o la Planilla de solicitud de 
-                        Préstamo para los Créditos de Banca Comunal. 
-                        <br>
-                        d)<span style="margin-left: 10px;"> </span>  
-                        Extracto del préstamo por tipo de Crédito.
-                        <br>
-                        e)<span style="margin-left: 10px;"> </span>  
-                        Informe del médico tratante correspondiente.
-                        <br>
-                        f)<span style="margin-left: 10px;"> </span>  
-                        Certificado INSO (Instituto Nacional de Salud Ocupacional) 
-                        o en su defecto de otra institución o médico que esté debidamente 
-                        autorizado por la Autoridad Competente la cual determine el grado 
-                        de invalidez.
-                        <br>
-                        <span style="font-weight: bold;">PRIMA Y FORMA DE PAGO:</span>
-                        <br>
-                        <span style="font-weight: bold;">Prima: </span>
-                        De acuerdo a las tasas establecidas para cada ASEGURADO 
-                        y a las declaraciones mensuales de EL TOMADOR. 
-                        <br>
-                        ELTOMADOR paga a LA COMPAÑÍA la prima colectiva de toda 
-                        la cartera sujeta a cobertura en la periodicidad establecida 
-                        en las Condiciones Particulares de la póliza. 
-                        <br>
-                        Para todos los créditos desembolsados por EL TOMADOR antes 
-                        de la fecha de vigencia de este documento, se respetarán 
-                        los términos y condiciones de seguro respecto a la afiliación 
-                        y pago de siniestros pactados entre EL TOMADOR y la 
-                        aseguradora anterior (Stock).    
-                        <br>
-                        Nota.- El ASEGURADO contará con cobertura, mientras sus 
-                        cuotas mensuales se encuentren pagadas.
-                        <br>
-                        <span style="font-weight: bold;">Forma de Pago: </span>
-                        Mensual al contado a través de EL TOMADOR.
-                        <br>
-                        <span style="font-weight: bold;">
-                            CONDICION DE ADHESIÓN, DECLARACIONES Y AUTORIZACIONES: 
-                        </span>
-                        <br>
-                        El ASEGURADO, se adhiere voluntariamente al Seguro de 
-                        Vida Desgravamen mediante su firma en el presente certificado 
-                        o el Contrato de Crédito con EL TOMADOR, esto implica que 
-                        el conocimiento, aceptación, adhesión voluntaria del ASEGURADO 
-                        al presente Seguro, y la recepción del presente Certificado de 
-                        Cobertura.
-                        <br>
-                        <span style="font-weight: bold;">Declaración: </span>
-                        <br>
-                        El ASEGURADO declara conocer y aceptar todas las Condiciones de la Póliza.
-                        <br>
-                        <span style="font-weight: bold;">Declaración de Salud: </span>
-                        <br>
-                        El ASEGURADO que no está sujeto al llenado de la Declaración de 
-                        Salud, declara que a la fecha no tiene conocimiento de alguna 
-                        enfermedad prexistente y goza de buena salud.
-                        <br>
-                        <span style="font-weight: bold;">Autorización expresa: </span>
-                        El ASEGURADO autoriza expresamente a LA COMPAÑÍA a solicitar, 
-                        obtener y dar información respecto a su información y 
-                        antecedentes financieros, de seguros y de salud, a través 
-                        de ellos o terceras personas. 
-                        <br>
-                        EL ASEGURADO acepta la presentación, con calidad de Declaración 
-                        Jurada, de la documentación de respaldo que solicitara LA 
-                        COMPAÑIA misma que será requerida en virtud a la obligación 
-                        normativa regulatoria que éste mantiene respecto a los controles 
-                        e informes que realiza por instrucción de la Autoridad de 
-                        Fiscalización y Control de Pensiones y Seguros, Unidad de 
-                        Investigaciones Financieras u otras entidades fiscalizadoras.
-                        <br>
-                        <span style="font-weight: bold;">TODOS LOS BENEFICIOS A LOS 
-                        CUALES EL ASEGURADO TIENE DERECHO SE SUJETAN A LO ESTIPULADO 
-                        EN LAS CONDICIONES GENERALES, PARTICULARES Y/O ESPECIALES DE 
-                        LA PÓLIZA DE DESGRAVAMEN NUMERO CRS-DESG-004 DE LA CUAL 
-                        EL PRESENTE CERTIFICADO FORMA PARTE INTEGRANTE. </span>
-                        El ASEGURADO podrá requerir a LA COMPAÑÍA o a EL TOMADOR 
-                        cualquier información adicional que considere necesaria.
-                        <br>
-                        <span style="font-weight: bold;">Lugar y fecha: </span>
-                        De acuerdo al contrato de Crédito del que este documento forma parte. 
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <table cellpadding="0" cellspacing="0" border="0" 
-                            style="width: 100%; font-size: 100%;">
-                            <tr>
-                                <td style="width: 60%;">
-                                    <img src="<?=$url;?>img/firma-crecer.jpg" 
-                                        height="70" class="container-logo" align="left" />
-                                </td>
-                                <td style="width: 20%; text-align: center; vertical-align: bottom; ">Titular</td>
-                                <td style="width: 20%; text-align: center; vertical-align: bottom; "></td>
-                            </tr>
-                        </table>
-                    </td>
+                        <td style="width:5%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Aprobado</td>
+                        <td style="width:5%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Tasa de Recargo</td>
+                        <td style="width:7%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Porcentaje de Recargo</td>
+                        <td style="width:7%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Tasa Actual</td>
+                        <td style="width:7%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Tasa Final</td>
+                        <td style="width:69%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Observaciones</td>
+                    </tr>
+                    <tr>
+                        
+                        <td style="width:5%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=strtoupper($row['aprobado']);?></td>
+                        <td style="width:5%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=strtoupper($row['tasa_recargo']);?></td>
+                        <td style="width:7%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['porcentaje_recargo'];?> %</td>
+                        <td style="width:7%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['tasa_actual'];?> %</td>
+                        <td style="width:7%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['tasa_final'];?> %</td>
+                        <td style="width:69%; text-align: justify; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['motivo_facultativo'];?> |<br /><?=$row['observacion'];?></td>
+                    </tr>
+               </table>
+            
+<?php
+			   }else{
+?>
+                  <table border="0" cellpadding="1" cellspacing="0" style="width: 80%; font-size: 9px; border-collapse: collapse; font-weight: normal; font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">         
+                   <tr>
+                      <td  style="text-align: center; font-weight: bold; background: #e57474; color: #FFFFFF;">
+                        Caso Facultativo
+                      </td>
+                     </tr>
+                     <tr>
+                      <td style="text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">
+                        Observaciones
+                      </td>
+                     </tr>
+                     <tr>
+                      <td style="text-align: justify; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['motivo_facultativo'];?></td>
+                     </tr>
+                </table>
+<?php				   
+			   
+			   }
+		   }
+?>
+            </div>
+            
+            <div style="'width: 100%; height: auto; margin: 0 0 5px 0;">
+<?php
+			 $queryVar = 'set @anulado = "Polizas Anuladas: ";';
+			 if($link->query($queryVar,MYSQLI_STORE_RESULT)){
+				 $canceled="select 
+								max(@anulado:=concat(@anulado, prefijo, '-', no_emision, ', ')) as cert_canceled
+							from
+								s_de_em_cabecera
+							where
+								anulado = 1
+									and id_cotizacion = '".$row['id_cotizacion']."';";
+				 if($resp = $link->query($canceled,MYSQLI_STORE_RESULT)){
+					 $regis = $resp->fetch_array(MYSQLI_ASSOC);
+					 echo '<span style="font-size:8px;">'.trim($regis['cert_canceled'],', ').'</span>';
+				 }else{
+					 echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;
+				 }
+			 }else{
+			   echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;   
+			 }
+?>
+            </div>
+            <div style="font-size: 60%; text-align:center; margin-top:20px;">  
+                <b>NACIONAL VIDA SEGUROS DE PERSONAS S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
+                SUCRE Tel.Piloto (591-4) 642-5196 * Fax: (591-4) 642-5197-TARIJA Tel. (591-4) 666-6229 * Beni Tel/fax (591-3) 463-4109 * MONTERO Tel. (591-3) 922-6012<br>
+                206-934901-2000 03 006-3012     
+            </div>  	
+        </div>            
+<?php 
+       if($type!=='MAIL' && (boolean)$row['emitir']===true && (boolean)$row['anulado']===false){
+?>        
+            <page><div style="page-break-before: always;">&nbsp;</div></page>
+            
+            <div style="width: 775px; border: 0px solid #FFFF00;">
+                <table 
+                    cellpadding="0" cellspacing="0" border="0" 
+                    style="width: 100%; height: auto; font-size: 70%; font-family: Arial;">
+                    <tr>
+                      <td>
+                        <div style="text-align: center; ">
+                           <strong>CERTIFICADO INDIVIDUAL DE SEGURO SEGURO DE VIDA DE DESGRAVAMEN N°</strong><br>
+                           Formato aprobado por la Autoridad de Fiscalización y Control de Pensiones y Seguros -APS 
+                           mediante R.A No.081 del 10/03/00<br>
+                           POLIZA DE SEGURO DE DESGRAVAMEN HIPORTECARIO N° POL-DH-LP-00103-2013-01<br>Codigo 206-934901-2000 03 006 4008
+                        </div><br>
+                        NACIONAL VIDA Seguros de Personas S.A., (denominada en adelante la “Compañía “), por el presente CERTIFICADO INDIVIDUAL DE SEGURO hace constar que la persona nominada en la declaración jurada de salud / solicitud de seguro de desgravamen hipotecario, que consta en el anverso, (denominado en adelante el “Asegurado”), está protegido por la Póliza de Seguro de Vida de Desgravamen arriba mencionada, de acuerdo a las siguientes Condiciones Particulares:
+                        <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                          <tr>
+                            <td style="width:2%; font-weight:bold;">1.</td>
+                            <td style="width:98%;">
+                               <b>CONTRATANTE Y BENEFICIARIO A TÍTULO ONEROSO</b><br>
+                               Fundación Diaconia - Fondo Rotativo de Inversión y Fomento
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">2.</td>
+                            <td style="width:98%;">
+                               <b>COBERTURAS Y CAPITALES ASEGURADOS:</b><br>
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                  <tr>
+                                    <td style="width: 3%;" valign="top">a.</td>
+                                    <td style="width: 97%;">
+                                      <b>Muerte por cualquier causa:</b><br>
+                                      Capital Asegurado: Saldo insoluto de la deuda a la fecha del fallecimiento
+                                      <table cellpadding="0" cellspacing="0" border="0" 
+                                        style="width: 100%; font-size:100%;">
+                                        <tr>
+                                           <td style="width: 15%;">Límites de edad:</td>
+                                           <td style="width: 15%;">De Ingreso:<br>De Permanencia</td>
+                                           <td style="width: 70%;">Desde los 15 años hasta los 70	años (hasta un día 
+                                           antes	de cumplir 71 años)<br>Máxima 70 años (hasta un día antes de 
+                                           cumplir 71 años)</td>
+                                        </tr>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td style="width: 3%;" valign="top">b.</td>
+                                    <td style="width: 97%;">
+                                      <b>Incapacidad Total Permanente:</b>
+                                      <table cellpadding="0" cellspacing="0" border="0" 
+                                         style="width: 100%; font-size:100%;">
+                                         <tr>
+                                           <td style="width: 15%;">Límites de edad:</td>
+                                           <td style="width: 15%;">De Ingreso:<br/>De Permanencia</td>
+                                           <td style="width: 70%;">Desde los 15 años hasta los 65 años (hasta un	día 
+                                           antes de cumplir 66	años)<br/>Hasta los 65 años (hasta un día antes de cumplir 
+                                           66 años)</td>
+                                         </tr>
+                                      </table>  
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td style="width: 3%;" valign="top">c.</td>
+                                    <td style="width: 97%;">
+                                          <b>Sepelio: $us 300.00</b>
+                                    </td>
+                                  </tr>
+                               </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;">3.</td>
+                            <td style="width:98%;" align="left">
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                 <tr>
+                                   <td style="width:10%; font-weight:bold;">EXCLUSIONES:</td>
+                                   <td style="width:90%;">-Para edades entre 15 a 49 años aplicable	solo para ereditar 
+                                   mayores	a $us. 7.902.30</td>
+                                 </tr>
+                                 <tr>
+                                   <td style="width:10%;"></td>
+                                   <td style="width:90%;">-Para edades entre 50 a 64 años	aplicable	solo para ereditar 
+                                   mayores	a $us.	5.747.13</td>
+                                 </tr>
+                                 <tr>
+                                   <td style="width:10%;"></td>
+                                   <td style="width:90%;">-Para edades entre 65 a 70 años	aplicable	solo para ereditar 
+                                   mayores	a $us.	5.747.13</td>
+                                 </tr>
+                               </table>
+                               Este seguro no será aplicable en ninguna de	las siguientes circunstancias:
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                <tr>
+                                  <td style="width:2%;">a)</td>
+                                  <td style="width:98%;">Si el asegurado participa como conductor o	acompañante en competencias de automóviles, motocicletas, lanchas de motor o avioneta, prácticas de paracaídas;</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%;">b)</td>
+                                  <td style="width:98%;">Si el asegurado realiza operaciones o viajes	submarinos o en transportes aéreos no autorizados para transporte de pasajeros;</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%;">c)</td>
+                                  <td style="width:98%;">Si el asegurado participa como elemento activo en guerra internacional o civil, rebelión, sublevación, guerrilla, motín, huelga, revolución y toda emergencia como consecuencia de alteración del orden público, a no ser que se pruebe que la muerte ocurrió independientemente de la existencia de tales condiciones anormales;</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%;">d)</td>
+                                  <td style="width:98%;">Enfermedad grave pre-existente al inicio del seguro, o enfermedad congènita.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%;">e)</td>
+                                  <td style="width:98%;">Suicidio o invalidez total y permanente como consecuencia del intento de suicidio practicados por el asegurado dentro de los primeros 6 meses de vigencia de su cobertura; en consecuencia, este riesgo quedará cubierto a partir del primer día del séptimo mes de la cobertura para cada operación asegurada.</td>
+                                </tr>
+                               </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;">4.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>TASA MENSUAL:</b><br>
+                              Tasa Total Mensual: 0.55 por mil mensual, ésta tasa puede variar de acuerdo al tipo de crédito, al riesgo particular que represente el asegurado y/o a las renovaciones futuras de la póliza.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">5.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>PROCEDIMIENTO A SEGUIR EN CASO DE SINIESTRO:</b><br>
+                              Para reclamar el pago de cualquier indemnización con cargo a esta póliza, el Contratante 
+                              deberá remitir a la Compañía su solicitud junto con los documentos a presentar en caso de 
+                              fallecimiento o invalidez. La Compañía podrá, a sus expensas, recabar informes o pruebas 
+                              complementarias.<br>
+                              Una vez recibidos los documentos a presentar en caso de fallecimiento o invalidez, la 
+                              Compañía notificará dentro de los cinco (05) días siguientes, su conformidad o denegación del
+                              pago de la indemnización, sobre la base de lo estipulado en las condiciones de la póliza 
+                              matriz.<br>
+                              En caso de conformidad, la Compañía satisfará la indemnización al Contratante y Beneficiario 
+                              a título oneroso, dentro de los cinco (05) días siguientes al término del plazo anterior y 
+                              contra la firma del finiquito correspondiente.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">6.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>DOCUMENTOS A PRESENTAR EN CASO DE SINIESTRO<br> 
+                              PARA MUERTE POR CUALQUIER CAUSA:</b>
+                              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Defunción - Original.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Nacimiento o Carnet de Identidad o Run o Libreta de Servicio Militar del asegurado. Fotocopia Simple</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Liquidación de cartera con el monto indemnizable</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Extracto de Crédito.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Contrato de préstamo - Fotocopia simple.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado Médico único	de	Defunción - Fotocopia simple. Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30	-Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Historial Clínica, si corresponde (Para casos de muerte natural) -Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30	-Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Informe de la autoridad competente (Para casos de muerte accidental) -Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30 -Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Declaración Jurada de Salud - Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30 - Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:100%; text-align:left; font-weight:bold;" colspan="2">PARA EL PAGO DE 
+                                  GASTOS DE SEPELIO</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Nacimiento o Carnet de Identidad o Run del 
+                                  Beneficiario (s) - Fotocopia simple.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Defunción - Original.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Comprobante del pago al Beneficiario realizada por el Tomador.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:100%; text-align:left; font-weight:bold;" colspan="2">PARA INVALIDEZ 
+                                  TOTAL PERMANENTE:</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Nacimiento o Carnet de Identidad o Run del 
+                                  Asegurado. - Fotocopia simple.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Liquidación de cartera con el monto indemnizable.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Extracto de Crédito.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Contrato de préstamo o Comprobante de Desembolso - Fotocopia 
+                                  simple.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Dictamen de Invalidez emitido por un médico calificador con 
+                                  registro en la Autoridad de Fiscalización y Control de Pensiones y Seguros APS. Este 
+                                  documento será gestionado por la aseguradora siempre y cuando se presente la 
+                                  documentación médica requerida por la compañía.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Historial clínico O en SU defecto un informe médico- Para edades 
+                                  entre 15 a 49 años y creditos mayores a $us. 7.902.30	-	Para edades entre 50 a 70 años 
+                                  y creditos mayores a $us. 5.747.13</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Declaración Jurada de Salud- Para edades entre 15 a 49 años y 
+                                  creditos mayores a $us. 7.902.30 - Para edades entre 50 a 70 años y creditos mayores a 
+                                  $us. 5.747.13</td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">7.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>ADHESIÓN VOLUNTARIA DEL ASEGURADO</b><br>
+                              El asegurado al momento de concretar el crédito con el Contratante, declara su consentimiento
+                              voluntario para ser asegurado bajo la póliza arriba indicada. La indemnización en caso de 
+                              siniestro será a favor del Contratante hasta el monto del saldo insoluto del crédito a la 
+                              fecha del fallecimiento o a la fecha de dictamen de invalidez del asegurado.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">8.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>CONTRATO PRINCIPAL (PÓLIZA MATRIZ)</b><br>
+                              Todos los beneficios a los cuales tiene derecho el Asegurado, están sujetos a lo estipulado 
+                              en las Condiciones Generales, Especiales y Particulares de la póliza matriz en virtud de la 
+                              cual se regula el seguro de vida desgravamen,. La firma del asegurado en el documento de la 
+                              Declaración Jurada de Salud, implica la expresa aceptación por su parte de todas las 
+                              condiciones de la póliza matriz, tanto en lo que le beneficia como en lo que lo obliga, 
+                              siempre y cuando se concrete el crédito y/o al momento de la aceptación por parte de la 
+                              compañía aseguradora en los casos en los que corresponda.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">9.</td>
+                            <td style="width:98%; text-align:justify;">
+                               <b>COMPAÑÍA ASEGURADORA </b><br>
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                  <tr>
+                                      <td style="width: 15%; text-align:left;" valign="top">Razón Social:</td>
+                                      <td style="width: 40%; font-weight:bold;">
+                                          NACIONAL VIDA SEGUROS DE PERSONAS S.A.
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td style="width: 15%; text-align:left;" valign="top">Dirección:</td>
+                                      <td style="width: 40%; text-align:left;">
+                                         Calle Capitán Ravelo No. 2334
+                                      </td>
+                                      <td style="width: 15%; text-align:left;">
+                                        Teléfono: 2442942
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%; text-align:left;">
+                                        Fax : 2442905
+                                      </td>
+                                  </tr>
+                              </table> 
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">10.</td>
+                            <td style="width:98%; text-align:justify;">
+                               <b>CORREDOR DE SEGUROS</b><br>
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                  <tr>
+                                      <td style="width: 15%; text-align:left;" valign="top">Razón Social:</td>
+                                      <td style="width: 40%; text-align:left;">
+                                          Génesis Brokers Ltda.
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td style="width: 15%; text-align:left;" valign="top">Dirección:</td>
+                                      <td style="width: 40%; text-align:left;">
+                                        Calle Femando Guachalla N° 369 2do Piso
+                                      </td>
+                                      <td style="width: 15%; text-align:left;">
+                                        Teléfono: 244-0772
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%; text-align:left;">
+                                        Fax: 244-2824
+                                      </td>
+                                  </tr>
+                               </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="2" style="width:100%; text-align:justify; font-size:80%;">
+                              <b>NOTA IMPORTANTE</b><br>
+                              LA POLIZA MATRIZ SURTIRA SUS EFECTOS PARA EL SOLICITANTE QUIEN SE CONVERTIRA EN ASEGURADO A 
+                              PARTIR DEL MOMENTO EN QUE EL CREDITO SE CONCRETE, SALVO EN LOS SIGUIENTES CASOS: A) QUE EL 
+                              SOLICITANTE DEBA CUMPLIR CON OTROS REQUISITOS DE ASEGURABILIDAD ESTABLECIDOS EN LAS 
+                              CONDICIONES DE LA POLIZA Y A REQUERIMIENTO DE LA COMPAÑIA ASEGURADORA. B) QUE EL SOLICITANTE 
+                              HAYA RESPONDIDO POSITIVAMENTE ALGUNA DE LAS PREGUNTAS DE LA DECLARACION JURADA DE SALUD (CON 
+                              EXCEPCION DE LA PREGUNTA 1). PARA AMBOS CASOS SE INICIARÁ LA COBERTURA DE SEGURO A PARTIR DE 
+                              LA ACEPTACION DE LA COMPAÑIA
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="2" style="width:100%;">
+                              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%; margin-top:20px;">
+                                 <tr>
+                                   <td style="width: 25%; text-align:center;">
+                                    
+                                   </td>
+                                   <td style="width: 50%;">
+                                      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                        font-size:100%;">
+                                        <tr>
+                                         <td style="width: 25%;">
+                                           <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                             font-size:100%;">
+                                             <tr>
+                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                             </tr>
+                                           </table>
+                                         </td>
+                                         <td style="width: 4%;">,</td>
+                                         <td style="width: 13%;">
+                                            <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                             font-size:100%;">
+                                             <tr>
+                                               <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                             </tr>
+                                            </table>
+                                         </td>
+                                         <td style="width: 10%; text-align:center;">de</td>
+                                         <td style="width: 25%;">
+                                           <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                             font-size:100%;">
+                                             <tr>
+                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                             </tr>
+                                           </table>
+                                         </td>
+                                         <td style="width: 10%; text-align:center;">de</td>
+                                         <td style="width: 13%;">
+                                           <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                             font-size:100%;">
+                                             <tr>
+                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                             </tr>
+                                           </table>
+                                         </td>
+                                        </tr>
+                                      </table>
+                                   </td>
+                                   <td style="width: 25%; text-align:center;">
+                                  
+                                   </td>
+                                 </tr>
+                                 <tr>
+                                   <td style="width:25%;"></td>
+                                   <td style="width:50%; text-align:center;">NACIONAL VIDA SEGUROS PERSONAS S.A.
+                                   <br>FIRMAS AUTORIZADAS</td>
+                                   <td style="width:25%;"></td>
+                                 </tr>
+                              </table>
+                              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+                                <tr>
+                                 <td style="width:30%; text-align:right;"><img src="<?=$url;?>img/firma-nv-1.jpg"/></td>
+                                 <td style="width:40%;"></td>
+                                 <td style="width:30%; text-align:left;"><img src="<?=$url;?>img/firma-nv-2.jpg"/></td>
+                                </tr> 
+                              </table>
+                            </td>
+                          </tr>
+                        </table>  
+                      </td>
+                    </tr>
+                 </table>     
+            </div>  
+<?php
+	   }
+       if ($fac === TRUE) {
+		   $url .= 'index.php?ms='.md5('MS_DE').'&page='.md5('P_fac').'&ide='.base64_encode($row['id_emision']).'';
+?>		
+          <br/>
+          <div style="width:500px; height:auto; padding:10px 15px; font-size:11px; font-weight:bold; text-align:left;">
+              No. de Slip de Cotizaci&oacute;n: <?=$row['no_cotizacion'];?>
+          </div><br>
+          <div style="width:500px; height:auto; padding:10px 15px; border:1px solid #FF2D2D; background:#FF5E5E; color:#FFF; font-size:10px; font-weight:bold; text-align:justify;">
+              Observaciones en la solicitud del seguro:<br><br><?=$reason;?>
+          </div>
+          <div style="width:500px; height:auto; padding:10px 15px; font-size:11px; font-weight:bold; text-align:left;">
+              Para procesar la solicitud ingrese al siguiente link con sus credenciales de usuario:<br>
+              <a href="<?=$url;?>" target="_blank">Procesar caso facultativo</a>
+          </div>
+<?php		   
+	   }
+}elseif($_coverage === 2){
+	$k=0;
+	while($rowcl=$rsDt->fetch_array(MYSQLI_ASSOC)){
+		$k += 1;
+		$rsCl_1 = json_decode($rowcl['respuesta'],TRUE);
+?>        
+        <div style="width: 775px; border: 0px solid #FFFF00; text-align:center;">
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-family: Arial;">
+                <tr>
+                  <td style="width:100%; text-align:left;">
+                     <img src="<?=$url;?>images/<?=$row['logo_cia'];?>" height="60"/>
+                  </td> 
                 </tr>
+                <tr>
+                  <td style="width:100%; font-weight:bold; text-align:center; font-size: 80%;">
+                     DECLARACIÓN JURADA DE SALUD Nº<br />SOLICITUD DE SEGURO DE DESGRAVAMEN HIPOTECARIO
+                  </td> 
+                </tr>
+            </table>     
+        </div>
+        <br/>
+        
+        <div style="width: 775px; border: 0px solid #FFFF00;">
+			<span style="font-weight:bold; font-size:75%;">
+            Estimado Cliente, agradeceremos completar la información que se requiere a continuación: (utilice letra clara)<br>
+            DATOS PERSONALES: (TITULAR 1):</span> 
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px; padding-bottom:3px;">
+                <tr> 
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size: 100%;">
+                        <tr>
+                          <td style="width:13%;">Nombres Completo: </td>
+                          <td style="border-bottom: 1px solid #333; width:87%;">
+                            <?=$rowcl['nombre_completo'];?>  
+                          </td>
+                        </tr>
+                     </table>
+                  </td>      
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                        <tr>
+                          <td style="width:19%;">Lugar y Fecha de Nacimiento: </td>
+                          <td style="border-bottom: 1px solid #333; width:81%;">
+                              <?=$rowcl['lugar_nacimiento'].' '.$rowcl['fecha_nacimiento'];?>
+                          </td>
+                        </tr>
+                      </table>                                  
+                  </td>
+                </tr>   
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                        <tr>
+                          <td style="width:13%;">Carnet de Identidad: </td>
+                          <td style="border-bottom: 1px solid #333; width:39%;">
+                            <?=$rowcl['dni'].$rowcl['complemento'].$rowcl['extension'];?>  
+                          </td>
+                          <td style="width:4%;">Edad: </td>
+                          <td style="width:11%; border-bottom: 1px solid #333; text-align:center;">
+                              <?=$rowcl['edad'];?>
+                          </td>
+                          <td style="width:4%;">Peso: </td>
+                          <td style="width:11%; border-bottom: 1px solid #333; text-align:center;">
+                              <?=$rowcl['peso'];?>
+                          </td>
+                          <td style="width:6%;">Estatura: </td>
+                          <td style="width:12%; border-bottom: 1px solid #333; text-align:center;">&nbsp;
+                              <?=$rowcl['estatura'];?>
+                          </td>   
+                        </tr>
+                      </table> 
+                  </td>              
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                           <td style="width: 6%;">Dirección: </td>
+                           <td style="width: 41%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['direccion'];?>
+                           </td>
+                           <td style="width: 6%;">Tel Dom: </td>
+                           <td style="width: 15%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['telefono_domicilio'];?>
+                           </td>
+                           <td style="width: 7%;">Telf Oficina: </td>
+                           <td style="width: 15%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['telefono_oficina'];?>
+                           </td>
+                         </tr>
+                      </table> 
+                  </td> 
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                          <td style="width:7%;">Ocupación: </td>
+                          <td style="width:93%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['ocupacion'];?>
+                          </td> 
+                         </tr> 
+                      </table>
+                  </td>     
+                </tr> 
             </table>
-        </div>
+            <span style="font-weight:bold; font-size:75%;">DATOS PERSONALES: (TITULAR 2)</span>
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px; padding-bottom:3px;">
+                <tr> 
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size: 100%;">
+                        <tr>
+                          <td style="width:13%;">Nombres Completo: </td>
+                          <td style="border-bottom: 1px solid #333; width:87%;">&nbsp;
+                              
+                          </td>
+                        </tr>
+                     </table>
+                  </td>      
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                        <tr>
+                          <td style="width:19%;">Lugar y Fecha de Nacimiento: </td>
+                          <td style="border-bottom: 1px solid #333; width:81%;">&nbsp;
+                              
+                          </td>
+                        </tr>
+                      </table>                                  
+                  </td>
+                </tr>   
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                        <tr>
+                          <td style="width:13%;">Carnet de Identidad: </td>
+                          <td style="border-bottom: 1px solid #333; width:39%;">&nbsp;
+                              
+                          </td>
+                          <td style="width:4%;">Edad: </td>
+                          <td style="width:11%; border-bottom: 1px solid #333;">&nbsp;
+                              
+                          </td>
+                          <td style="width:4%;">Peso: </td>
+                          <td style="width:11%; border-bottom: 1px solid #333;">&nbsp;
+                              
+                          </td>
+                          <td style="width:6%;">Estatura: </td>
+                          <td style="width:12%; border-bottom: 1px solid #333;">&nbsp;
+                              
+                          </td>   
+                        </tr>
+                      </table> 
+                  </td>              
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                           <td style="width: 7%;">Dirección: </td>
+                           <td style="width: 50%; border-bottom: 1px solid #333;">&nbsp;
+                             
+                           </td>
+                           <td style="width: 7%;">Tel Dom: </td>
+                           <td style="width: 14%; border-bottom: 1px solid #333;">&nbsp;
+                             
+                           </td>
+                           <td style="width: 8%;">Telf Oficina: </td>
+                           <td style="width: 14%; border-bottom: 1px solid #333;">&nbsp;
+                             
+                           </td>
+                         </tr>
+                      </table> 
+                  </td> 
+                </tr>
+                <tr>
+                  <td style="width:100%; padding-bottom:4px;">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                          <td style="width:7%;">Ocupación: </td>
+                          <td style="width:93%; border-bottom: 1px solid #333;">&nbsp;
+                             
+                          </td> 
+                         </tr> 
+                      </table>
+                  </td>     
+                </tr> 
+            </table>
+            
+            <span style="font-weight:bold; font-size:75%;">DEL CRÉDITO SOLICITADO:</span> 
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px; padding-bottom:6px;">
+               <tr><td colspan="3" style="width:100%; text-align:left;">Usted(es) solicita(n) el seguro de tipo:</td></tr>
+               <tr><td style="width:100%; padding:3px;" colspan="3"></td></tr>
+               <tr>
+                  <td style="width:15%; text-align:left;">Individual</td>
+                  <td style="width:6%;">
+                    <div style="width: 25px; height: 12px; border: 1px solid #000; text-align:center;">
+                      &nbsp;
+                     </div> 
+                  </td>
+                  <td style="width:79%; text-align:left;">
+                      si marca esta opción, sólo debe completar la información requerida al TITULAR 1
+                  </td>
+               </tr>
+               <tr><td style="width:100%; padding:3px;" colspan="3"></td></tr>
+               <tr>
+                  <td style="width:15%; text-align:left;">Mancomunada</td>
+                  <td style="width:6%;">
+                    <div style="width: 25px; height: 12px; border: 1px solid #000; text-align:center;">
+                      &nbsp;
+                     </div> 
+                  </td>
+                  <td style="width:79%; text-align:left;">
+                      si marca esta opción, sólo debe completar la información requerida al TITULAR 1 y TITULAR 2
+                  </td>
+               </tr>
+               <tr>
+                  <td style="width:100%; padding-top:8px;" colspan="3">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                          <td style="width:21%;">Monto Actual solicitado en <?=$row['moneda'];?>: </td>
+                          <td style="width:29%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['monto_bc'];?>
+                          </td>
+                          <td style="width:21%;">Monto Actual Acumulado <?=$row['moneda'];?>: </td>
+                          <td style="width:29%; border-bottom: 1px solid #333;">
+                             <?=$rowcl['cumulo'];?>
+                          </td>  
+                         </tr> 
+                      </table>
+                  </td>
+               </tr>
+               <tr>
+                  <td style="width:100%; padding-top:6px;" colspan="3">
+                     <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                         <tr>
+                          <td style="width:18%;">Plazo del presente crédito: </td>
+                          <td style="width:82%; border-bottom: 1px solid #333;">
+                             <?=$row['plazo'].' '.$row['tipo_plazo'];?>
+                          </td>  
+                         </tr> 
+                      </table>
+                  </td>
+               </tr>    
+            </table>     
+            
+            <span style="font-weight:bold; font-size:75%;">CUESTIONARIO</span>
+            <table 
+               cellpadding="0" cellspacing="0" border="0" 
+               style="width: 100%; height: auto; font-size: 75%; font-family: Arial;">
+               <tr>
+                  <td style="width:63%;"></td>
+                  <td style="width:16%; text-align:center;" colspan="4">TITULAR 1</td>
+                  <td style="width:5%;">&nbsp;</td>
+                  <td style="width:16%; text-align:center;" colspan="4">TITULAR 2</td>
+               </tr>
+ <?php
+      if (($rsQs = $link->get_question($_SESSION['idEF'])) !== FALSE) { 
+	      $resp1_yes = $resp1_no = '';
+		  while($rowQs = $rsQs->fetch_array(MYSQLI_ASSOC)){
+			  if(count($rsCl_1) > 0){
+				  $respCl = explode('|',$rsCl_1[$rowQs['id_pregunta']]);
+				  if($rowQs['id_pregunta'] === $respCl[0]){
+					  if($respCl[1] == 1) {
+						  $resp1_yes = 'X';
+					  } elseif($respCl[1] == 0) {
+						  $resp1_no = 'X';
+					  }
+				  }
+			  }
+			  		  
+ ?>              
+               <tr>
+                  <td style="width:63%; text-align:left;">
+                      <?=$rowQs['orden'].' '.$rowQs['pregunta'];?>
+                  </td>
+                  <td style="width:3%;">SI</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp1_yes;?>
+                     </div> 
+                  </td>
+                  <td style="width:3%;">NO</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp1_no;?>
+                     </div> 
+                  </td>
+                  <td style="width:5%;">&nbsp;</td>
+                  <td style="width:3%;">SI</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      &nbsp;
+                     </div> 
+                  </td>
+                  <td style="width:3%;">NO</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      &nbsp;
+                     </div> 
+                  </td>
+               </tr>
 <?php
-            }
-
-            if ($k < $nCl) {
-?>
-        <page><div style="page-break-before: always;">&nbsp;</div></page>
+		  }
+	  }
+?>               
+               
+               
+               <!--<tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr>-->
+               
+               
+               
+            </table> 
+            
+            <span style="font-weight:bold; font-size:75%;">SI ALGUNA DE SUS RESPUESTAS ES AFIRMATIVA, FAVOR BRINDAR DETALLES:</span>
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px;">
+               <tr>
+                <td style="width:10%;">TITULAR 1: </td>
+                <td style="width:90%; border-bottom: 1px solid #333;">
+                  <?=$rowcl['observacion'];?>
+                </td> 
+               </tr>
+               <tr><td colspan="2" style="width:100%; padding:3px;"></td></tr>
+               <tr>
+                <td style="width:10%;">TITULAR 2: </td>
+                <td style="width:90%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td> 
+               </tr>  
+            </table><br>
+            <div style="font-size: 75%; text-align:justify;">  
+                Declaro(amos) haber contestado con total veracidad, máxima buena fe a todas las preguntas del presente cuestionario y no haber omitido u ocultado hechos y/o circunstancias que hubiera podido influir en la celebración del contrato de seguro. Las declaraciones de salud que hacen anulable el Contrato de Seguros y en la que el asegurado pierde su derecho a indemnización, se enmarcan en los articulos 992, 993, 999 y 1038 del Código de Comercio.<br>
+              Relevo expresamente del secreto profesional y legal, a cualquier médico que me hubiese asistido y/o tratado de dolencias y le autorizo (amos) a revelar a Nacional Vida Seguros de Personas S.A. todos los datos y antecedentes patológicos que pudiera (amos) tener o de los que hubiera (amos) adquirido conocimiento al prestarme sus servicios. Entiendo que de presentarse alguna eventualidad contemplada bajo la póliza de seguro como consecuencia de alguna enfermedad existente a la fecha de la firma de este documento o cuando haya alcanzado la edad límite estipulada en la póliza, la compañía aseguradora quedará liberada de toda la responsabilidad en lo que respecta a mí (nuestro) seguro. Finalmente, declaro (amos) conocer en su totalidad lo estipulado en mi (nuestra) póliza de seguro      
+            </div><br>
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:4px;">
+               <tr>
+                <td style="width:10%;">Lugar y Fecha: </td>
+                <td style="width:30%; border-bottom: 1px solid #333;">
+                  <?=$row['u_departamento'].' '.$row['fecha_emision'];?>
+                </td>
+                <td style="width:7%;">Firma:</td>
+                <td style="width:23%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:7%;">Firma:</td>
+                <td style="width:23%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td> 
+               </tr>
+               <tr>
+                <td style="width:10%;"></td>
+                <td style="width:30%; border-bottom: 0px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:7%;"></td>
+                <td style="width:23%; text-align:center;">
+                  TITULAR 1
+                </td>
+                <td style="width:7%;"></td>
+                <td style="width:23%; text-align:center;">
+                  TITULAR 2
+                </td> 
+               </tr>
+            </table>
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:10px;">
+               <tr>
+                <td style="width:10%;">&nbsp;</td>
+                <td style="width:28%; border-bottom: 0px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:7%;">Nombre:</td>
+                <td style="width:25%; border-bottom: 1px solid #333;">
+                  <?=$rowcl['nombre'].' '.$rowcl['paterno'].' '.$rowcl['materno'];?>
+                </td>
+                <td style="width:7%;">Nombre:</td>
+                <td style="width:23%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td> 
+               </tr>
+            </table> 
+            <table 
+                cellpadding="0" cellspacing="0" border="0" 
+                style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
+                padding-top:20px;">
+               <tr>
+                <td style="width:10%;">No. de Crédito</td>
+                <td style="width:35%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:25%;"></td>
+                                
+                <td style="width:30%; border-bottom: 1px solid #333;">&nbsp;
+                  
+                </td> 
+               </tr>
+               <tr>
+                <td style="width:10%;"></td>
+                <td style="width:35%; border-bottom: 0px solid #333;">&nbsp;
+                  
+                </td>
+                <td style="width:25%;"></td>
+                                
+                <td style="width:30%; border-bottom: 0px solid #333; text-align:center;">
+                  OFICIAL DE CRÉDITO<br>FIRMA Y SELLO
+                </td> 
+               </tr>
+            </table>
+            <div style="'width: 100%; height: auto; margin: 0 0 5px 0;">
 <?php
-            }
-        }
-    }
+           if((boolean)$row['facultativo']===true){
+			   if((boolean)$row['aprobado']===true){
 ?>
-
-
-
-        <!--<div style="width: 775px; border: 0px solid #FFFF00; ">
-        </div>
-
-        <div style="width: 775px; border: 0px solid #FFFF00; ">
-        </div>
-
-        <div style="width: 775px; border: 0px solid #FFFF00; ">
-        </div>-->
+                 <table border="0" cellpadding="1" cellspacing="0" style="width: 100%; font-size: 8px; font-weight: normal; font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">
+                    <tr>
+                        <td colspan="7" style="width:100%; text-align: center; font-weight: bold; background: #e57474; color: #FFFFFF;">Caso Facultativo</td>
+                    </tr>
+                    <tr>
+                        
+                        <td style="width:5%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Aprobado</td>
+                        <td style="width:5%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Tasa de Recargo</td>
+                        <td style="width:7%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Porcentaje de Recargo</td>
+                        <td style="width:7%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Tasa Actual</td>
+                        <td style="width:7%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Tasa Final</td>
+                        <td style="width:69%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">Observaciones</td>
+                    </tr>
+                    <tr>
+                        
+                        <td style="width:5%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=strtoupper($row['aprobado']);?></td>
+                        <td style="width:5%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=strtoupper($row['tasa_recargo']);?></td>
+                        <td style="width:7%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['porcentaje_recargo'];?> %</td>
+                        <td style="width:7%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['tasa_actual'];?> %</td>
+                        <td style="width:7%; text-align: center; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['tasa_final'];?> %</td>
+                        <td style="width:69%; text-align: justify; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['motivo_facultativo'];?> |<br /><?=$row['observacion'];?></td>
+                    </tr>
+               </table>
+            
+<?php
+			   }else{
+?>
+                  <table border="0" cellpadding="1" cellspacing="0" style="width: 80%; font-size: 9px; border-collapse: collapse; font-weight: normal; font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">         
+                   <tr>
+                      <td  style="text-align: center; font-weight: bold; background: #e57474; color: #FFFFFF;">
+                        Caso Facultativo
+                      </td>
+                     </tr>
+                     <tr>
+                      <td style="text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">
+                        Observaciones
+                      </td>
+                     </tr>
+                     <tr>
+                      <td style="text-align: justify; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['motivo_facultativo'];?></td>
+                     </tr>
+                </table>
+<?php				   
+			   
+			   }
+		   }
+?>
+            </div>
+            
+            <div style="'width: 100%; height: auto; margin: 0 0 5px 0;">
+<?php
+			 $queryVar = 'set @anulado = "Polizas Anuladas: ";';
+			 if($link->query($queryVar,MYSQLI_STORE_RESULT)){
+				 $canceled="select 
+								max(@anulado:=concat(@anulado, prefijo, '-', no_emision, ', ')) as cert_canceled
+							from
+								s_de_em_cabecera
+							where
+								anulado = 1
+									and id_cotizacion = '".$row['id_cotizacion']."';";
+				 if($resp = $link->query($canceled,MYSQLI_STORE_RESULT)){
+					 $regis = $resp->fetch_array(MYSQLI_ASSOC);
+					 echo '<span style="font-size:8px;">'.trim($regis['cert_canceled'],', ').'</span>';
+				 }else{
+					 echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;
+				 }
+			 }else{
+			   echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;   
+			 }
+?>
+            </div>
+            <div style="font-size: 60%; text-align:center; margin-top:20px;">  
+                <b>NACIONAL VIDA SEGUROS DE PERSONAS S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
+                SUCRE Tel.Piloto (591-4) 642-5196 * Fax: (591-4) 642-5197-TARIJA Tel. (591-4) 666-6229 * Beni Tel/fax (591-3) 463-4109 * MONTERO Tel. (591-3) 922-6012<br>
+                206-934901-2000 03 006-3012     
+            </div>  	
+        </div>            
+<?php
+        if($type!=='MAIL' && (boolean)$row['emitir']===true && (boolean)$row['anulado']===false){
+?>        
+            <page><div style="page-break-before: always;">&nbsp;</div></page>
+            
+            <div style="width: 775px; border: 0px solid #FFFF00;">
+                <table 
+                    cellpadding="0" cellspacing="0" border="0" 
+                    style="width: 100%; height: auto; font-size: 70%; font-family: Arial;">
+                    <tr>
+                      <td>
+                        <div style="text-align: center; ">
+                           <strong>CERTIFICADO INDIVIDUAL DE SEGURO SEGURO DE VIDA DE DESGRAVAMEN N°</strong><br/>
+                           Formato aprobado por la Autoridad de Fiscalización y Control de Pensiones y Seguros -APS 
+                           mediante R.A No.081 del 10/03/00<br>
+                           POLIZA DE SEGURO DE DESGRAVAMEN HIPORTECARIO N° POL-DH-LP-00103-2013-01<br>Codigo 206-934901-2000 03 006 4008
+                        </div><br/>
+                        NACIONAL VIDA Seguros de Personas S.A., (denominada en adelante la “Compañía “), por el presente CERTIFICADO INDIVIDUAL DE SEGURO hace constar que la persona nominada en la declaración jurada de salud / solicitud de seguro de desgravamen hipotecario, que consta en el anverso, (denominado en adelante el “Asegurado”), está protegido por la Póliza de Seguro de Vida de Desgravamen arriba mencionada, de acuerdo a las siguientes Condiciones Particulares:
+                        <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                          <tr>
+                            <td style="width:2%; font-weight:bold;">1.</td>
+                            <td style="width:98%;">
+                               <b>CONTRATANTE Y BENEFICIARIO A TÍTULO ONEROSO</b><br>
+                               Fundación Diaconia - Fondo Rotativo de Inversión y Fomento
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">2.</td>
+                            <td style="width:98%;">
+                               <b>COBERTURAS Y CAPITALES ASEGURADOS:</b><br>
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                  <tr>
+                                    <td style="width: 3%;" valign="top">a.</td>
+                                    <td style="width: 97%;">
+                                      <b>Muerte por cualquier causa:</b><br>
+                                      Capital Asegurado: Saldo insoluto de la deuda a la fecha del fallecimiento
+                                      <table cellpadding="0" cellspacing="0" border="0" 
+                                        style="width: 100%; font-size:100%;">
+                                        <tr>
+                                           <td style="width: 15%;">Límites de edad:</td>
+                                           <td style="width: 15%;">De Ingreso:<br>De Permanencia</td>
+                                           <td style="width: 70%;">Desde los 15 años hasta los 70	años (hasta un día 
+                                           antes	de cumplir 71 años)<br>Máxima 70 años (hasta un día antes de 
+                                           cumplir 71 años)</td>
+                                        </tr>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td style="width: 3%;" valign="top">b.</td>
+                                    <td style="width: 97%;">
+                                      <b>Incapacidad Total Permanente:</b>
+                                      <table cellpadding="0" cellspacing="0" border="0" 
+                                         style="width: 100%; font-size:100%;">
+                                         <tr>
+                                           <td style="width: 15%;">Límites de edad:</td>
+                                           <td style="width: 15%;">De Ingreso:<br/>De Permanencia</td>
+                                           <td style="width: 70%;">Desde los 15 años hasta los 65 años (hasta un	día 
+                                           antes de cumplir 66	años)<br/>Hasta los 65 años (hasta un día antes de cumplir 
+                                           66 años)</td>
+                                         </tr>
+                                      </table>  
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td style="width: 3%;" valign="top">c.</td>
+                                    <td style="width: 97%;">
+                                          <b>Sepelio: $us 300.00</b>
+                                    </td>
+                                  </tr>
+                               </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;">3.</td>
+                            <td style="width:98%;" align="left">
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                 <tr>
+                                   <td style="width:10%; font-weight:bold;">EXCLUSIONES:</td>
+                                   <td style="width:90%;">-Para edades entre 15 a 49 años aplicable	solo para ereditar 
+                                   mayores	a $us. 7.902.30</td>
+                                 </tr>
+                                 <tr>
+                                   <td style="width:10%;"></td>
+                                   <td style="width:90%;">-Para edades entre 50 a 64 años	aplicable	solo para ereditar 
+                                   mayores	a $us.	5.747.13</td>
+                                 </tr>
+                                 <tr>
+                                   <td style="width:10%;"></td>
+                                   <td style="width:90%;">-Para edades entre 65 a 70 años	aplicable	solo para ereditar 
+                                   mayores	a $us.	5.747.13</td>
+                                 </tr>
+                               </table>
+                               Este seguro no será aplicable en ninguna de	las siguientes circunstancias:
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                <tr>
+                                  <td style="width:2%;">a)</td>
+                                  <td style="width:98%;">Si el asegurado participa como conductor o	acompañante en competencias de automóviles, motocicletas, lanchas de motor o avioneta, prácticas de paracaídas;</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%;">b)</td>
+                                  <td style="width:98%;">Si el asegurado realiza operaciones o viajes	submarinos o en transportes aéreos no autorizados para transporte de pasajeros;</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%;">c)</td>
+                                  <td style="width:98%;">Si el asegurado participa como elemento activo en guerra internacional o civil, rebelión, sublevación, guerrilla, motín, huelga, revolución y toda emergencia como consecuencia de alteración del orden público, a no ser que se pruebe que la muerte ocurrió independientemente de la existencia de tales condiciones anormales;</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%;">d)</td>
+                                  <td style="width:98%;">Enfermedad grave pre-existente al inicio del seguro, o enfermedad congènita.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%;">e)</td>
+                                  <td style="width:98%;">Suicidio o invalidez total y permanente como consecuencia del intento de suicidio practicados por el asegurado dentro de los primeros 6 meses de vigencia de su cobertura; en consecuencia, este riesgo quedará cubierto a partir del primer día del séptimo mes de la cobertura para cada operación asegurada.</td>
+                                </tr>
+                               </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;">4.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>TASA MENSUAL:</b><br>
+                              Tasa Total Mensual: 0.55 por mil mensual, ésta tasa puede variar de acuerdo al tipo de crédito, al riesgo particular que represente el asegurado y/o a las renovaciones futuras de la póliza.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">5.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>PROCEDIMIENTO A SEGUIR EN CASO DE SINIESTRO:</b><br>
+                              Para reclamar el pago de cualquier indemnización con cargo a esta póliza, el Contratante 
+                              deberá remitir a la Compañía su solicitud junto con los documentos a presentar en caso de 
+                              fallecimiento o invalidez. La Compañía podrá, a sus expensas, recabar informes o pruebas 
+                              complementarias.<br>
+                              Una vez recibidos los documentos a presentar en caso de fallecimiento o invalidez, la 
+                              Compañía notificará dentro de los cinco (05) días siguientes, su conformidad o denegación del
+                              pago de la indemnización, sobre la base de lo estipulado en las condiciones de la póliza 
+                              matriz.<br>
+                              En caso de conformidad, la Compañía satisfará la indemnización al Contratante y Beneficiario 
+                              a título oneroso, dentro de los cinco (05) días siguientes al término del plazo anterior y 
+                              contra la firma del finiquito correspondiente.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">6.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>DOCUMENTOS A PRESENTAR EN CASO DE SINIESTRO<br> 
+                              PARA MUERTE POR CUALQUIER CAUSA:</b>
+                              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Defunción - Original.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Nacimiento o Carnet de Identidad o Run o Libreta de Servicio Militar del asegurado. Fotocopia Simple</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Liquidación de cartera con el monto indemnizable</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Extracto de Crédito.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Contrato de préstamo - Fotocopia simple.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado Médico único	de	Defunción - Fotocopia simple. Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30	-Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Historial Clínica, si corresponde (Para casos de muerte natural) -Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30	-Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Informe de la autoridad competente (Para casos de muerte accidental) -Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30 -Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Declaración Jurada de Salud - Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30 - Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:100%; text-align:left; font-weight:bold;" colspan="2">PARA EL PAGO DE 
+                                  GASTOS DE SEPELIO</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Nacimiento o Carnet de Identidad o Run del 
+                                  Beneficiario (s) - Fotocopia simple.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Defunción - Original.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Comprobante del pago al Beneficiario realizada por el Tomador.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:100%; text-align:left; font-weight:bold;" colspan="2">PARA INVALIDEZ 
+                                  TOTAL PERMANENTE:</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Certificado de Nacimiento o Carnet de Identidad o Run del 
+                                  Asegurado. - Fotocopia simple.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Liquidación de cartera con el monto indemnizable.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Extracto de Crédito.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Contrato de préstamo o Comprobante de Desembolso - Fotocopia 
+                                  simple.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Dictamen de Invalidez emitido por un médico calificador con 
+                                  registro en la Autoridad de Fiscalización y Control de Pensiones y Seguros APS. Este 
+                                  documento será gestionado por la aseguradora siempre y cuando se presente la 
+                                  documentación médica requerida por la compañía.</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Historial clínico O en SU defecto un informe médico- Para edades 
+                                  entre 15 a 49 años y creditos mayores a $us. 7.902.30	-	Para edades entre 50 a 70 años 
+                                  y creditos mayores a $us. 5.747.13</td>
+                                </tr>
+                                <tr>
+                                  <td style="width:2%; font-weight:bold;" valign="top">-</td>
+                                  <td style="width:98%;">Declaración Jurada de Salud- Para edades entre 15 a 49 años y 
+                                  creditos mayores a $us. 7.902.30 - Para edades entre 50 a 70 años y creditos mayores a 
+                                  $us. 5.747.13</td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">7.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>ADHESIÓN VOLUNTARIA DEL ASEGURADO</b><br>
+                              El asegurado al momento de concretar el crédito con el Contratante, declara su consentimiento
+                              voluntario para ser asegurado bajo la póliza arriba indicada. La indemnización en caso de 
+                              siniestro será a favor del Contratante hasta el monto del saldo insoluto del crédito a la 
+                              fecha del fallecimiento o a la fecha de dictamen de invalidez del asegurado.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">8.</td>
+                            <td style="width:98%; text-align:justify;">
+                              <b>CONTRATO PRINCIPAL (PÓLIZA MATRIZ)</b><br>
+                              Todos los beneficios a los cuales tiene derecho el Asegurado, están sujetos a lo estipulado 
+                              en las Condiciones Generales, Especiales y Particulares de la póliza matriz en virtud de la 
+                              cual se regula el seguro de vida desgravamen,. La firma del asegurado en el documento de la 
+                              Declaración Jurada de Salud, implica la expresa aceptación por su parte de todas las 
+                              condiciones de la póliza matriz, tanto en lo que le beneficia como en lo que lo obliga, 
+                              siempre y cuando se concrete el crédito y/o al momento de la aceptación por parte de la 
+                              compañía aseguradora en los casos en los que corresponda.
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">9.</td>
+                            <td style="width:98%; text-align:justify;">
+                               <b>COMPAÑÍA ASEGURADORA </b><br>
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                  <tr>
+                                      <td style="width: 15%; text-align:left;" valign="top">Razón Social:</td>
+                                      <td style="width: 40%; font-weight:bold;">
+                                          NACIONAL VIDA SEGUROS DE PERSONAS S.A.
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td style="width: 15%; text-align:left;" valign="top">Dirección:</td>
+                                      <td style="width: 40%; text-align:left;">
+                                         Calle Capitán Ravelo No. 2334
+                                      </td>
+                                      <td style="width: 15%; text-align:left;">
+                                        Teléfono: 2442942
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%; text-align:left;">
+                                        Fax : 2442905
+                                      </td>
+                                  </tr>
+                              </table> 
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="width:2%; font-weight:bold;" valign="top">10.</td>
+                            <td style="width:98%; text-align:justify;">
+                               <b>CORREDOR DE SEGUROS</b><br>
+                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
+                                  <tr>
+                                      <td style="width: 15%; text-align:left;" valign="top">Razón Social:</td>
+                                      <td style="width: 40%; text-align:left;">
+                                          Génesis Brokers Ltda.
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      <td style="width: 15%; text-align:left;" valign="top">Dirección:</td>
+                                      <td style="width: 40%; text-align:left;">
+                                        Calle Femando Guachalla N° 369 2do Piso
+                                      </td>
+                                      <td style="width: 15%; text-align:left;">
+                                        Teléfono: 244-0772
+                                      </td>
+                                      <td style="width: 15%;">&nbsp;
+                                        
+                                      </td>
+                                      <td style="width: 15%; text-align:left;">
+                                        Fax: 244-2824
+                                      </td>
+                                  </tr>
+                               </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="2" style="width:100%; text-align:justify; font-size:80%;">
+                              <b>NOTA IMPORTANTE</b><br>
+                              LA POLIZA MATRIZ SURTIRA SUS EFECTOS PARA EL SOLICITANTE QUIEN SE CONVERTIRA EN ASEGURADO A 
+                              PARTIR DEL MOMENTO EN QUE EL CREDITO SE CONCRETE, SALVO EN LOS SIGUIENTES CASOS: A) QUE EL 
+                              SOLICITANTE DEBA CUMPLIR CON OTROS REQUISITOS DE ASEGURABILIDAD ESTABLECIDOS EN LAS 
+                              CONDICIONES DE LA POLIZA Y A REQUERIMIENTO DE LA COMPAÑIA ASEGURADORA. B) QUE EL SOLICITANTE 
+                              HAYA RESPONDIDO POSITIVAMENTE ALGUNA DE LAS PREGUNTAS DE LA DECLARACION JURADA DE SALUD (CON 
+                              EXCEPCION DE LA PREGUNTA 1). PARA AMBOS CASOS SE INICIARÁ LA COBERTURA DE SEGURO A PARTIR DE 
+                              LA ACEPTACION DE LA COMPAÑIA
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="2" style="width:100%;">
+                              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%; margin-top:20px;">
+                                 <tr>
+                                   <td style="width: 25%; text-align:center;">
+                                    
+                                   </td>
+                                   <td style="width: 50%;">
+                                      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                        font-size:100%;">
+                                        <tr>
+                                         <td style="width: 25%;">
+                                           <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                             font-size:100%;">
+                                             <tr>
+                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                             </tr>
+                                           </table>
+                                         </td>
+                                         <td style="width: 4%;">,</td>
+                                         <td style="width: 13%;">
+                                            <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                             font-size:100%;">
+                                             <tr>
+                                               <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                             </tr>
+                                            </table>
+                                         </td>
+                                         <td style="width: 10%; text-align:center;">de</td>
+                                         <td style="width: 25%;">
+                                           <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                             font-size:100%;">
+                                             <tr>
+                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                             </tr>
+                                           </table>
+                                         </td>
+                                         <td style="width: 10%; text-align:center;">de</td>
+                                         <td style="width: 13%;">
+                                           <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
+                                             font-size:100%;">
+                                             <tr>
+                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                             </tr>
+                                           </table>
+                                         </td>
+                                        </tr>
+                                      </table>
+                                   </td>
+                                   <td style="width: 25%; text-align:center;">
+                                  
+                                   </td>
+                                 </tr>
+                                 <tr>
+                                   <td style="width:25%;"></td>
+                                   <td style="width:50%; text-align:center;">NACIONAL VIDA SEGUROS PERSONAS S.A.
+                                   <br>FIRMAS AUTORIZADAS</td>
+                                   <td style="width:25%;"></td>
+                                 </tr>
+                              </table>
+                              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+                                <tr>
+                                 <td style="width:30%;" align="right"><img src="../compania/firma-1.jpg"/></td>
+                                 <td style="width:40%;"></td>
+                                 <td style="width:30%;" align="left"><img src="../compania/firma-1.jpg"/></td>
+                                </tr> 
+                              </table>
+                            </td>
+                          </tr>
+                        </table>  
+                      </td>
+                    </tr>
+                 </table>     
+            </div>  
+<?php
+		}
+		
+	}
+	if ($k < $nCl) {
+		echo'<page><div style="page-break-before: always;">&nbsp;</div></page>';
+	}
+	if ($fac === TRUE) {
+		   $url .= 'index.php?ms='.md5('MS_DE').'&page='.md5('P_fac').'&ide='.base64_encode($row['id_emision']).'';
+?>	
+	       <br/>
+           <div style="width:500px; height:auto; padding:10px 15px; font-size:11px; font-weight:bold; text-align:left;">
+              No. de Slip de Cotizaci&oacute;n: <?=$row['no_cotizacion'];?>
+           </div><br>
+           <div style="width:500px; height:auto; padding:10px 15px; border:1px solid #FF2D2D; background:#FF5E5E; color:#FFF; font-size:10px; font-weight:bold; text-align:justify;">
+              Observaciones en la solicitud del seguro:<br><br><?=$reason;?>
+           </div>
+           <div style="width:500px; height:auto; padding:10px 15px; font-size:11px; font-weight:bold; text-align:left;">
+              Para procesar la solicitud ingrese al siguiente link con sus credenciales de usuario:<br>
+              <a href="<?=$url;?>" target="_blank">Procesar caso facultativo</a>
+           </div>
+<?php		   
+	}
+}
+?>
     </div>
 </div>
 <?php

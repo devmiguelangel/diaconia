@@ -2,6 +2,7 @@
 
 require __DIR__ . '/app/controllers/DiaconiaController.php';
 require __DIR__ . '/app/controllers/ClientController.php';
+require __DIR__ . '/app/controllers/WsController.php';
 
 $Diaconia = new DiaconiaController();
 $ClientController = new ClientController();
@@ -11,9 +12,10 @@ if ($Diaconia->checkBancaComunal($_GET['idc'])) {
 	$bc = true;
 }
 
-$max_item = $Diaconia->getMaxItem($_GET['idc'], $_SESSION['idEF']);
-$depto = $ClientController->getDepto();
-$data_list = array();
+$data_pr 	= array();
+$max_item 	= $Diaconia->getMaxItem($_GET['idc'], $_SESSION['idEF']);
+$depto 		= $ClientController->getDepto();
+$data_list 	= array();
 
 $swCl = false;
 
@@ -54,272 +56,21 @@ $title_btn = 'Agregar Titular';
 $err_search = '';
 $web_service = false;
 
-/*if(isset($_POST['dsc-dni'])){
-	$dni = $link->real_escape_string(trim($_POST['dsc-dni']));
-    $web_service = $link->checkWebService($_SESSION['idEF'], 'DE');
+if (($data_pr = $Diaconia->getDataProduct($_SESSION['idEF'])) !== false) {
+	$web_service = (boolean)$data_pr['ws'];
+}
 
-    if (true === $web_service) {
-        require ('classes/WebServiceIdepro.php');
+if(isset($_POST['dsc-dni'])){
+	$dni = $_POST['dsc-dni'];
 
-        $ws = new WebServiceIdepro();
+	$WsController = new WsController($dni, $_SESSION['idEF'], $web_service);
 
-        if ($ws->webServiceConnect($dni) === true) {
-            $data = $ws->getResult();
-            if (is_array($data) === true) {
-                $temp_data['code'] = '';
-				$temp_data['name'] = $data['cl_nombre'];
-				$temp_data['patern'] = $data['cl_paterno'];
-				$temp_data['matern'] = $data['cl_materno'];
-				$temp_data['married'] = $data['cl_ap_casada'];
-				$temp_data['status'] = $data['cl_estado_civil'];
-				$temp_data['type_doc'] = 'CI';
-				$temp_data['doc_id'] = $data['cl_ci'];
-				$temp_data['comp'] = $data['cl_complemento'];
-				$temp_data['ext'] = '';
-                if (($rowExt = $link->getExtenssionCode($data['cl_extension'])) !== false) {
-                    $temp_data['ext'] = $rowExt['id_depto'];
-                }
-                $temp_data['birth'] = $data['cl_fecha_nacimiento'];
-				$temp_data['address'] = $data['cl_direccion'];
-				$temp_data['occupation'] = '';
-
-                if (($rowOcc = $link->get_occupation_code(
-                        $_SESSION['idEF'], $data['cl_caedec'], 'DE')) !== false) {
-                    $temp_data['occupation'] = $rowOcc['id_ocupacion'];
-                }
-                $temp_data['occ_desc'] = $data['cl_caedec_desc'];
-				$temp_data['phone_1'] = $data['cl_tel_domicilio'];
-				$temp_data['phone_2'] = $data['cl_celular'];
-				$temp_data['phone_office'] = '';
-				$temp_data['email'] = $data['cl_email'];
-				$temp_data['gender'] = $data['cl_genero'];
-				$temp_data['amount'] = $data['cl_saldo'];
-
-				$temp_data['country'] = '';
-				$temp_data['place_birth'] = '';
-				$temp_data['place_res'] = '';
-				$temp_data['locality'] = '';
-				$temp_data['weight'] = '';
-				$temp_data['height'] = '';
-				$temp_data['amount_bc'] = '';
-
-				$arr_cl[0] = $temp_data;
-            } else {
-                $err_search = $data;
-            }
-        } else {
-            $err_search = $ws->message;
-        }
+	if (($arr_cl = $WsController->getClientData()) !== false) {
+    	
     } else {
-        $sqlSc = 'select
-			scl.id_cliente,
-			scl.nombre as cl_nombre,
-			scl.paterno as cl_paterno,
-			scl.materno as cl_materno,
-			scl.ap_casada as cl_ap_casada,
-			scl.estado_civil as cl_estado_civil,
-			scl.tipo_documento as cl_tipo_documento,
-			scl.ci as cl_dni,
-			scl.complemento as cl_complemento,
-			scl.extension as cl_extension,
-			scl.fecha_nacimiento as cl_fecha_nacimiento,
-			scl.pais as cl_pais,
-			scl.lugar_nacimiento as cl_lugar_nacimiento,
-			scl.lugar_residencia as cl_lugar_residencia,
-			scl.localidad as cl_localidad,
-			scl.direccion as cl_direccion,
-			scl.telefono_domicilio as cl_tel_domicilio,
-			scl.telefono_celular as cl_tel_celular,
-			scl.telefono_oficina as cl_tel_oficina,
-			scl.email as cl_email,
-			scl.id_ocupacion as cl_ocupacion,
-			scl.desc_ocupacion as cl_desc_ocupacion,
-			scl.genero as cl_genero,
-			scl.saldo_deudor as cl_saldo,
-			sdd.monto_banca_comunal as cl_monto_bc
-		from
-			s_de_cot_cliente as scl
-				inner join
-					s_de_cot_detalle as sdd on (sdd.id_cliente = scl.id_cliente)
-				inner join
-				    s_entidad_financiera as sef on (sef.id_ef = scl.id_ef)
-		where
-			scl.ci = "'.$dni.'"
-				and sef.id_ef = "'.base64_decode($_SESSION['idEF']).'"
-				and sef.activado = true
-		limit 0 , 1
-		;';
-
-        if(($rsSc = $link->query($sqlSc,MYSQLI_STORE_RESULT)) !== false){
-            if($rsSc->num_rows === 1){
-                $rowSc = $rsSc->fetch_array(MYSQLI_ASSOC);
-                $rsSc->free();
-
-				$temp_data['code'] = '';
-				$temp_data['name'] = $rowSc['cl_nombre'];
-				$temp_data['patern'] = $rowSc['cl_paterno'];
-				$temp_data['matern'] = $rowSc['cl_materno'];
-				$temp_data['married'] = $rowSc['cl_ap_casada'];
-				$temp_data['status'] = $rowSc['cl_estado_civil'];
-				$temp_data['type_doc'] = $rowSc['cl_tipo_documento'];
-				$temp_data['doc_id'] = $rowSc['cl_dni'];
-				$temp_data['comp'] = $rowSc['cl_complemento'];
-				$temp_data['ext'] = $rowSc['cl_extension'];
-				$temp_data['country'] = $rowSc['cl_pais'];
-				$temp_data['birth'] = $rowSc['cl_fecha_nacimiento'];
-				$temp_data['place_birth'] = $rowSc['cl_lugar_nacimiento'];
-				$temp_data['place_res'] = $rowSc['cl_lugar_residencia'];
-				$temp_data['locality'] = $rowSc['cl_localidad'];
-				$temp_data['address'] = $rowSc['cl_direccion'];
-				$temp_data['phone_1'] = $rowSc['cl_tel_domicilio'];
-				$temp_data['phone_2'] = $rowSc['cl_tel_celular'];
-				$temp_data['phone_office'] = $rowSc['cl_tel_oficina'];
-				$temp_data['email'] = $rowSc['cl_email'];
-				$temp_data['occupation'] = $rowSc['cl_ocupacion'];
-				$temp_data['occ_desc'] = $rowSc['cl_desc_ocupacion'];
-				$temp_data['gender'] = $rowSc['cl_genero'];
-				$temp_data['weight'] = '';
-				$temp_data['height'] = '';
-				$temp_data['amount'] = $rowSc['cl_saldo'];
-				//$temp_data['amount_bc'] = $rowSc['cl_monto_bc'];
-				$arr_cl[0] = $temp_data;
-
-            }else{
-				$err_search = 'El Titular no Existe !';
-            }
-        }else{
-            $err_search = 'El Titular no Existe';
-        }
+    	$err_search = 'El Titular no Existe';
     }
-} elseif (isset($_POST['dsc-sc'])) {
-	if (!empty($_POST['dc-attached'])) {
-		$file = $link->real_escape_string(trim(base64_decode($_POST['dc-attached'])));
-		$file = 'files/' . $file;
-
-		if (file_exists($file) === true) {
-			if (is_file($file) === true) {
-				if (($lines = file($file, FILE_SKIP_EMPTY_LINES)) !== false) {
-					$pos = 0;
-					foreach ($lines as $templine) {
-						$temp_data = array();
-						$especiales = array("-", "s/n");
-	    				$reemplazos = array("", "");
-
-						$data = explode('|', $templine);
-						$data[5] = (int)$data[5];
-						$data[6] = (int)$data[6];
-						$data[21] = (int)$data[21];
-
-						$temp_data['code'] = $data[0];		// Codigo
-						$temp_data['name'] = $data[1];		// Nombre
-						$temp_data['patern'] = $data[2];	// Apellido Paterno
-						$temp_data['matern'] = $data[3];	// Apellido Materno
-						$temp_data['married'] = $data[4];	// Apellido Casada
-						$temp_data['status'] = '';
-						switch ($data[5]) {					// Estado Civil
-						case 1:
-							$temp_data['status'] = 'SOL';
-							break;
-						case 2:
-							$temp_data['status'] = 'CAS';
-							break;
-						case 3:
-							$temp_data['status'] = 'VIU';
-							break;
-						case 4:
-							$temp_data['status'] = 'DIV';
-							break;
-						case 5:
-							$temp_data['status'] = 'CON';
-							break;
-						}
-						$temp_data['type_doc'] = '';
-						switch ($data[6]) {					// Tipo de Documento
-						case 1:
-							$temp_data['type_doc'] = 'CI';
-							break;
-						case 2:
-							$temp_data['type_doc'] = 'RUN';
-							break;
-						case 3:
-							$temp_data['type_doc'] = 'CE';
-							break;
-						}
-
-						$temp_data['doc_id'] = $data[7];	// CI
-						$temp_data['comp'] = $data[8];		// Complemento
-						$temp_data['ext'] = '';	
-						if (($rowExt = $link->getExtenssionCode($data[9])) !== false) {
-			                $temp_data['ext'] = $rowExt['id_depto'];		// Complemento
-			            }
-						$temp_data['country'] = $data[11];					// Pais
-						$temp_data['birth'] = date('Y-m-d', 
-							strtotime(str_replace('/', '-', $data[10])));	// Fecha de nacimiento
-						$temp_data['place_birth'] = $data[12];				// Lugar de nacimiento
-						$temp_data['place_res'] = $data[13];				// Lugar de residencia
-						$temp_data['locality'] = $data[14];					// Localidad
-						$temp_data['address'] = $data[15];					// Direccion
-						$temp_data['phone_1'] = str_replace($especiales, 
-							$reemplazos, $data[16]);						// Telefono domicilio
-						$temp_data['phone_2'] = str_replace($especiales, 
-							$reemplazos, $data[17]);						// Telefono celular
-						$temp_data['email'] = '';							// Email
-						$temp_data['phone_office'] = str_replace(
-							$especiales, $reemplazos, $data[18]);			// Telefono oficina
-
-						$occ_code = '';										// Ocupacion
-						switch ($data[19]) {
-						case 'PRIVADA':
-							$occ_code = 'PR';
-							break;
-						case 'PUBLICA':
-							$occ_code = 'PU';
-							break;
-						case 'RURAL':
-							$occ_code = 'RU';
-							break;
-						}
-
-						$temp_data['occupation'] = '';						// Ocupacion
-						if (($rowOcc = $link->get_occupation_code(
-			                    $_SESSION['idEF'], $occ_code, 'DE')) !== false) {
-			                $temp_data['occupation'] = $rowOcc['id_ocupacion'];
-			            }
-						$temp_data['occ_desc'] = $data[20];					// Descripcion Ocupacion
-						$temp_data['gender'] = '';							// Genero
-						switch ($data[21]) {
-						case 1:
-							$temp_data['gender'] = 'M';
-							break;
-						case 2:
-							$temp_data['gender'] = 'F';
-							break;
-						}
-						$temp_data['weight'] = $data[22];			// Peso
-						$temp_data['height'] = $data[23];			// Estatura
-						$temp_data['amount'] = $data[24];			// Monto Solicitado
-						$temp_data['amount_bc'] = $data[25];		// Monto Banca Comunal
-
-						$arr_cl[$pos] = $temp_data;
-						$pos += 1;
-					}
-
-					if (unlink($file) === true) {
-						//var_dump($arr_cl);
-					}
-				} else {
-					$err_search = 'Error: Adjunte un archivo.';
-				}
-			} else {
-				$err_search = 'Error: Adjunte un archivo!';
-			}
-		} else {
-			$err_search = 'Error: Adjunte un archivo';
-		}
-	} else {
-		$err_search = 'Error: Seleccione un archivo';
-	}
-}*/
+}
 
 if (isset($_GET['idCl'])) {
 	$swCl = true;
@@ -369,39 +120,19 @@ if($swCl === false){
 	$nCl = count($data_list);
 
 	if ($nCl < $max_item) {
-		if($web_service === true){
 ?>
 <form id="fde-sc" name="fde-sc" action="" method="post" class="form-quote">
 	<label>Documento de Identidad: <span>*</span></label>
 	<div class="content-input" style="width:auto;">
-		<input type="text" id="dsc-dni" name="dsc-dni" autocomplete="off" value="" style="width:120px;" class="required text fbin">
+		<input type="text" id="dsc-dni" name="dsc-dni" autocomplete="off" 
+			value="" style="width:120px;" class="required text fbin">
 	</div>
-	<input type="submit" id="dsc-sc" name="dsc-sc" value="Buscar Titular" class="btn-search-cs">
+	<input type="submit" id="dsc-sc" name="dsc-sc" value="Buscar Titular" 
+		class="btn-search-cs">
     <div class="mess-err-sc"><?=$err_search;?></div>
 </form>
 <hr>
 <?php
-		} else {
-?>
-<form id="fde-sc" name="fde-sc" action="" method="post" class="form-quote" enctype="multipart/form-data">
-	<label>Archivo: <span>*</span></label>
-	<div class="content-input" style="width:auto;">
-		<!--<input type="file" id="file-import" name="file-import"  style="width:310px;" class="required text fbin"/>-->
-		<a href="javascript:;" id="a-dc-attached" class="attached">Seleccione archivo</a>
-		<div class="attached-mess" style="width:220px;">
-			El formato del archivo a subir debe ser TXT
-		</div>
-		<script type="text/javascript">
-			set_ajax_upload('dc-attached', 'DE');
-		</script>
-	</div>
-	<input type="submit" id="dsc-sc" name="dsc-sc" value="Importar" class="btn-search-cs"/>
-	<input type="hidden" id="dc-attached" name="dc-attached" value="" class="required"/>
-	<div class="mess-err-sc"><?=$err_search;?></div>
-</form>
-<hr>
-<?php
-		}
 	}
 }
 ?>
@@ -463,9 +194,8 @@ if($nCl < $max_item || $swCl === true){
 	</p>
 
 <?php
-	for ($k = 0; $k < $client ; $k++) {
-		$data = $arr_cl[$k];
-
+	$k = 0;
+	foreach ($arr_cl as $key => $data) {
 ?>
 	<div class="form-col">
 		<label>Nombres: <span>*</span></label>
@@ -667,6 +397,7 @@ if($nCl < $max_item || $swCl === true){
 	</div>
 	<hr>
 <?php
+		$k += 1;
 	}
 ?>	
     <input type="hidden" id="ms" name="ms" value="<?=$_GET['ms'];?>">
