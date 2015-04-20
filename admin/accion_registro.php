@@ -957,6 +957,102 @@
 	 }else{
 		 echo 2;
 	 }
+  }elseif($_POST['opcion']=='guarda_parametros'){
+	  $amountMax_fc1 = $conexion->real_escape_string($_POST['txtMax-fc1']);
+	  $amountMin_fc1 = $conexion->real_escape_string($_POST['txtMin-fc1']);
+	  $txtEdadMax_fc1 = $conexion->real_escape_string($_POST['txtEdadMax-fc1']);
+	  $txtEdadMin_fc1 = $conexion->real_escape_string($_POST['txtEdadMin-fc1']);
+	  $amountMax_fc2 = $conexion->real_escape_string($_POST['txtMax-fc2']);
+	  $amountMin_fc2 = $conexion->real_escape_string($_POST['txtMin-fc2']);
+	  $txtEdadMax_fc2 = $conexion->real_escape_string($_POST['txtEdadMax-fc2']);
+	  $txtEdadMin_fc2 = $conexion->real_escape_string($_POST['txtEdadMin-fc2']);
+	  
+	  $amountMax_aa1 = $conexion->real_escape_string($_POST['txtMax-aa1']);
+	  $amountMin_aa1 = $conexion->real_escape_string($_POST['txtMin-aa1']);
+	  $txtEdadMax_aa1 = $conexion->real_escape_string($_POST['txtEdadMax-aa1']);
+	  $txtEdadMin_aa1 = $conexion->real_escape_string($_POST['txtEdadMin-aa1']);
+	  $amountMax_aa2 = $conexion->real_escape_string($_POST['txtMax-aa2']);
+	  $amountMin_aa2 = $conexion->real_escape_string($_POST['txtMin-aa2']);
+	  $txtEdadMax_aa2 = $conexion->real_escape_string($_POST['txtEdadMax-aa2']);
+	  $txtEdadMin_aa2 = $conexion->real_escape_string($_POST['txtEdadMin-aa2']);
+	  
+	  $amountMin_fa1 = $conexion->real_escape_string($_POST['txtMin-fa1']);
+	  $amountMax_fa1 = $conexion->real_escape_string($_POST['txtMax-fa1']);
+	  $txtEdadMax_fa1 = $conexion->real_escape_string($_POST['txtEdadMax-fa1']);
+	  $txtEdadMin_fa1 = $conexion->real_escape_string($_POST['txtEdadMin-fa1']);
+	  $amountMax_fa2 = $conexion->real_escape_string($_POST['txtMax-fa2']);
+	  $amountMin_fa2 = $conexion->real_escape_string($_POST['txtMin-fa2']);
+	  $txtEdadMax_fa2 = $conexion->real_escape_string($_POST['txtEdadMax-fa2']);
+	  $txtEdadMin_fa2 = $conexion->real_escape_string($_POST['txtEdadMin-fa2']);
+	  
+	  $name_fc = $conexion->real_escape_string($_POST['name-fc']);
+	  $name_aa = $conexion->real_escape_string($_POST['name-aa']);
+	  $name_fa = $conexion->real_escape_string($_POST['name-fa']);
+	  
+	  $data = array(
+				1 => array(
+					'name' => $name_fc,
+					'slug' => 'FC',
+					'range' => array(
+						1 => array(
+							'edad_min' => (int)$txtEdadMin_fc1,
+							'edad_max' => (int)$txtEdadMax_fc1,
+							'amount_min' => (int)$amountMin_fc1,
+							'amount_max' => (int)$amountMax_fc1
+						),
+						2 => array(
+							'edad_min' => (int)$txtEdadMin_fc2,
+							'edad_max' => (int)$txtEdadMax_fc2,
+							'amount_min' => (int)$amountMin_fc2,
+							'amount_max' => (int)$amountMax_fc2
+						)
+					)
+				),
+				2 => array(
+					'name' => $name_aa,
+					'slug' => 'AA',
+					'range' => array(
+						1 => array(
+							'edad_min' => (int)$txtEdadMin_aa1,
+							'edad_max' => (int)$txtEdadMax_aa1,
+							'amount_min' => (int)$amountMin_aa1,
+							'amount_max' => (int)$amountMax_aa1
+						),
+						2 => array(
+							'edad_min' => (int)$txtEdadMin_aa2,
+							'edad_max' => (int)$txtEdadMax_aa2,
+							'amount_min' => (int)$amountMin_aa2,
+							'amount_max' => (int)$amountMax_aa2
+						)
+					)
+				),
+				3 => array(
+					'name' => $name_fa,
+					'slug' => 'FA',
+					'range' => array(
+						1 => array(
+							'edad_min' => (int)$txtEdadMin_fa1,
+							'edad_max' => (int)$txtEdadMax_fa1,
+							'amount_min' => (int)$amountMin_fa1,
+							'amount_max' => (int)$amountMax_fa1
+						),
+						2 => array(
+							'edad_min' => (int)$txtEdadMin_fa2,
+							'edad_max' => (int)$txtEdadMax_fa2,
+							'amount_min' => (int)$amountMin_fa2,
+							'amount_max' => (int)$amountMax_fa2
+						)
+					)
+				)
+			);
+			
+	  $update = "UPDATE s_sgc_home SET data='".$conexion->real_escape_string(json_encode($data))."' WHERE id_home='".base64_decode($_POST['idhome'])."' and id_ef='".base64_decode($_POST['id_ef'])."' LIMIT 1;";
+	  
+	  if($conexion->query($update)===TRUE){
+		 echo '1|Se guardo correctamente los datos'; 
+	  }else{
+		 echo '2|.Hubo un error al ingresar los datos '.$conexion->errno. ": " .$conexion->error; 
+	  }
   }
   
   

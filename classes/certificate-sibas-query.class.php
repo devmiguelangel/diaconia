@@ -636,6 +636,10 @@ class CertificateQuery extends CertificateHtml {
 					scl.materno,
 					scl.nombre,
 					scl.ap_casada,
+					(if(scl.ap_casada="",
+					    concat(scl.nombre," ",scl.paterno," ",scl.paterno),
+						 concat(scl.nombre," ",scl.paterno," de ",scl.ap_casada)
+						 )) as nombre_completo,
 					scl.genero,
 					scl.fecha_nacimiento,
 					scl.lugar_nacimiento,

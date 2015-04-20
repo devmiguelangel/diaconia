@@ -182,8 +182,8 @@ class PolicyController extends Diaconia
 					$token_range = false;
 					$age = $client_data['cl-age'];
 
-					foreach ($data_range as $key => $ranges) {
-						foreach ($ranges['range'] as $key1 => $range) {
+					foreach ($data_range as $key1 => $ranges) {
+						foreach ($ranges['range'] as $key2 => $range) {
 							if (($vars['dcr_amount'] >= $range['amount_min'] 
 									&& $vars['dcr_amount'] <= $range['amount_max'])
 									&& ($age >= $range['edad_min'] && $age <= $range['edad_max'])) {
@@ -214,7 +214,7 @@ class PolicyController extends Diaconia
 
 					if($client_data['cl-q-fac'] > 1 && $slug !== 'FC'){
 						$QS 		= true;
-						$mess_aux 	= ' | El Titular ' . $cont . ' no cumple con las Preguntas ';
+						$mess_aux 	= ' | El Titular ' . $key . ' no cumple con las Preguntas ';
 
 						if ($bc) {
 							$client_data['cl-approved'] 	= false;
@@ -382,6 +382,7 @@ class PolicyController extends Diaconia
 
 	private function setPolicyData(&$vars)
 	{
+		$vars['certificate']	= $this->getCertificate();
 		$vars['user']			= $this->cx->real_escape_string(trim(base64_decode($vars['user'])));
 		$vars['idef']			= $this->cx->real_escape_string(trim(base64_decode($vars['idef'])));
 		$vars['dcr_cia'] 		= $this->cx->real_escape_string(trim(base64_decode($vars['cia'])));

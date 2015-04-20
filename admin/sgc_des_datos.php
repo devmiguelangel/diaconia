@@ -106,6 +106,8 @@ function mostrar_pagina($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_e
 										//SI NO ME PASAN 'CPASS' NI 'ELIMINAR', MUESTRO EL FORM PARA EDITAR USUARIO
 										editar_datos_admin($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion);
 										
+									}elseif(isset($_GET['parameters'])){
+										edit_parameters_data($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion);
 									} 
 								} else {
 									//SI NO ME PASAN UN ID DE USUARIO, MUESTRO LA LISTA DE FORMULARIOS EXISTENTES
@@ -231,6 +233,7 @@ if($tipo_sesion=='ROOT'){
 									   when 0 then 'No'
 									   when 1	then 'Si'
 									 end) as modalidad_text,
+									 data,
 									 (case web_service
 									   when 0 then 'No'
 									   when 1 then 'Si'
@@ -263,7 +266,8 @@ if($tipo_sesion=='ROOT'){
 												  <th style="text-align:center;"><b><span lang="es">Nro Titulares</span></b></th>
 												  <th style="text-align:center;"><b><span lang="es">Implante</span></b></th>
 												  <th style="text-align:center;"><b><span lang="es">Certificado Provisional</span></b></th>
-												  <th style="text-align:center;"><b><span lang="es">Modalidad</span></b></th>';
+												  <th style="text-align:center;"><b><span lang="es">Modalidad</span></b></th>
+												  <th style="text-align:center;"><b><span lang="es">Parametros Adicionales</span></b></th>';
 													if($tipo_sesion=='ROOT'){
 													  echo'<th style="text-align:center;"><b><span lang="es">Web Service</span></b></th>';
 													}
@@ -285,7 +289,10 @@ if($tipo_sesion=='ROOT'){
 															  <td style="text-align:center;">'.$regi['max_detalle'].'</td>
 															  <td style="text-align:center;">'.$regi['implante_text'].'</td>
 															  <td style="text-align:center;">'.$regi['cert_provisional_text'].'</td>
-															  <td style="text-align:center;">'.$regi['modalidad_text'].'</td>';
+															  <td style="text-align:center;">'.$regi['modalidad_text'].'</td>
+															  <td style="text-align:center;">
+															    <a href="?l=des_datos&idhome='.base64_encode($regi['id_home']).'&id_ef='.base64_encode($regief['id_ef']).'&parameters=v&var='.$_GET['var'].'" class="da-tooltip-s" title="Editar">Modificar Parametros</a>
+															  </td>';
 															  if($tipo_sesion=='ROOT'){
 																echo'<td style="text-align:center;">'.$regi['webservice_text'].'</td>';
 															  }
@@ -1205,4 +1212,1195 @@ function mostrar_editar_datos_admin($id_usuario_sesion, $tipo_sesion, $usuario_s
 	}
 }
 
+//FUNCION PARA EDITAR LOS DATOS DE LOS NUEVOS PARAMETROS
+function edit_parameters_data($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion) {
+
+	$errFlag = false;
+	$errArr['errorcaducidad'] = '';
+	$errArr['errorarmaxcotiusd'] = '';
+	$errArr['errorarmaxcotibs'] = '';
+	$errArr['errorarmaxemiusd'] = '';
+	$errArr['errorarmaxemibs'] = '';
+	$errArr['errormaxedad'] = '';
+	$errArr['errorminedad'] = '';
+	
+
+	$idhome = base64_decode($_GET['idhome']);
+	$id_ef = base64_decode($_GET['id_ef']);
+	//$idusuario = strtolower($idusuario);
+
+	//VEO SI SE HA HECHO CLICK EN EL BOTON GUARDAR
+	if(isset($_POST['btnUsuario'])) {
+       
+        
+            //SEGURIDAD
+			$caducidadcotiz = $conexion->real_escape_string($_POST['txtLimitCotiza']);
+			$montocotizusd = $conexion->real_escape_string($_POST['txtMaxCotiUsd']);
+			$montocotizbs = $conexion->real_escape_string($_POST['txtMaxCotiBs']);
+			$montoemiusd = $conexion->real_escape_string($_POST['txtMaxEmiUsd']);
+			$montoemibs = $conexion->real_escape_string($_POST['txtMaxEmiBs']);
+			$edadmax = $conexion->real_escape_string($_POST['txtEdadMax']);
+			$edadmin = $conexion->real_escape_string($_POST['txtEdadMin']);
+			$num_titulares = $conexion->real_escape_string($_POST['txtNumTitulares']);
+			$implante = $conexion->real_escape_string($_POST['implante']);
+			$cert_prov = $conexion->real_escape_string($_POST['cert_prov']);
+			$modalidad = $conexion->real_escape_string($_POST['modalidad']);
+			$webservice = $conexion->real_escape_string($_POST['webservice']);
+			
+            //CARGAMOS LOS DATOS A LA BASE DE DATOS
+            $update = "UPDATE s_sgc_home SET limite_cotizacion=".$caducidadcotiz.", max_cotizacion_usd=".$montocotizusd.", max_cotizacion_bs=".$montocotizbs.", max_emision_usd=".$montoemiusd.", max_emision_bs=".$montoemibs.", edad_max=".$edadmax.", edad_min=".$edadmin.", max_detalle=".$num_titulares.", implante=".$implante.", certificado_provisional=".$cert_prov.", modalidad=".$modalidad.", web_service=".$webservice." WHERE id_home='".$idhome."' and id_ef='".$id_ef."' LIMIT 1;";
+            //echo $update;
+            
+
+            if($conexion->query($update)===TRUE){
+                $mensaje="Se actualizo correctamente los datos del formulario";
+			    header('Location: index.php?l=des_datos&var='.$_GET['var'].'&op=1&msg='.base64_encode($mensaje));
+			    exit;
+            } else{
+                $mensaje="Hubo un error al ingresar los datos, consulte con su administrador ".$conexion->errno. ": ".$conexion->error;
+				header('Location: index.php?l=des_datos&var='.$_GET['var'].'&op=2&msg='.base64_encode($mensaje));
+				exit;
+            }
+			
+	}else {
+	  //MUESTRO FORM PARA EDITAR UNA CATEGORIA
+	  show_edit_parameters($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion, $errArr);
+	}
+	
+}
+
+//VISUALIZAMOS EL FORMULARIO PARA EDITAR EL FORMULARIO
+function show_edit_parameters($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion, $errArr){
+?>
+<script type="text/javascript">
+  $(function(){
+	  $('#frmDatosAdmin').submit(function(e){
+		  //alert('Guardar');
+		  var monto_max_fc1 = $("#txtMax-fc1").prop('value');
+		  var monto_min_fc1 = $("#txtMin-fc1").prop('value');
+		  var selectEdadMax_fc1 = $("#txtEdadMax-fc1 option:selected").prop('value'); 
+		  var selectEdadMin_fc1 = $("#txtEdadMin-fc1 option:selected").prop('value');
+		  
+		  var monto_max_fc2 = $("#txtMax-fc2").prop('value');
+		  var monto_min_fc2 = $("#txtMin-fc2").prop('value');
+		  var selectEdadMax_fc2 = $("#txtEdadMax-fc2 option:selected").prop('value'); 
+		  var selectEdadMin_fc2 = $("#txtEdadMin-fc2 option:selected").prop('value');
+		  
+		  var monto_max_aa1 = $("#txtMax-aa1").prop('value');
+		  var monto_min_aa1 = $("#txtMin-aa1").prop('value');
+		  var selectEdadMax_aa1 = $("#txtEdadMax-aa1 option:selected").prop('value'); 
+		  var selectEdadMin_aa1 = $("#txtEdadMin-aa1 option:selected").prop('value');
+		  
+		  var monto_max_aa2 = $("#txtMax-aa2").prop('value');
+		  var monto_min_aa2 = $("#txtMin-aa2").prop('value');
+		  var selectEdadMax_aa2 = $("#txtEdadMax-aa2 option:selected").prop('value'); 
+		  var selectEdadMin_aa2 = $("#txtEdadMin-aa2 option:selected").prop('value');
+		  
+		  var monto_max_fa1 = $("#txtMax-fa1").prop('value');
+		  var monto_min_fa1 = $("#txtMin-fa1").prop('value');
+		  var selectEdadMax_fa1 = $("#txtEdadMax-fa1 option:selected").prop('value'); 
+		  var selectEdadMin_fa1 = $("#txtEdadMin-fa1 option:selected").prop('value');
+		  
+		  var monto_max_fa2 = $("#txtMax-fa2").prop('value');
+		  var monto_min_fa2 = $("#txtMin-fa2").prop('value');
+		  var selectEdadMax_fa2 = $("#txtEdadMax-fa2 option:selected").prop('value'); 
+		  var selectEdadMin_fa2 = $("#txtEdadMin-fa2 option:selected").prop('value');
+		  
+		  var sum=0;
+		  var edad_fc1=edad_fc2=edad_aa1=edad_aa2=edad_fa1=edad_fa2=0;
+		  $(this).find('.required').each(function(){
+			  
+			  if(monto_max_fc1!=''){
+				  if(monto_max_fc1.match(/^[0-9]+$/)){
+					 $('#errormax-fc1').hide('slow');
+				  }else{
+					 sum++;
+					 $('#errormax-fc1').show('slow');
+					 $('#errormax-fc1').html('ingrese solo numeros'); 
+				  }
+			  }else{
+				 sum++;  
+				 $('#errormax-fc1').show('slow');
+				 $('#errormax-fc1').html('ingrese monto maximo');   
+			  }
+			  if(monto_max_fc2!=''){
+				  if(monto_max_fc2.match(/^[0-9]+$/)){
+					 $('#errormax-fc2').hide('slow');
+				  }else{
+					 sum++;
+					 $('#errormax-fc2').show('slow');
+					 $('#errormax-fc2').html('ingrese solo numeros'); 
+				  }
+			  }else{
+				 sum++;  
+				 $('#errormax-fc2').show('slow');
+				 $('#errormax-fc2').html('ingrese monto maximo');   
+			  }
+			  if(monto_max_aa1!=''){
+				  if(monto_max_aa1.match(/^[0-9]+$/)){
+					 $('#errormax-aa1').hide('slow');
+				  }else{
+					 sum++;
+					 $('#errormax-aa1').show('slow');
+					 $('#errormax-aa1').html('ingrese solo numeros'); 
+				  }
+			  }else{
+				 sum++;  
+				 $('#errormax-aa1').show('slow');
+				 $('#errormax-aa1').html('ingrese monto maximo');   
+			  }
+			  if(monto_max_aa2!=''){
+				  if(monto_max_aa2.match(/^[0-9]+$/)){
+					 $('#errormax-aa2').hide('slow');
+				  }else{
+					 sum++;
+					 $('#errormax-aa2').show('slow');
+					 $('#errormax-aa2').html('ingrese solo numeros'); 
+				  }
+			  }else{
+				 sum++;  
+				 $('#errormax-aa2').show('slow');
+				 $('#errormax-aa2').html('ingrese monto maximo');   
+			  }
+			  if(monto_max_fa1!=''){
+				  if(monto_max_fa1.match(/^[0-9]+$/)){
+					 $('#errormax-fa1').hide('slow');
+				  }else{
+					 sum++;
+					 $('#errormax-fa1').show('slow');
+					 $('#errormax-fa1').html('ingrese solo numeros'); 
+				  }
+			  }else{
+				 sum++;  
+				 $('#errormax-fa1').show('slow');
+				 $('#errormax-fa1').html('ingrese monto maximo');   
+			  }
+			  if(monto_max_fa2!=''){
+				  if(monto_max_fa2.match(/^[0-9]+$/)){
+					 $('#errormax-fa2').hide('slow');
+				  }else{
+					 sum++;
+					 $('#errormax-fa2').show('slow');
+					 $('#errormax-fa2').html('ingrese solo numeros'); 
+				  }
+			  }else{
+				 sum++;  
+				 $('#errormax-fa2').show('slow');
+				 $('#errormax-fa2').html('ingrese monto maximo');   
+			  }
+			  
+			  if(monto_min_fc1!=''){
+				  if(monto_min_fc1.match(/^[0-9]+$/)){
+					 $('#errormin-fc1').hide('slow'); 
+				  }else{
+					 sum++;
+				     $('#errormin-fc1').show('slow'); 
+					 $('#errormin-fc1').html('ingrese solo numeros'); 
+				  } 
+			  }else{
+				 sum++;
+				 $('#errormin-fc1').show('slow'); 
+				 $('#errormin-fc1').html('ingrese monto maximo usd'); 
+			  }
+			  if(monto_min_fc2!=''){
+				  if(monto_min_fc2.match(/^[0-9]+$/)){
+					 $('#errormin-fc2').hide('slow'); 
+				  }else{
+					 sum++;
+				     $('#errormin-fc2').show('slow'); 
+					 $('#errormin-fc2').html('ingrese solo numeros'); 
+				  } 
+			  }else{
+				 sum++;
+				 $('#errormin-fc2').show('slow'); 
+				 $('#errormin-fc2').html('ingrese monto maximo usd'); 
+			  }
+			  if(monto_min_aa1!=''){
+				  if(monto_min_aa1.match(/^[0-9]+$/)){
+					 $('#errormin-aa1').hide('slow'); 
+				  }else{
+					 sum++;
+				     $('#errormin-aa1').show('slow'); 
+					 $('#errormin-aa1').html('ingrese solo numeros'); 
+				  } 
+			  }else{
+				 sum++;
+				 $('#errormin-aa1').show('slow'); 
+				 $('#errormin-aa1').html('ingrese monto maximo usd'); 
+			  }
+			  if(monto_min_aa2!=''){
+				  if(monto_min_aa2.match(/^[0-9]+$/)){
+					 $('#errormin-aa2').hide('slow'); 
+				  }else{
+					 sum++;
+				     $('#errormin-aa2').show('slow'); 
+					 $('#errormin-aa2').html('ingrese solo numeros'); 
+				  } 
+			  }else{
+				 sum++;
+				 $('#errormin-aa2').show('slow'); 
+				 $('#errormin-aa2').html('ingrese monto maximo usd'); 
+			  }
+			  if(monto_min_fa1!=''){
+				  if(monto_min_fa1.match(/^[0-9]+$/)){
+					 $('#errormin-fa1').hide('slow'); 
+				  }else{
+					 sum++;
+				     $('#errormin-fa1').show('slow'); 
+					 $('#errormin-fa1').html('ingrese solo numeros'); 
+				  } 
+			  }else{
+				 sum++;
+				 $('#errormin-fa1').show('slow'); 
+				 $('#errormin-fa1').html('ingrese monto maximo usd'); 
+			  }
+			  if(monto_min_fa2!=''){
+				  if(monto_min_fa2.match(/^[0-9]+$/)){
+					 $('#errormin-fa2').hide('slow'); 
+				  }else{
+					 sum++;
+				     $('#errormin-fa2').show('slow'); 
+					 $('#errormin-fa2').html('ingrese solo numeros'); 
+				  } 
+			  }else{
+				 sum++;
+				 $('#errormin-fa2').show('slow'); 
+				 $('#errormin-fa2').html('ingrese monto maximo usd'); 
+			  }
+			  
+			  if(selectEdadMin_fc1!=''){
+				 $('#errorminedad-fc1').hide('slow'); 
+			  }else{
+				 sum++;
+				 edad_fc1++;
+				 $('#errorminedad-fc1').show('slow');
+				 $('#errorminedad-fc1').html('seleccione edad minima');
+			  }
+			  if(selectEdadMin_fc2!=''){
+				 $('#errorminedad-fc2').hide('slow'); 
+			  }else{
+				 sum++;
+				 edad_fc2++;
+				 $('#errorminedad-fc2').show('slow');
+				 $('#errorminedad-fc2').html('seleccione edad minima');
+			  }
+			  if(selectEdadMin_aa1!=''){
+				 $('#errorminedad-aa1').hide('slow'); 
+			  }else{
+				 sum++;
+				 edad_aa1++;
+				 $('#errorminedad-aa1').show('slow');
+				 $('#errorminedad-aa1').html('seleccione edad minima');
+			  }
+			  if(selectEdadMin_aa2!=''){
+				 $('#errorminedad-aa2').hide('slow'); 
+			  }else{
+				 sum++;
+				 edad_aa2++;
+				 $('#errorminedad-aa2').show('slow');
+				 $('#errorminedad-aa2').html('seleccione edad minima');
+			  }
+			  if(selectEdadMin_fa1!=''){
+				 $('#errorminedad-fa1').hide('slow'); 
+			  }else{
+				 sum++;
+				 edad_fa1++;
+				 $('#errorminedad-fa1').show('slow');
+				 $('#errorminedad-fa1').html('seleccione edad minima');
+			  }
+			  if(selectEdadMin_fa2!=''){
+				 $('#errorminedad-fa2').hide('slow'); 
+			  }else{
+				 sum++;
+				 edad_fa2++;
+				 $('#errorminedad-fa2').show('slow');
+				 $('#errorminedad-fa2').html('seleccione edad minima');
+			  }
+			  
+			  if(selectEdadMax_fc1!=''){
+				 $('#errormaxedad-fc1').hide('slow');
+			  }else{
+				 sum++;
+				 edad_fc1++;
+				 $('#errormaxedad-fc1').show('slow');
+				 $('#errormaxedad-fc1').html('seleccione edad maxima');   
+			  }
+			  if(selectEdadMax_fc2!=''){
+				 $('#errormaxedad-fc2').hide('slow');
+			  }else{
+				 sum++;
+				 edad_fc2++;
+				 $('#errormaxedad-fc2').show('slow');
+				 $('#errormaxedad-fc2').html('seleccione edad maxima');   
+			  }
+			  if(selectEdadMax_aa1!=''){
+				 $('#errormaxedad-aa1').hide('slow');
+			  }else{
+				 sum++;
+				 edad_aa1++;
+				 $('#errormaxedad-aa1').show('slow');
+				 $('#errormaxedad-aa1').html('seleccione edad maxima');   
+			  }
+			  if(selectEdadMax_aa2!=''){
+				 $('#errormaxedad-aa2').hide('slow');
+			  }else{
+				 sum++;
+				 edad_aa2++;
+				 $('#errormaxedad-aa2').show('slow');
+				 $('#errormaxedad-aa2').html('seleccione edad maxima');   
+			  }
+			  if(selectEdadMax_fa1!=''){
+				 $('#errormaxedad-fa1').hide('slow');
+			  }else{
+				 sum++;
+				 edad_fa1++;
+				 $('#errormaxedad-fa1').show('slow');
+				 $('#errormaxedad-fa1').html('seleccione edad maxima');   
+			  }
+			  if(selectEdadMax_fa2!=''){
+				 $('#errormaxedad-fa2').hide('slow');
+			  }else{
+				 sum++;
+				 edad_fa2++;
+				 $('#errormaxedad-fa2').show('slow');
+				 $('#errormaxedad-fa2').html('seleccione edad maxima');   
+			  }
+			  /*
+			  if(edad_fc1==0){
+				  if(selectEdadMin_fc1<selectEdadMax_fc1){
+					  $('#errorminedad-fc1').hide('slow');
+				  }else{
+					  sum++;
+					  $('#errorminedad-fc1').show('slow').stop(true,false);
+					  $('#errorminedad-fc1').html('edad minima debe ser menor a la edad maxima');
+				  }
+			  }
+			  if(edad_fc2==0){
+				  if(selectEdadMin_fc2<selectEdadMax_fc2){
+					  $('#errorminedad-fc2').hide('slow');
+				  }else{
+					  sum++;
+					  $('#errorminedad-fc2').show('slow').stop(true,false);
+					  $('#errorminedad-fc2').html('edad minima debe ser menor a la edad maxima');
+				  }
+			  }
+			  */
+		  });
+		  if(sum==0){
+			   $("#frmDatosAdmin :submit").attr("disabled", true);
+			   e.preventDefault();
+			   var FormCadena = $(this).serialize();
+			   var id_ef='<?=$_GET['id_ef'];?>';
+			   var idhome='<?=$_GET['idhome'];?>';
+			   //alert(FormCadena);
+			   $.ajax({
+					 async: true,
+					 cache: false,
+					 type: "POST",
+					 url: "accion_registro.php",
+					 data: FormCadena+'&opcion=guarda_parametros&id_ef='+id_ef+'&idhome='+idhome,
+					 beforeSend: function(){
+						  $("#response-loading").css({
+							  'height': '30px'
+						  });
+					 },
+					 complete: function(){
+						  $("#response-loading").css({
+							  "background": "transparent"
+						  });
+					 },
+					 success: function(datareturn) {
+							//alert(datareturn);
+							var vec = datareturn.split('|');
+							if(vec[0]=='1'){
+								$('#response-loading').html('<div style="color:#62a426; text-align:center;">'+vec[1]+'</div>');
+								location.reload();
+							}else if(vec[0]=='2'){
+							   $('#response-loading').html('<div style="color:#d44d24; text-align:center;">'+vec[1]+'</div>');
+							   $("#frmDatosAdmin :submit").removeAttr('disabled');
+							   e.preventDefault();
+							}/*else{
+								
+								setTimeout( "$(location).attr('href', 'ecs_titulares.php');",3000 );
+							}*/
+					 }
+			   });  
+		  }else{
+			 e.preventDefault(); 
+			 //$('#btnUsuario').attr('disabled', true);
+			 
+		  }
+		  
+	  });
+	  
+	  //CAMBIO BOLIVIANOS A DOLARES COTIZACION
+	  /*$('#txtMaxCotiBs').blur(function(e){
+		  var val_cotiza_bs = $(this).val();
+		  var tipo_cambio = $('#tipo_cambio').prop('value');
+		  //VERIFICAMOS SI LA CASILLA ESTA VACIA
+		   e.preventDefault();
+		  if (val_cotiza_bs == "") {
+		     $('#errorarmaxcotibs').show('slow');
+			 $('#errorarmaxcotibs').html('ingrese monto maximo bs');
+			 $('#errorarmaxcotibs').focus();
+		  }else if(val_cotiza_bs.match(/^[0-9]+$/)){//VERIFICAMOS SI EL VALOR ES NUMERO ENTERO
+			  $('#errorarmaxcotibs').hide('slow');
+			  var equiv = parseInt(val_cotiza_bs/tipo_cambio);
+			  $('#txtMaxCotiUsd').prop('value',equiv).hide().show("slow");
+		  }else{
+			 $('#errorarmaxcotibs').show('slow');
+			 $('#errorarmaxcotibs').html("ingrese solo numeros enteros").fadeIn("slow");
+			 $('#errorarmaxcotibs').focus();
+		  }
+      });
+	  //-----------------------------------------
+	  //CAMBIO DOLAR A BOLIVIANOS COTIZACION
+	  $('#txtMaxCotiUsd').blur(function(e){
+		  var val_cotiza_dolar = $(this).val();
+		  var tipo_cambio = $('#tipo_cambio').prop('value');
+		  //VERIFICAMOS SI LA CASILLA ESTA VACIA
+		   e.preventDefault();
+		  if (val_cotiza_dolar == "") {
+		     $('#errorarmaxcotiusd').show('slow');
+			 $('#errorarmaxcotiusd').html('ingrese monto maximo usd');
+			 $('#errorarmaxcotiusd').focus();
+		  }else if(val_cotiza_dolar.match(/^[0-9]+$/)){//VERIFICAMOS SI EL VALOR ES NUMERO ENTERO
+			  $('#errorarmaxcotiusd').hide('slow');
+			  var equiv = parseInt(val_cotiza_dolar*tipo_cambio);
+			  $('#txtMaxCotiBs').prop('value',equiv).hide().show("slow");
+		  }else{
+			 $('#errorarmaxcotiusd').show('slow');
+			 $('#errorarmaxcotiusd').html("ingrese solo numeros enteros").fadeIn("slow");
+			 $('#errorarmaxcotiusd').focus();
+		  }
+      });
+	  
+	  
+	  //CAMBIO BOLIVIANOS A DOLARES EMISION	  
+	  $('#txtMaxEmiBs').blur(function(e){
+		  var val_emite_bs = $(this).val();
+		  var tipo_cambio = $('#tipo_cambio').prop('value');
+		  //VERIFICAMOS SI LA CASILLA ESTA VACIA
+		  e.preventDefault();
+		  if (val_emite_bs == "") {
+		     $('#errormaxemibs').show('slow');
+			 $('#errormaxemibs').html('ingrese monto maximo bs');
+			 $('#errormaxemibs').focus();
+		  }else if(val_emite_bs.match(/^[0-9]+$/)){//VERIFICAMOS SI EL VALOR ES NUMERO ENTERO
+			  $('#errorarmaxemiusd').hide('slow');
+			  var equiv = parseInt(val_emite_bs/tipo_cambio);
+			  $("#txtMaxEmiUsd").prop('value',equiv).hide().show("slow");
+			  
+		  }else{
+			 $('#errormaxemibs').show('slow');
+			 $('#errormaxemibs').html('ingrese solo numeros');
+			 $('#errormaxemibs').focus(); 
+		  }
+      });
+	 //--------------------------------------
+	 //CAMBIO DOLARES A BOLIVIANOS EMISION
+	  $('#txtMaxEmiUsd').blur(function(e){
+		  var val_emite_dolar = $(this).val();
+		  var tipo_cambio = $('#tipo_cambio').prop('value');
+		  //VERIFICAMOS SI LA CASILLA ESTA VACIA
+		  e.preventDefault();
+		  if (val_emite_dolar == "") {
+		     $('#errorarmaxemiusd').show('slow');
+			 $('#errorarmaxemiusd').html('ingrese monto maximo usd');
+			 $('#errorarmaxemiusd').focus();
+		  }else if(val_emite_dolar.match(/^[0-9]+$/)){//VERIFICAMOS SI EL VALOR ES NUMERO ENTERO
+			  $('#errorarmaxemiusd').hide('slow');
+			  var equiv = parseInt(val_emite_dolar*tipo_cambio);
+			  $("#txtMaxEmiBs").prop('value',equiv).hide().show("slow");
+			  
+		  }else{
+			 $('#errorarmaxemiusd').show('slow');
+			 $('#errorarmaxemiusd').html('ingrese solo numeros');
+			 $('#errorarmaxemiusd').focus(); 
+		  }
+     });*/
+	 
+	  $('#btnCancelar').click(function(e){
+		  var variable=$('#var').prop('value');
+		  $(location).attr('href', 'index.php?l=des_datos&var='+variable); 
+	  });  
+  });
+</script>
+<style type="text/css">
+ .loading-fac{
+	background: #FFFFFF url(images/loading30x30.gif) top center no-repeat;
+	height: 0px;
+	margin: 10px 0;
+	text-align: center;
+	font-size: 90%;
+	font-weight: bold;
+	color: #0075AA;
+}
+</style>
+<?php    
+	$idhome = base64_decode($_GET['idhome']);
+    $id_ef = base64_decode($_GET['id_ef']);
+	//SACAMOS LOS DATOS DE LA BASE DE DATOS
+	$select = "select 
+					sh.id_home,
+					sh.producto,
+					ef.nombre,
+					sh.data,
+					stc.valor_boliviano
+				from
+					s_sgc_home as sh
+					inner join s_entidad_financiera as ef on (ef.id_ef=sh.id_ef)
+					inner join s_tipo_cambio as stc on (stc.id_ef=ef.id_ef) 
+				where
+					sh.producto = 'DE' and sh.id_home = '".$idhome."'
+						and sh.id_ef = '".$id_ef."' 
+						and stc.activado = true;";
+	
+	if($rs = $conexion->query($select, MYSQLI_STORE_RESULT)){
+			$num = $rs->num_rows;
+			
+			//SI EXISTE EL USUARIO DADO EN LA BASE DE DATOS, LO EDITAMOS
+			if($num>0) {
+		
+				$row = $rs->fetch_array(MYSQLI_ASSOC);
+		        $jsondata = $row['data'];
+				$datapr = json_decode($jsondata, true);	
+				if(is_array($datapr)){
+					$txtEdadMin_fc1=$datapr[1]['range'][1]['edad_min'];
+					$txtEdadMax_fc1=$datapr[1]['range'][1]['edad_max'];
+					$amountMin_fc1=$datapr[1]['range'][1]['amount_min'];
+					$amountMax_fc1=$datapr[1]['range'][1]['amount_max'];
+					$txtEdadMin_fc2=$datapr[1]['range'][2]['edad_min'];
+					$txtEdadMax_fc2=$datapr[1]['range'][2]['edad_max'];
+					$amountMin_fc2=$datapr[1]['range'][2]['amount_min'];
+					$amountMax_fc2=$datapr[1]['range'][2]['amount_max'];
+					
+					$txtEdadMin_aa1=$datapr[2]['range'][1]['edad_min'];
+					$txtEdadMax_aa1=$datapr[2]['range'][1]['edad_max'];
+					$amountMin_aa1=$datapr[2]['range'][1]['amount_min'];
+					$amountMax_aa1=$datapr[2]['range'][1]['amount_max'];
+					$txtEdadMin_aa2=$datapr[2]['range'][2]['edad_min'];
+					$xtEdadMax_aa2=$datapr[2]['range'][2]['edad_max'];
+					$amountMin_aa2=$datapr[2]['range'][2]['amount_min'];
+					$amountMax_aa2=$datapr[2]['range'][2]['amount_max'];
+					
+					$txtEdadMin_fa1=$datapr[3]['range'][1]['edad_min'];
+					$txtEdadMax_fa1=$datapr[3]['range'][1]['edad_max'];
+					$amountMin_fa1=$datapr[3]['range'][1]['amount_min'];
+					$amountMax_fa1=$datapr[3]['range'][1]['amount_max'];
+					$txtEdadMin_fa2=$datapr[3]['range'][2]['edad_min'];
+					$txtEdadMax_fa2=$datapr[3]['range'][2]['edad_max'];
+					$amountMin_fa2=$datapr[3]['range'][2]['amount_min'];
+					$amountMax_fa2=$datapr[3]['range'][2]['amount_max'];
+				}else{
+					$txtEdadMin_fc1='';
+					$txtEdadMax_fc1='';
+					$amountMin_fc1='';
+					$amountMax_fc1='';
+					$txtEdadMin_fc2='';
+					$txtEdadMax_fc2='';
+					$amountMin_fc2='';
+					$amountMax_fc2='';
+					
+					$txtEdadMin_aa1='';
+					$txtEdadMax_aa1='';
+					$amountMin_aa1='';
+					$amountMax_aa1='';
+					$txtEdadMin_aa2='';
+					$xtEdadMax_aa2='';
+					$amountMin_aa2='';
+					$amountMax_aa2='';
+					
+					$txtEdadMin_fa1='';
+					$txtEdadMax_fa1='';
+					$amountMin_fa1='';
+					$amountMax_fa1='';
+					$txtEdadMin_fa2='';
+					$txtEdadMax_fa2='';
+					$amountMin_fa2='';
+					$amountMax_fa2='';
+				}
+				echo'<div class="da-panel collapsible">
+						<div class="da-panel-header" style="text-align:right; padding-top:5px; padding-bottom:5px;">
+							<ul class="action_user">
+								<li style="margin-right:6px;">
+								   <a href="?l=des_datos&var='.$_GET['var'].'&list_producto=v" class="da-tooltip-s" title="<span lang=\'es\'>Volver</span>">
+								   <img src="images/retornar.png" width="32" height="32"></a>
+								</li>
+							</ul>
+						</div>
+					 </div>';
+				 echo'<div class="grid_2" style="width:70%;">
+						  <div class="da-panel">
+							<div class="da-panel-header">
+								<span class="da-panel-title">
+									<img src="images/icons/black/16/pencil.png" alt="" />
+									<span lang="es">Editar Datos Parametros Adicionales</span>
+								</span>
+							</div>
+							<div class="da-panel-content">
+								<form class="da-form" name="frmDatosAdmin" id="frmDatosAdmin" action="" method="post">
+																					
+									<div class="da-button-row" style="text-align:left;">
+									    <span class="da-panel-title">
+											<b>FREE COVER</b>
+											<input type="hidden" name="name-fc" value="Free Cover"/>
+										</span>
+									</div>	
+									<div class="da-form-row">
+									   <span class="formNote">RANGO 1</span>
+									   <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+										  <tr>
+										    <td style="text-align:center;"><b>Edad Mínima</b></td>
+											<td style="text-align:center;"><b>Edad Máxima</b></td>
+											<td style="text-align:center;"><b>Monto Mínimo (Bs)</b></td>
+											<td style="text-align:center;"><b>Monto Máximo (Bs)</b></td>
+										  </tr>
+										  <tr>
+										    <td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+												 $j=15;
+											 echo'<select id="txtEdadMin-fc1" name="txtEdadMin-fc1" style="width:120px;" class="required">';
+													echo'<option value="">Seleccione...</option>';
+													while($j<=85){
+														if($txtEdadMin_fc1==$j)
+														   echo'<option value="'.$j.'" selected>'.$j.'</option>';  
+														else
+														   echo'<option value="'.$j.'">'.$j.'</option>';     
+														$j++;   
+													}
+											 echo'</select>
+												  <span class="errorMessage" id="errorminedad-fc1" lang="es"></span>
+											  </div>
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+											     $i=15;
+										    echo'<select id="txtEdadMax-fc1" name="txtEdadMax-fc1" style="width:120px;" class="required">';
+												  echo'<option value="">Seleccione...</option>';
+												  while($i<=85){
+													 if($txtEdadMax_fc1==$i) 
+													    echo'<option value="'.$i.'" selected>'.$i.'</option>';
+													 else
+													    echo'<option value="'.$i.'">'.$i.'</option>';	 
+													 $i++;   
+												  }
+										    echo'</select>
+											     <span class="errorMessage" id="errormaxedad-fc1" lang="es"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMin-fc1" id="txtMin-fc1" style="width: 200px;" value="'.$amountMin_fc1.'" autocomplete="off"/>
+												 <span class="errorMessage" id="errormin-fc1" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMax-fc1" id="txtMax-fc1" style="width: 200px;" value="'.$amountMax_fc1.'" autocomplete="off"/>
+												<span class="errorMessage" id="errormax-fc1" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+										  </tr>
+									   </table>
+									   <span class="formNote">RANGO 2</span>
+									   <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+										  <tr>
+										    <td style="text-align:center;"><b>Edad Mínima</b></td>
+											<td style="text-align:center;"><b>Edad Máxima</b></td>
+											<td style="text-align:center;"><b>Monto Mínimo (Bs)</b></td>
+											<td style="text-align:center;"><b>Monto Máximo (Bs)</b></td>
+										  </tr>
+										  <tr>
+										    <td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+												 $j=15;
+											 echo'<select id="txtEdadMin-fc2" name="txtEdadMin-fc2" style="width:120px;" class="required">';
+													echo'<option value="">Seleccione...</option>';
+													while($j<=85){
+														if($txtEdadMin_fc2==$j)
+														   echo'<option value="'.$j.'" selected>'.$j.'</option>';
+														else
+														   echo'<option value="'.$j.'">'.$j.'</option>';     
+														$j++;   
+													}
+											 echo'</select>
+												  <span class="errorMessage" id="errorminedad-fc2" lang="es"></span>
+											  </div>
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+											     $i=15;
+										    echo'<select id="txtEdadMax-fc2" name="txtEdadMax-fc2" style="width:120px;" class="required">';
+												  echo'<option value="">Seleccione...</option>';
+												  while($i<=85){
+													  if($txtEdadMax_fc2==$i)
+													    echo'<option value="'.$i.'" selected>'.$i.'</option>'; 
+													  else
+													    echo'<option value="'.$i.'">'.$i.'</option>'; 	
+													 $i++;   
+												  }
+										    echo'</select>
+											     <span class="errorMessage" id="errormaxedad-fc2" lang="es"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMin-fc2" id="txtMin-fc2" style="width: 200px;" value="'.$amountMin_fc2.'" autocomplete="off"/>
+												 <span class="errorMessage" id="errormin-fc2" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMax-fc2" id="txtMax-fc2" style="width: 200px;" value="'.$amountMax_fc2.'" autocomplete="off"/>
+												<span class="errorMessage" id="errormax-fc2" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+										  </tr>
+									   </table>									
+									</div>
+									
+									<div class="da-button-row" style="text-align:left;">
+									    <span class="da-panel-title">
+											<b>AFILIACION AUTOMATICA</b>
+											<input type="hidden" name="name-aa" value="Afiliación Automatica"/>
+										</span>
+									</div>	
+									<div class="da-form-row">
+									   <span class="formNote">RANGO 1</span>
+									   <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+										  <tr>
+										    <td style="text-align:center;"><b>Edad Mínima</b></td>
+											<td style="text-align:center;"><b>Edad Máxima</b></td>
+											<td style="text-align:center;"><b>Monto Mínimo (Bs)</b></td>
+											<td style="text-align:center;"><b>Monto Máximo (Bs)</b></td>
+										  </tr>
+										  <tr>
+										    <td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+												 $j=15;
+											 echo'<select id="txtEdadMin-aa1" name="txtEdadMin-aa1" style="width:120px;" class="required">';
+													echo'<option value="">Seleccione...</option>';
+													while($j<=85){
+														if($txtEdadMin_aa1==$j)
+														   echo'<option value="'.$j.'" selected>'.$j.'</option>';  
+														else
+														   echo'<option value="'.$j.'">'.$j.'</option>';     
+														$j++;   
+													}
+											 echo'</select>
+												  <span class="errorMessage" id="errorminedad-aa1" lang="es"></span>
+											  </div>
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+											     $i=15;
+										    echo'<select id="txtEdadMax-aa1" name="txtEdadMax-aa1" style="width:120px;" class="required">';
+												  echo'<option value="">Seleccione...</option>';
+												  while($i<=85){
+													  if($txtEdadMax_aa1==$i)
+													     echo'<option value="'.$i.'" selected>'.$i.'</option>'; 
+													  else
+													     echo'<option value="'.$i.'">'.$i.'</option>'; 	 
+													 $i++;   
+												  }
+										    echo'</select>
+											     <span class="errorMessage" id="errormaxedad-aa1" lang="es"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMin-aa1" id="txtMin-aa1" style="width: 200px;" value="'.$amountMin_aa1.'" autocomplete="off"/>
+												 <span class="errorMessage" id="errormin-aa1" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMax-aa1" id="txtMax-aa1" style="width: 200px;" value="'.$amountMax_aa1.'" autocomplete="off"/>
+												<span class="errorMessage" id="errormax-aa1" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+										  </tr>
+									   </table>
+									   <span class="formNote">RANGO 2</span>
+									   <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+										  <tr>
+										    <td style="text-align:center;"><b>Edad Mínima</b></td>
+											<td style="text-align:center;"><b>Edad Máxima</b></td>
+											<td style="text-align:center;"><b>Monto Mínimo (Bs)</b></td>
+											<td style="text-align:center;"><b>Monto Máximo (Bs)</b></td>
+										  </tr>
+										  <tr>
+										    <td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+												 $j=15;
+											 echo'<select id="txtEdadMin-aa2" name="txtEdadMin-aa2" style="width:120px;" class="required">';
+													echo'<option value="">Seleccione...</option>';
+													while($j<=85){
+														if($txtEdadMin_aa2==$j)
+														   echo'<option value="'.$j.'" selected>'.$j.'</option>';  
+														else
+														   echo'<option value="'.$j.'">'.$j.'</option>';     
+														$j++;   
+													}
+											 echo'</select>
+												  <span class="errorMessage" id="errorminedad-aa2" lang="es"></span>
+											  </div>
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+											     $i=15;
+										    echo'<select id="txtEdadMax-aa2" name="txtEdadMax-aa2" style="width:120px;" class="required">';
+												  echo'<option value="">Seleccione...</option>';
+												  while($i<=85){
+													  if($xtEdadMax_aa2==$i)
+													     echo'<option value="'.$i.'" selected>'.$i.'</option>';
+													  else
+													     echo'<option value="'.$i.'">'.$i.'</option>';	  
+													 $i++;   
+												  }
+										    echo'</select>
+											     <span class="errorMessage" id="errormaxedad-aa2" lang="es"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMin-aa2" id="txtMin-aa2" style="width: 200px;" value="'.$amountMin_aa2.'" autocomplete="off"/>
+												 <span class="errorMessage" id="errormin-aa2" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMax-aa2" id="txtMax-aa2" style="width: 200px;" value="'.$amountMax_aa2.'" autocomplete="off"/>
+												<span class="errorMessage" id="errormax-aa2" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+										  </tr>
+									   </table>									
+									</div>
+									
+									<div class="da-button-row" style="text-align:left;">
+									    <span class="da-panel-title">
+											<b>FACULTATIVO</b>
+											<input type="hidden" name="name-fa" value="Facultativo"/>
+										</span>
+									</div>	
+									<div class="da-form-row">
+									   <span class="formNote">RANGO 1</span>
+									   <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+										  <tr>
+										    <td style="text-align:center;"><b>Edad Mínima</b></td>
+											<td style="text-align:center;"><b>Edad Máxima</b></td>
+											<td style="text-align:center;"><b>Monto Mínimo (Bs)</b></td>
+											<td style="text-align:center;"><b>Monto Máximo (Bs)</b></td>
+										  </tr>
+										  <tr>
+										    <td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+												 $j=15;
+											 echo'<select id="txtEdadMin-fa1" name="txtEdadMin-fa1" style="width:120px;" class="required">';
+													echo'<option value="">Seleccione...</option>';
+													while($j<=85){
+														if($txtEdadMin_fa1==$j)
+														   echo'<option value="'.$j.'" selected>'.$j.'</option>';  
+														else
+														   echo'<option value="'.$j.'">'.$j.'</option>';     
+														$j++;   
+													}
+											 echo'</select>
+												  <span class="errorMessage" id="errorminedad-fa1" lang="es"></span>
+											  </div>
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+											     $i=15;
+										    echo'<select id="txtEdadMax-fa1" name="txtEdadMax-fa1" style="width:120px;" class="required">';
+												  echo'<option value="">Seleccione...</option>';
+												  while($i<=85){
+													 if($txtEdadMax_fa1==$i) 
+													    echo'<option value="'.$i.'" selected>'.$i.'</option>'; 
+													 else
+													    echo'<option value="'.$i.'">'.$i.'</option>'; 	
+													 $i++;   
+												  }
+										    echo'</select>
+											     <span class="errorMessage" id="errormaxedad-fa1" lang="es"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMin-fa1" id="txtMin-fa1" style="width: 200px;" value="'.$amountMin_fa1.'" autocomplete="off"/>
+												 <span class="errorMessage" id="errormin-fa1" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMax-fa1" id="txtMax-fa1" style="width: 200px;" value="'.$amountMax_fa1.'" autocomplete="off"/>
+												<span class="errorMessage" id="errormax-fa1" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+										  </tr>
+									   </table>
+									   <span class="formNote">RANGO 2</span>
+									   <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+										  <tr>
+										    <td style="text-align:center;"><b>Edad Mínima</b></td>
+											<td style="text-align:center;"><b>Edad Máxima</b></td>
+											<td style="text-align:center;"><b>Monto Mínimo (Bs)</b></td>
+											<td style="text-align:center;"><b>Monto Máximo (Bs)</b></td>
+										  </tr>
+										  <tr>
+										    <td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+												 $j=15;
+											 echo'<select id="txtEdadMin-fa2" name="txtEdadMin-fa2" style="width:120px;" class="required">';
+													echo'<option value="">Seleccione...</option>';
+													while($j<=85){
+														if($txtEdadMin_fa2==$j)
+														    echo'<option value="'.$j.'" selected>'.$j.'</option>';  
+														else
+														  	echo'<option value="'.$j.'">'.$j.'</option>';  
+														$j++;   
+													}
+											 echo'</select>
+												  <span class="errorMessage" id="errorminedad-fa2" lang="es"></span>
+											  </div>
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">';
+											     $i=15;
+										    echo'<select id="txtEdadMax-fa2" name="txtEdadMax-fa2" style="width:120px;" class="required">';
+												  echo'<option value="">Seleccione...</option>';
+												  while($i<=85){
+													  if($txtEdadMax_fa2==$i)
+													     echo'<option value="'.$i.'" selected>'.$i.'</option>';
+													   else
+													   	 echo'<option value="'.$i.'">'.$i.'</option>'; 
+													 $i++;   
+												  }
+										    echo'</select>
+											     <span class="errorMessage" id="errormaxedad-fa2" lang="es"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMin-fa2" id="txtMin-fa2" style="width: 200px;" value="'.$amountMin_fa2.'" autocomplete="off"/>
+												 <span class="errorMessage" id="errormin-fa2" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+											<td>
+											  <div class="da-form-item large" style="margin:0; text-align:center;">
+												 <input class="textbox required" type="text" name="txtMax-fa2" id="txtMax-fa2" style="width: 200px;" value="'.$amountMax_fa2.'" autocomplete="off"/>
+												<span class="errorMessage" id="errormax-fa2" style="margin-top:0px;"></span>
+											  </div> 
+											</td>
+										  </tr>
+									   </table>									
+									</div>
+															
+									<div class="da-button-row">
+										<!--<input type="button" value="Cancelar" class="da-button gray left" name="btnCancelar" id="btnCancelar" lang="es"/>-->
+										<input type="submit" value="Guardar" class="da-button green" name="btnUsuario" id="btnUsuario" lang="es"/>
+										<div id="response-loading" class="loading-fac"></div>
+										
+										<input type="hidden" name="var" id="var" value="'.$_GET['var'].'"/>
+										<input type="hidden" id="tipo_cambio" value="'.$row['valor_boliviano'].'"/>
+									</div>
+								</form>
+							</div>
+						  </div>
+					  </div>';
+				  /*		
+				  echo'<div class="da-panel" style="width:600px;">
+						<div class="da-panel-header">
+							<span class="da-panel-title">
+								<img src="images/icons/black/16/pencil.png" alt="" />
+								<span lang="es">Editar Datos Desgravamen</span>
+							</span>
+						</div>
+						<div class="da-panel-content">
+							<form class="da-form" name="frmDatosAdmin" action="" method="post" id="frmDatosAdmin">
+								<div class="da-form-row">
+									 <label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Entidad Financiera</span></b></label>
+									 <div class="da-form-item large">
+										 '.$fila['nombre'].'
+										 <input type="hidden" name="idenfin" value="'.$fila['id_ef'].'"/>								 
+									 </div>	 
+								</div>	
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Caducidad Cotización (días)</span></b></label>
+									<div class="da-form-item large">
+										<input class="textbox required" type="text" name="txtLimitCotiza" id="txtLimitCotiza" style="width: 200px;" value="'.$txtLimitCotiz.'" autocomplete="off"/>
+										<span class="errorMessage" id="errorcaducidad" style="margin-top:0px;" lang="es"></span>
+									</div>
+								</div>
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Monto Máximo Cotización (Bs)</span></b></label>
+									<div class="da-form-item large">
+										<input class="textbox required" type="text" name="txtMaxCotiBs" id="txtMaxCotiBs" style="width: 200px;" value="'.$txtMaxCotiBs.'" autocomplete="off"/>
+										<span class="errorMessage" id="errorarmaxcotibs" style="margin-top:0px;"></span>
+									</div>
+								</div>
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Monto Máximo Cotización (USD)</span></b></label>
+									<div class="da-form-item large">
+										<input class="textbox required" type="text" name="txtMaxCotiUsd" id="txtMaxCotiUsd" style="width: 200px;" value="'.$txtMaxCotiUsd.'" autocomplete="off"/>
+										<span class="errorMessage" id="errorarmaxcotiusd" style="margin-top:0px;"></span>
+									</div>
+								</div>
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Monto Máximo Emisión (Bs)</span></b></label>
+									<div class="da-form-item large">
+										<input class="textbox required" type="text" name="txtMaxEmiBs" id="txtMaxEmiBs" style="width: 200px;" value="'.$txtMaxEmiBs.'" autocomplete="off"/>
+										<span class="errorMessage" id="errormaxemibs" style="margin-top:0px;"></span>
+									</div>
+								</div>
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Monto Máximo Emisión (USD)</span></b></label>
+									<div class="da-form-item large">
+										<input class="textbox required" type="text" name="txtMaxEmiUsd" id="txtMaxEmiUsd" style="width: 200px;" value="'.$txtMaxEmiUsd.'" autocomplete="off"/>
+										<span class="errorMessage" id="errorarmaxemiusd" style="margin-top:0px;"></span>
+									</div>
+								</div>
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Numero de Titulares</span></b></label>
+									<div class="da-form-item large">
+										<input class="textbox required" type="text" name="txtNumTitulares" id="txtNumTitulares" style="width: 200px;" value="'.$txtNumTitulares.'"/>
+										<span class="errorMessage" id="errornumtitular" lang="es"></span>
+									</div>
+								</div>
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Implante</span></b></label>
+									<div class="da-form-item">
+										<ul class="da-form-list inline">';
+										   if($implante==1){	
+											  echo'<li><input type="radio" name="implante" id="rd-1" value="1" class="required" checked/> <label>Si</label></li>';
+										   }else{
+											  echo'<li><input type="radio" name="implante" id="rd-1" value="1" class="required"/> <label>Si</label></li>'; 
+										   }
+										   if($implante==0){
+											  echo'<li><input type="radio" name="implante" id="rd-2" value="0" class="required" checked/> <label>No</label></li>';
+										   }else{
+											  echo'<li><input type="radio" name="implante" id="rd-2" value="0" class="required"/> <label>No</label></li>'; 
+										   }
+								   echo'</ul>
+										<span class="errorMessage" id="errorimplante"></span>
+									</div>
+								</div>
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Certificado Provisional</span></b></label>
+									<div class="da-form-item">
+										<ul class="da-form-list inline">';
+										   if($cert_prov==1){	
+											  echo'<li><input type="radio" name="cert_prov" id="ctp-1" value="1" class="required" checked/> <label>Si</label></li>';
+										   }else{
+											  echo'<li><input type="radio" name="cert_prov" id="ctp-1" value="1" class="required"/> <label>Si</label></li>'; 
+										   }
+										   if($cert_prov==0){
+											  echo'<li><input type="radio" name="cert_prov" id="ctp-2" value="0" class="required" checked/> <label>No</label></li>';
+										   }else{
+											  echo'<li><input type="radio" name="cert_prov" id="ctp-2" value="0" class="required"/> <label>No</label></li>'; 
+										   }
+								   echo'</ul>
+										<span class="errorMessage" id="errorcertprovisional"></span>
+									</div>
+								</div>
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Modalidad</span></b></label>
+									<div class="da-form-item">
+										<ul class="da-form-list inline">';
+										   if($modalidad==1){	
+											  echo'<li><input type="radio" name="modalidad" id="mod-1" value="1" class="required" checked/> <label>Si</label></li>';
+										   }else{
+											  echo'<li><input type="radio" name="modalidad" id="mod-1" value="1" class="required"/> <label>Si</label></li>'; 
+										   }
+										   if($modalidad==0){
+											  echo'<li><input type="radio" name="modalidad" id="mod-2" value="0" class="required" checked/> <label>No</label></li>';
+										   }else{
+											  echo'<li><input type="radio" name="modalidad" id="mod-2" value="0" class="required"/> <label>No</label></li>'; 
+										   }
+								   echo'</ul>
+										<span class="errorMessage" id="errormodalidad"></span>
+									</div>
+								</div>';
+						       if($tipo_sesion=='ROOT'){
+								   echo'<div class="da-form-row">
+											<label style="width:190px; text-align:right; margin-right:10px;"><b>Web Services</b></label>
+											<div class="da-form-item">
+												<ul class="da-form-list inline">';
+												   if($webservice==1){	
+													  echo'<li><input type="radio" name="webservice" id="ws-1" value="1" class="required" checked/> <label>Si</label></li>';
+												   }else{
+													  echo'<li><input type="radio" name="webservice" id="ws-1" value="1" class="required"/> <label>Si</label></li>'; 
+												   }
+												   if($webservice==0){
+													  echo'<li><input type="radio" name="webservice" id="ws-2" value="0" class="required" checked/> <label>No</label></li>';
+												   }else{
+													  echo'<li><input type="radio" name="webservice" id="ws-2" value="0" class="required"/> <label>No</label></li>'; 
+												   }
+										   echo'</ul>
+												<span class="errorMessage" id="errorwservice"></span>
+											</div>
+										</div>';
+							   }
+						   echo'<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Edad Mínima</span></b></label>
+									<div class="da-form-item large">';
+										$j=15;
+									  echo'<select id="txtEdadMin" name="txtEdadMin" style="width:120px;" class="required">';
+											  echo'<option value="">Seleccione...</option>';
+											  while($j<=85){
+												 if($txtEdadMin==$j){  
+													echo'<option value="'.$j.'" selected>'.$j.'</option>'; 
+												 }else{
+													echo'<option value="'.$j.'">'.$j.'</option>';  
+												 }
+												 $j++;   
+											  }
+									  echo'</select>
+										  <span class="errorMessage" id="errorminedad" lang="es"></span>'; 	
+							   echo'</div>
+								</div>		
+								<div class="da-form-row">
+									<label style="width:190px; text-align:right; margin-right:10px;"><b><span lang="es">Edad Máxima</span></b></label>
+									<div class="da-form-item large">';
+										 $i=15;
+									  echo'<select id="txtEdadMax" name="txtEdadMax" style="width:120px;" class="required">';
+											  echo'<option value="">Seleccione...</option>';
+											  while($i<=85){
+												 if($txtEdadMax==$i){ 
+													echo'<option value="'.$i.'" selected>'.$i.'</option>'; 
+												 }else{
+													echo'<option value="'.$i.'">'.$i.'</option>'; 
+												 }
+												 $i++;   
+											  }
+									  echo'</select>
+										  <span class="errorMessage" id="errormaxedad" lang="es"></span>';
+											
+							   echo'</div>
+								</div>												
+								<div class="da-button-row">
+									<input type="button" value="Cancelar" class="da-button gray left" name="btnCancelar" id="btnCancelar" lang="es"/>
+									<input type="submit" value="Guardar" class="da-button green" name="btnUsuario" id="btnUsuario" lang="es"/>
+									
+									<input type="hidden" name="var" id="var" value="'.$_GET['var'].'"/>
+									<input type="hidden" id="tipo_cambio" value="'.$fila['valor_boliviano'].'"/>
+								</div>
+							</form>
+						</div>
+					</div>';
+			        */
+			} else {
+				//SI NO EXISTE EL USUARIO DADO EN LA BASE DE DATOS, VOLVEMOS A LA LISTA DE USUARIOS
+				echo'<div class="da-message info">
+					   Verifique que el tipo de cambio tenga un valor y este activado para la Entidad Financiera, esto para realizar las operaciones al momento de ingresar los nuevos montos
+					</div>';
+			}
+	}else{
+		echo"<div style='font-size:8pt; text-align:center; margin-top:20px; margin-bottom:15px; border:1px solid #C68A8A; background:#FFEBEA; padding:8px; width:600px;'>
+		  Error en la consulta: "."\n ".$conexion->errno . ": " .$conexion->error
+		   ."</div>";
+	}
+}
 ?>

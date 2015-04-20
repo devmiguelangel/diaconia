@@ -3,6 +3,9 @@
 class Diaconia
 {
 	protected $cx;
+
+	protected $certificate = 1;
+
 	protected 
 		$coverage = [
 			'IM' => 'Individual/Mancomunado',
@@ -37,6 +40,11 @@ class Diaconia
 	public function __construct()
 	{
 		$this->cx = new SibasDB();
+	}
+
+	public function getCertificate()
+	{
+		return $this->certificate;
 	}
 
 	public function getCoverage() {

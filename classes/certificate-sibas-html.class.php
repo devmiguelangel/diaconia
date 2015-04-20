@@ -1,53 +1,31 @@
 <?php
+
 require('includes-ce/certificate-DE-EM.inc.php');
-require('includes-ce/certificate-DE-EM-APS.inc.php');
-require('includes-ce/certificate-DE-EM-MO.inc.php');
-require('includes-ce/certificate-AU-EM.inc.php');
-require('includes-ce/certificate-AU-EM-MO.inc.php');
-require('includes-ce/certificate-AU-MO-AUPRM.inc.php');
-require('includes-ce/certificate-AU-MO-AUPBM.inc.php');
-require('includes-ce/certificate-AU-MO-AUPRU.inc.php');
-require('includes-ce/certificate-AU-MO-AUPBU.inc.php');
-require('includes-ce/certificate-AU-MO-AULU.inc.php');
-require('includes-ce/certificate-TRD-EM.inc.php');
-require('includes-ce/certificate-TRD-EM-MO.inc.php');
-require('includes-ce/certificate-TRD-MO-TRDM.inc.php');
-require('includes-ce/certificate-TRD-MO-TRDU.inc.php');
-require('includes-ce/certificate-TRD-MO-INCM.inc.php');
-require('includes-ce/certificate-TRD-MO-INCU.inc.php');
-require('includes-ce/certificate-TRD-MO-CAR.inc.php');
-require('includes-ce/certificate-TRM-EM.inc.php');
-require('includes-ce/certificate-TRM-EM-MO.inc.php');
-require('includes-ce/certificate-THC-EM-MO.inc.php');
-require('includes-ce/certificate-THD-EM-MO.inc.php');
-
-require('includes-ce/certificate-DE-EM-PEC.inc.php');
-
 require('includes-ce/certificate-DE-SC.inc.php');
-require('includes-ce/certificate-DE-SC-MO.inc.php');
-require('includes-ce/certificate-AU-SC.inc.php');
-require('includes-ce/certificate-TRD-SC.inc.php');
-require('includes-ce/certificate-TRM-SC.inc.php');
 
-require('includes-ce/certificate-DE-PES.inc.php');
+require_once __DIR__ . '/../app/controllers/DiaconiaController.php';
+require_once __DIR__ . '/../app/controllers/QuestionController.php';
 
-require('includes-ce/certificate-DE-CP.inc.php');
-require('includes-ce/certificate-AU-CP.inc.php');
-require('includes-ce/certificate-TRD-CP.inc.php');
-require('includes-ce/certificate-TRM-CP.inc.php');
-
-/**
- * 
- */
 class CertificateHtml{
 	protected $cx, $ide, $idc, $idef, $idcia, 
 			$type, $category, $product, $page, $nCopy, $error, $implant, $fac, $reason,
 			$sqlPo, $sqlDt, $rsPo, $rsDt, $rowPo, $rowDt, $url,
 			$html, $self, $host;
+	
 	public $extra, $modality = false;
 	private $host_ws = '';
 	
 	protected function __construct() {
+		$QuestionController = new QuestionController();
+		$Diaconia = new DiaconiaController();
+
+		$this->rowPo['tipo_cambio'] = $Diaconia->getRateExchange(true);
+		$this->rowPo['questions']	= array();
+
+		if (($qs = $QuestionController->getQuestion(base64_encode($this->rowPo['idef']))) !== false) {
+			$this->rowPo['questions'] = $qs;
+		}
+
 		$self = $_SERVER['HTTP_HOST'];
 		$this->url = 'http://' . $self . '/';
 		
@@ -199,18 +177,16 @@ class CertificateHtml{
 			switch ((int)$this->rowPo['id_certificado']) {
 			case 1:
 				return de_em_certificate($this->cx, $this->rowPo, $this->rsDt, $this->url, 
-										$this->implant, $this->fac, $this->reason);
+						$this->implant, $this->type, $this->fac, $this->reason);
 				break;
 			case 2:
-				return de_em_certificate_aps($this->cx, $this->rowPo, $this->rsDt, $this->url, 
-										$this->implant, $this->fac, $this->reason);
+				return '';
 				break;
 			default:
 				break;
 			}
 		} else {
-			return de_em_certificate_mo($this->cx, $this->rowPo, $this->rsDt, $this->url, 
-									$this->implant, $this->fac, $this->reason);
+			return '';
 		}
 	}
 	

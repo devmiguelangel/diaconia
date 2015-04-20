@@ -66,7 +66,6 @@ class QuestionController extends Diaconia
 								$flag[$k] = true;
 							}
 							
-							$data_qs[$k][$question['orden']] = $question['id_pregunta'] . '|' . $value;
 							$data_qs[$k][$question['orden']] = [
 								'id' 	=> (int)$question['id_pregunta'],
 								'value'	=> (int)$value	

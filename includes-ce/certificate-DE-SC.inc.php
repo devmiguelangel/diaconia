@@ -8,31 +8,7 @@ function de_sc_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '
 	$width_ct2 = 'width: 695px;';
 	$marginUl = 'margin: 0 0 0 20px; padding: 0;';
 	
-	$tipo_cambio = $link->get_rate_exchange(true);
-	/*
-	$url_img = $url;
-	if($type == 'PDF'){
-		$marginUl = 'margin: 0 0 0 -20px; padding:0;';
-		$fontSize = 'font-size: 75%;';
-		$fontsizeh2 = 'font-size: 40%';
-		$width_ct = 'width: 785px;';
-		$width_ct2 = 'width: 775px;';
-		$url_img = '';
-	}
-	if($type == 'PDF'){
-	   $imagen = getimagesize($url_img.'../images/'.$row['logo_cia']); 
-	   $dir_cia = $url_img.'../images/'.$row['logo_cia'];
-	   $dir_logo = $url_img.'../img/logo-sud.jpg';  
-    }else{
-	   $imagen = getimagesize($url_img.'images/'.$row['logo_cia']);
-	   $dir_cia = $url_img.'images/'.$row['logo_cia'];
-	   $dir_logo = $url_img.'img/logo-sud.jpg';   
-	}*/
-	//$imagen = getimagesize($url.'images/'.$row['logo_cia']);
-	//$dir_cia = $url.'images/'.$row['logo_cia'];
-	//$dir_logo = $url.'images/'.$row['logo_ef'];   
-	//$ancho = $imagen[0];            
-    //$alto = $imagen[1];
+	$tipo_cambio = (float)$row['tipo_cambio'];
 	
 	ob_start();
 ?>
@@ -95,7 +71,7 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 			
 			while($regiDt=$rsDt->fetch_array(MYSQLI_ASSOC)){
                 $jsonData = $regiDt['respuesta'];
-                $phpArray = json_decode($jsonData);
+                $phpArray = json_decode($jsonData, true);
 		    ?>
                 <div style="width: auto;	height: auto; text-align: left; margin: 7px 0; padding: 0; font-weight: bold; <?=$fontsizeh2;?>">Datos del titular <?=$j;?></div>                             
                 <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; <?=$fontSize;?>">
@@ -184,9 +160,9 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 						  $c=0;
 						  $error=array();
 						  foreach ($phpArray as $key => $value) {
-							  $vec=explode('|',$value);
-							  $id_pregunta=$vec[0];
-							  $respuesta=$vec[1];
+							  $vec=$value;
+							  $id_pregunta=$vec['id'];
+							  $respuesta=$vec['value'];
 							  $select4="select
 										  pregunta,
 										  respuesta,

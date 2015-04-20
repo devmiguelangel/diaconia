@@ -1,5 +1,5 @@
 <?php
-function de_em_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '', $type) {
+function de_em_certificate($link, $row, $rsDt, $url, $implant, $type, $fac, $reason = '') {
     $emitir = (boolean)$row['emitir'];
 
     if ($emitir === true) {
@@ -11,18 +11,18 @@ function de_em_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '
     $row['fecha_emision'] = $row['u_departamento'] . ', ' . date('d/m/Y', strtotime($row['fecha_emision']));
 	
 	$nCl = $rsDt->num_rows;
-    $_coverage = (int)$row['cobertura'];
+    $_coverage = $row['cobertura'];
 
     $coverage = array('', '', '');
     switch ($_coverage) {
-    case 1:
+    case 'IM':
         if ($nCl === 1) {
             $coverage[0] = 'X';
         } elseif ($nCl === 2) {
             $coverage[1] = 'X';
         }
         break;
-    case 2:
+    case 'BC':
         $coverage[2] = '';
         break;
     }
@@ -36,7 +36,7 @@ function de_em_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '
     <div id="main-c" style="width: 775px; font-weight: normal; font-size: 12px; 
         font-family: Arial, Helvetica, sans-serif; color: #000000;">
 <?php
-if($_coverage === 1){
+if($_coverage === 'IM'){
 ?>
         <div style="width: 775px; border: 0px solid #FFFF00; text-align:center;">
             <table 
@@ -60,7 +60,7 @@ if($_coverage === 1){
 			<span style="font-weight:bold; font-size:75%;">
             Estimado Cliente, agradeceremos completar la información que se requiere a continuación: (utilice letra clara)<br>
 <?php
-     $titular=array();  
+     $titular=array();
      if($rsDt->data_seek(0)){ 
 	     while($rowcl = $rsDt->fetch_array(MYSQLI_ASSOC)){
 		    $k += 1;
@@ -331,34 +331,34 @@ if($_coverage === 1){
 			  }
 		  }  
 	  }
-	  if (($rsQs = $link->get_question($_SESSION['idEF'])) !== FALSE) {
-		  $resp1_yes = $resp1_no = '';	$resp2_yes = $resp2_no = '';
-		  while($rowQs = $rsQs->fetch_array(MYSQLI_ASSOC)){
-			  if(count($rsCl_1) > 0){
-				  $respCl = explode('|',$rsCl_1[$rowQs['id_pregunta']]);
-				  if($rowQs['id_pregunta'] === $respCl[0]){
-					  if($respCl[1] == 1) {
-						  $resp1_yes = 'X';
-					  } elseif($respCl[1] == 0) {
-						  $resp1_no = 'X';
-					  }
-				  }
-			  }
-			  
-			  if(count($rsCl_2) > 0){
-				  $respCl = explode('|',$rsCl_2[$rowQs['id_pregunta']]);
-				  if($rowQs['id_pregunta'] === $respCl[0]){
-					  if($respCl[1] == 1) {
-						  $resp2_yes = 'X';
-					  } elseif($respCl[1] == 0) {
-						  $resp2_no = 'X';
-					  }
-				  }
-			  }
-?>               
-               <tr>
+        
+        $resp1_yes = $resp1_no = '';    $resp2_yes = $resp2_no = '';
+        foreach ($row['questions'] as $key => $question) {
+            if (count($rsCl_1) > 0) {
+                $respCl = $rsCl_1[$question['orden']];
+                if ($question['id_pregunta'] == $respCl['id']) {
+                    if ($respCl['value'] === 1) {
+                        $resp1_yes = 'X';
+                    } elseif($respCl['value'] === 0) {
+                        $resp1_no = 'X';
+                    }
+                }
+            }
+
+            if (count($rsCl_2) > 0) {
+                $respCl = $rsCl_2[$question['orden']];
+                if ($question['id_pregunta'] == $respCl['id']) {
+                    if ($respCl['value'] === 1) {
+                        $resp2_yes = 'X';
+                    } elseif($respCl['value'] === 0) {
+                        $resp2_no = 'X';
+                    }
+                }
+            }
+?>
+                <tr>
                   <td style="width:63%; text-align:left;">
-                      <?=$rowQs['orden'].' '.$rowQs['pregunta'];?>
+                      <?=$question['orden'].' '.$question['pregunta'];?>
                   </td>
                   <td style="width:3%;">SI</td>
                   <td style="width:5%;">
@@ -386,9 +386,8 @@ if($_coverage === 1){
                      </div> 
                   </td>
                </tr>
-<?php              
-		  }
-	  }
+<?php
+        }
 ?>               
                 
             </table> <br>
@@ -476,11 +475,11 @@ if($_coverage === 1){
                   
                 </td>
                 <td style="width:7%;">Nombre:</td>
-                <td style="width:23%; border-bottom: 1px solid #333; font-size:70%;">
+                <td style="width:23%; border-bottom: 1px solid #333;">
                   <?=$titular[1];?>
                 </td>
                 <td style="width:7%;">Nombre:</td>
-                <td style="width:23%; border-bottom: 1px solid #333; font-size:70%;">
+                <td style="width:23%; border-bottom: 1px solid #333;">
                   <?=$titular[2];?>
                 </td> 
                </tr>
@@ -1042,7 +1041,7 @@ if($_coverage === 1){
           </div>
 <?php		   
 	   }
-}elseif($_coverage === 2){
+}elseif($_coverage === 'BC'){
 	$k=0;
 	while($rowcl=$rsDt->fetch_array(MYSQLI_ASSOC)){
 		$k += 1;
@@ -1312,55 +1311,52 @@ if($_coverage === 1){
                   <td style="width:5%;">&nbsp;</td>
                   <td style="width:16%; text-align:center;" colspan="4">TITULAR 2</td>
                </tr>
- <?php
-      if (($rsQs = $link->get_question($_SESSION['idEF'])) !== FALSE) { 
-	      $resp1_yes = $resp1_no = '';
-		  while($rowQs = $rsQs->fetch_array(MYSQLI_ASSOC)){
-			  if(count($rsCl_1) > 0){
-				  $respCl = explode('|',$rsCl_1[$rowQs['id_pregunta']]);
-				  if($rowQs['id_pregunta'] === $respCl[0]){
-					  if($respCl[1] == 1) {
-						  $resp1_yes = 'X';
-					  } elseif($respCl[1] == 0) {
-						  $resp1_no = 'X';
-					  }
-				  }
-			  }
-			  		  
- ?>              
-               <tr>
-                  <td style="width:63%; text-align:left;">
-                      <?=$rowQs['orden'].' '.$rowQs['pregunta'];?>
-                  </td>
-                  <td style="width:3%;">SI</td>
-                  <td style="width:5%;">
-                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
-                      <?=$resp1_yes;?>
-                     </div> 
-                  </td>
-                  <td style="width:3%;">NO</td>
-                  <td style="width:5%;">
-                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
-                      <?=$resp1_no;?>
-                     </div> 
-                  </td>
-                  <td style="width:5%;">&nbsp;</td>
-                  <td style="width:3%;">SI</td>
-                  <td style="width:5%;">
-                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
-                      &nbsp;
-                     </div> 
-                  </td>
-                  <td style="width:3%;">NO</td>
-                  <td style="width:5%;">
-                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
-                      &nbsp;
-                     </div> 
-                  </td>
-               </tr>
 <?php
-		  }
-	  }
+    $resp1_yes = $resp1_no = '';
+    foreach ($row['questions'] as $key => $question) {
+        if (count($rsCl_1) > 0) {
+            $respCl = $rsCl_1[$question['orden']];
+            if ($question['id_pregunta'] == $respCl['id']) {
+                if ($respCl['value'] === 1) {
+                    $resp1_yes = 'X';
+                } elseif($respCl['value'] === 0) {
+                    $resp1_no = 'X';
+                }
+            }
+        }
+?>              
+            <tr>
+                <td style="width:63%; text-align:left;">
+                    <?=$question['orden'].' '.$question['pregunta'];?>
+                </td>
+                <td style="width:3%;">SI</td>
+                <td style="width:5%;">
+                    <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                        <?=$resp1_yes;?>
+                    </div>
+                </td>
+                <td style="width:3%;">NO</td>
+                <td style="width:5%;">
+                    <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                        <?=$resp1_no;?>
+                    </div>
+                </td>
+                <td style="width:5%;">&nbsp;</td>
+                <td style="width:3%;">SI</td>
+                <td style="width:5%;">
+                    <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                        &nbsp;
+                    </div>
+                </td>
+                <td style="width:3%;">NO</td>
+                <td style="width:5%;">
+                    <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                        &nbsp;
+                    </div>
+                </td>
+            </tr>
+<?php
+    }
 ?>               
                
                

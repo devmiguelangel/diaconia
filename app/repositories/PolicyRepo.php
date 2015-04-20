@@ -309,7 +309,7 @@ class PolicyRepo
 			' . $vars['dcr_policy'] . ', "' . $vars['dcr_type_mov'] . '", 
 			' . (int)$vars['FAC'] . ', "' . $vars['fac_reason'] . '", 
 			"' . $vars['tasa'] . '", "' . $vars['prima'] . '", 
-			0, 0, false, 1) 
+			0, 0, false, "' . $vars['certificate'] . '") 
 		;';
 
 		if ($this->cx->query($sql)) {
@@ -358,7 +358,7 @@ class PolicyRepo
 			facultativo = ' . (int)$vars['FAC'] . ', 
 			motivo_facultativo = "' . $vars['fac_reason'] . '", 
 			tasa = ' . $vars['tasa'] . ', prima_total = ' . $vars['prima'] . ', 
-			leido = false, id_certificado = 1
+			leido = false, id_certificado = "' . $vars['certificate'] . '"
 		where id_emision = "' . $vars['id'] . '"
 		;';
 
