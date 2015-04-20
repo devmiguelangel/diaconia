@@ -6,6 +6,7 @@ require __DIR__ . '/../repositories/QuoteRepo.php';
 
 class QuoteController extends Diaconia
 {
+	protected $cx;
 	
 	public function __construct()
 	{
@@ -33,8 +34,10 @@ class QuoteController extends Diaconia
 			$data['modality'] 	= 'null';
 			
 			if ($this->checkAmount($data['amount'], $data['currency'], $data['idef'], $data_amount)) {
-				$QuoteRepo = new QuoteRepo($this->cx);
+				$data['record'] = $this->getRegistrationNumber($_SESSION['idEF'], 'DE', 0);
 
+				$QuoteRepo = new QuoteRepo($this->cx);
+				
 				if ($QuoteRepo->postQuoteRepo($data)) {
 					$mess[0] = 1;
 					$mess[1] = 'de-quote.php?ms=' . $ms . '&page=' . $page 
@@ -68,6 +71,76 @@ class QuoteController extends Diaconia
 		}
 
 		return false;		
+	}
+
+	public function setDataBcCot($idc)
+	{
+		$amount = $percentage = $tasa = $tasa_pr = 0;
+
+    	$sql = 'select 
+			sdd.id_detalle,
+			sdd.monto_banca_comunal,
+			std.tasa_final as tasa_producto
+		from s_de_cot_cabecera as sdc
+			inner join 
+				s_de_cot_detalle as sdd on (sdd.id_cotizacion = sdc.id_cotizacion)
+			inner join 
+				s_de_cot_cliente as scl on (scl.id_cliente = sdd.id_cliente)
+			inner join 
+				s_producto_cia as spc on (spc.id_prcia = sdc.id_prcia)
+			inner join 
+				s_tasa_de as std on (std.id_prcia = spc.id_prcia)
+		where sdc.id_cotizacion = "' . $idc . '"
+		;';
+
+		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
+			if ($rs->num_rows > 0) {
+				$err = false;
+
+				while ($row = $rs->fetch_array(MYSQLI_ASSOC)) {
+					$amount += $row['monto_banca_comunal'];
+					$tasa_pr = $row['tasa_producto'];
+				}
+
+				$sql = 'update s_de_cot_cabecera as sdc
+				set sdc.monto = ' . $amount . '
+				where sdc.id_cotizacion = "' . $idc . '"
+				;';
+
+				if ($this->cx->query($sql) === true) {
+					if ($rs->data_seek(0) === true) {
+						while ($row = $rs->fetch_array(MYSQLI_ASSOC)) {
+							$percentage = 0;
+							$tasa = 0;
+
+							if (empty($amount) === false) {
+								$percentage = ($row['monto_banca_comunal'] / $amount) * 100;
+								$tasa = ($percentage * $tasa_pr) / 100;
+							}
+							
+							$sql = 'update s_de_cot_detalle as sdd
+							set 
+								sdd.porcentaje_credito = ' . $percentage . ',
+								sdd.tasa = ' . $tasa . '
+							where sdd.id_detalle = "' . $row['id_detalle'] . '"
+							;';
+
+							if ($this->cx->query($sql) === false) {
+								$err = true;
+							}
+						}
+					}
+				} else {
+					$err = true;
+				}
+
+				if ($err === false) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 

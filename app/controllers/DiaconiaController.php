@@ -5,7 +5,8 @@ require_once __DIR__ . '/../../sibas-db.class.php';
 
 class DiaconiaController extends Diaconia
 {
-	protected $bc = false;
+    protected $cx;
+    protected $bc = false;
 
 	public function __construct()
 	{

@@ -3,9 +3,11 @@
 require_once __DIR__ . '/../../sibas-db.class.php';
 require_once __DIR__ . '/../models/Diaconia.php';
 require_once __DIR__ . '/../repositories/ClientRepo.php';
+require_once __DIR__ . '/../controllers/QuoteController.php';
 
 class ClientController extends Diaconia
 {
+	protected $cx;
 	protected
 		$status = [
 			'SOL' => 'Soltero(a)', 
@@ -290,7 +292,9 @@ class ClientController extends Diaconia
 
 							if ($rec) {
 								if ($bc) {
-									if ($link->setDatabcCot($idc) === true) {
+									$QuoteController = new QuoteController();
+									
+									if ($QuoteController->setDataBcCot($data['idc'])) {
 										goto Resp2;
 									}
 								} else {
@@ -348,6 +352,39 @@ class ClientController extends Diaconia
 		$data = $ClientRepo->getListClientData($idc, $idef, $max_item);
 
 		return $data;
+	}
+
+	public function getImc($weight, $height, $flag = false)
+	{
+		$sw = 0;
+		$imc = (($weight + 100) - $height);
+		if (($imc >= 0 and $imc <= 15) || ($imc < 0 && $imc >= -15)) {
+			$sw = 1;
+		} elseif ($imc < -15) {
+			$sw = 2;
+		} elseif ($imc > 15) {
+			$sw = 3;
+		}
+		
+		if ($flag === false) {
+			if ($sw === 1) {
+				return false;
+			} elseif ($sw === 2 || $sw === 3) {
+				return true;
+			}
+		} else {
+			switch($sw){
+			case 1:
+				return 'Peso Normal';
+				break;
+			case 2:
+				return 'Desnutrición';
+				break;
+			case 3:
+				return 'Sobrepeso y Obesidad';
+				break;
+			}
+		}
 	}
 
 }

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../repositories/QuestionRepo.php';
 
 class QuestionController extends Diaconia
 {
+	protected $cx;
 	
 	public function __construct()
 	{

@@ -104,7 +104,7 @@ class ClientRepo
 		return false;
 	}
 
-	public function putClientData($data, &$data_cl, $bc)
+	public function putClientData($data, &$data_cl, $bc = false)
 	{
 		$sql = 'update s_de_cot_cliente as scl
         set scl.tipo = 0, scl.razon_social = "",

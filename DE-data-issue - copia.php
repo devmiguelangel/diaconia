@@ -1,3 +1,248 @@
+<?php
+
+require __DIR__ . '/app/controllers/DiaconiaController.php';
+require __DIR__ . '/app/controllers/ClientController.php';
+require __DIR__ . '/app/controllers/QuestionController.php';
+
+$Diaconia = new DiaconiaController();
+$ClientController = new ClientController();
+$QuestionController = new QuestionController();
+
+$depto = $ClientController->getDepto();
+
+require_once('sibas-db.class.php');
+$link = new SibasDB();
+$ide = 0;
+$idc = 0;
+
+if(isset($_GET['ide'])) {
+	$ide = $link->real_escape_string(base64_decode($_GET['ide']));
+} elseif(isset($_GET['idc'])) {
+	$idc = $link->real_escape_string(base64_decode($_GET['idc']));
+}
+
+$_target = false;
+if (isset($_GET['target'])) {
+	if ($_GET['target'] === md5('ERROR-C')) {
+		$_target = true;
+	}
+}
+
+$max_item = 0;
+/*if (($rowDE = $link->get_max_amount_optional($_SESSION['idEF'], 'DE')) !== FALSE) {
+	$max_item = (int)$rowDE['max_item'];
+}*/
+if (($data = $Diaconia->getDataProduct($_SESSION['idEF'])) !== false) {
+	$max_item = (int)$data['max_detalle'];
+}
+
+$flag = $_GET['flag'];
+$action = '';
+
+$read_new = '';
+$read_save = '';
+$read_edit = '';
+$title = '';
+$title_btn = '';
+$cp = null;
+$bc = false;
+
+$sw = 0;
+
+switch($flag){
+	case md5('i-new'):
+		$action = 'DE-issue-record.php';
+		$title = 'Emisión de Póliza de Desgravamen';
+		$title_btn = 'Guardar';
+		
+		$read_new = 'readonly';
+		$sw = 1;
+		break;
+	case md5('i-read'):
+		$action = 'DE-policy-record.php';
+		$title = 'Póliza No. ';
+		$title_btn = 'Emitir';
+		$read_new = 'disabled';
+		$read_save = 'disabled';
+		$sw = 2;
+		break;
+	case md5('i-edit'):
+		$action = 'DE-issue-record.php';
+		$title = 'Póliza No. ';
+		$title_btn = 'Actualizar Datos';
+		$read_edit = 'readonly';
+		$sw = 3;
+		break;
+}
+
+$sql = '';
+switch($sw){
+	case 1:
+		/*if ($link->checkBancaComunal(base64_encode($idc)) === true) {
+			$bc = true;
+		}*/
+
+		$sql = 'select 
+			sdc.id_cotizacion as idc,
+			sdc.certificado_provisional as cp,
+			sdc.cobertura,
+			sdc.id_prcia,
+			sdc.monto,
+			sdc.moneda,
+			sdc.plazo,
+			sdc.tipo_plazo,
+			scl.id_cliente,
+			scl.nombre as cl_nombre,
+			scl.paterno as cl_paterno,
+			scl.materno as cl_materno,
+			scl.ap_casada as cl_casada,
+			scl.genero as cl_genero,
+			scl.estado_civil as cl_estado_civil,
+			scl.tipo_documento as cl_tipo_documento,
+			scl.ci as cl_ci,
+			scl.complemento as cl_complemento,
+			scl.extension as cl_extension,
+			scl.fecha_nacimiento as cl_fecha_nacimiento,
+			scl.pais as cl_pais,
+			scl.lugar_nacimiento as cl_lugar_nacimiento,
+			scl.lugar_residencia as cl_lugar_residencia,
+			scl.localidad as cl_localidad,
+			scl.direccion as cl_direccion,
+			scl.telefono_domicilio as cl_telefono_domicilio,
+			scl.telefono_celular as cl_telefono_celular,
+			scl.email as cl_email,
+			scl.id_ocupacion as cl_ocupacion,
+			scl.desc_ocupacion as cl_desc_ocupacion,
+			scl.telefono_oficina as cl_telefono_oficina,
+			scl.peso as cl_peso,
+			scl.estatura as cl_estatura,
+			scl.edad as cl_edad,
+			sdd.monto_banca_comunal as cl_monto_bc,
+			sdd.tasa as cl_tasa,
+			sdd.porcentaje_credito as cl_porcentaje_credito,
+			scl.saldo_deudor as cl_saldo,
+			sdd.id_detalle,
+			sdr.id_respuesta,
+			sdr.respuesta as cl_respuesta,
+			sdr.observacion as cl_observacion,
+			sdc.id_pr_extra,
+			sdc.modalidad
+		from
+			s_de_cot_cabecera as sdc
+				inner join
+			s_de_cot_detalle as sdd ON (sdd.id_cotizacion = sdc.id_cotizacion)
+				inner join
+			s_de_cot_cliente as scl ON (scl.id_cliente = sdd.id_cliente)
+				inner join
+			s_de_cot_respuesta as sdr ON (sdr.id_detalle = sdd.id_detalle)
+				inner join 
+			s_entidad_financiera as sef ON (sef.id_ef = sdc.id_ef)
+		where
+			sdc.id_cotizacion = "'.$idc.'"
+				and sef.id_ef = "'.base64_decode($_SESSION['idEF']).'"
+				and sef.activado = true
+		order by sdd.id_detalle asc
+		;';
+		break;
+}
+
+if($sw !== 1){
+	/*if ($link->checkBancaComunal(base64_encode($ide), true) === true) {
+		$bc = true;
+	}*/
+
+	$sql = 'select 
+		sdc.id_emision as idc,
+		sdc.id_cotizacion,
+		sdc.no_emision,
+		sdc.prefijo,
+		sdc.certificado_provisional as cp,
+		sdc.cobertura,
+		sdc.id_prcia,
+		sdc.monto_solicitado as monto,
+		sdc.monto_deudor,
+		sdc.monto_codeudor,
+		sdc.cumulo_deudor,
+		sdc.cumulo_codeudor,
+		sdc.moneda,
+		sdc.plazo,
+		sdc.tipo_plazo,
+		sdc.operacion,
+		sdc.no_operacion,
+		sdc.id_poliza,
+		scl.id_cliente,
+		scl.nombre as cl_nombre,
+		scl.paterno as cl_paterno,
+		scl.materno as cl_materno,
+		scl.ap_casada as cl_casada,
+		scl.genero as cl_genero,
+		scl.estado_civil as cl_estado_civil,
+		scl.tipo_documento as cl_tipo_documento,
+		scl.ci as cl_ci,
+		scl.complemento as cl_complemento,
+		scl.extension as cl_extension,
+		scl.fecha_nacimiento as cl_fecha_nacimiento,
+		scl.pais as cl_pais,
+		scl.lugar_nacimiento as cl_lugar_nacimiento,
+		scl.lugar_residencia as cl_lugar_residencia,
+		scl.localidad as cl_localidad,
+		scl.direccion as cl_direccion,
+		scl.telefono_domicilio as cl_telefono_domicilio,
+		scl.telefono_celular as cl_telefono_celular,
+		scl.email as cl_email,
+		scl.id_ocupacion as cl_ocupacion,
+		scl.desc_ocupacion as cl_desc_ocupacion,
+		scl.telefono_oficina as cl_telefono_oficina,
+		scl.peso as cl_peso,
+		scl.estatura as cl_estatura,
+		scl.edad as cl_edad,
+		scl.avenida as cl_avenida,
+		scl.no_domicilio as cl_nd,
+		scl.direccion_laboral as cl_direccion_laboral,
+		scl.mano as cl_mano,
+		sdd.monto_banca_comunal as cl_monto_bc,
+		sdd.tasa as cl_tasa,
+		sdd.porcentaje_credito as cl_porcentaje_credito,
+		sdd.saldo as cl_saldo,
+		sdd.cumulo as cl_cumulo,
+		sdd.id_detalle,
+		sdr.id_respuesta,
+		sdr.respuesta as cl_respuesta,
+		sdr.observacion as cl_observacion,
+		sdc.facultativo,
+		sdc.motivo_facultativo,
+		sdct.id_pr_extra,
+		sdc.modalidad
+	from
+		s_de_em_cabecera as sdc
+			inner join
+		s_de_cot_cabecera as sdct ON (sdct.id_cotizacion = sdc.id_cotizacion)
+			inner join
+		s_de_em_detalle as sdd ON (sdd.id_emision = sdc.id_emision)
+			inner join
+		s_cliente as scl ON (scl.id_cliente = sdd.id_cliente)
+			inner join
+		s_de_em_respuesta as sdr ON (sdr.id_detalle = sdd.id_detalle)
+			inner join 
+		s_entidad_financiera as sef ON (sef.id_ef = sdc.id_ef)
+	where
+		sdc.id_emision = "'.$ide.'"
+			and sef.id_ef = "'.base64_decode($_SESSION['idEF']).'"
+			and sef.activado = true
+	order by sdd.id_detalle asc
+	;';
+}
+
+$rs = $link->query($sql,MYSQLI_STORE_RESULT);
+$nCl = $rs->num_rows;
+if($nCl > 0 && $nCl <= $max_item){
+	if($rs->data_seek(0) === TRUE){
+		$row = $rs->fetch_array(MYSQLI_ASSOC);
+		if ($sw !== 1) {
+			$idc = $row['id_cotizacion'];
+		}
+	}
+?>
 <script type="text/javascript">
 $(document).ready(function(e) {
     $("#dcr-type-mov").change(function(){
@@ -161,140 +406,99 @@ function validarRealf(dat){
 	}
 }
 </script>
-<?php
-
-require __DIR__ . '/app/controllers/DiaconiaController.php';
-require __DIR__ . '/app/controllers/ClientController.php';
-require __DIR__ . '/app/controllers/QuestionController.php';
-require __DIR__ . '/app/controllers/PolicyController.php';
-
-$Diaconia = new DiaconiaController();
-$PolicyController = new PolicyController();
-$ClientController = new ClientController();
-$QuestionController = new QuestionController();
-
-$depto = $ClientController->getDepto();
-
-$ide 		= 0;
-$idc 		= 0;
-$_target 	= false;
-$max_item 	= 0;
-$action 	= '';
-$read_new 	= '';
-$read_save 	= '';
-$read_edit 	= '';
-$title 		= '';
-$title_btn 	= '';
-$cp 		= null;
-$bc 		= false;
-$sw 		= 0;
-$data		= array();
-$n_cl		= 0;
-
-$flag = $_GET['flag'];
-
-if (isset($_GET['ide'])) {
-	$ide = $_GET['ide'];
-} elseif (isset($_GET['idc'])) {
-	$idc = $_GET['idc'];
-}
-
-if (isset($_GET['target'])) {
-	if ($_GET['target'] === md5('ERROR-C')) {
-		$_target = true;
-	}
-}
-
-if (($data_pr = $Diaconia->getDataProduct($_SESSION['idEF'])) !== false) {
-	$max_item = (int)$data_pr['max_detalle'];
-}
-
-$PolicyController->setLabelData($flag, $sw, $action, $title, $title_btn, $read_new, $read_save, $read_edit);
-
-if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF'])) !== false) {
-	$n_cl = count($data);
-
-	if ($n_cl <= $max_item) {
-		$cont 			= 0;
-		$rsCl 			= array();
-		$cr_coverage 	= 0;
-		$cr_product 	= 0;
-		$cr_modality 	= '';
-		$cr_amount 		= 0;
-		$cr_currency 	= '';
-		$cr_term 		= 0;
-		$cr_type_term 	= '';
-		$cr_type_mov 	= '';
-		$cr_opp 		= '';
-		$cr_policy 		= '';
-		$cr_amount_de 	= 0;
-		$cr_amount_cc 	= 0;
-		$cr_amount_ac 	= '';
-		$idNE 			= '';
-		$swDE 			= false;
-		$swMo 			= false;
-		$disMo 			= '';
-		$readMo 		= '';
-		$FC 			= false;
-?>
 <h3 id="issue-title"><?=$title;?></h3>
-<a href="certificate-detail.php?idc=<?=$idc;?>&cia=<?=
-	$_GET['cia'];?>&type=<?=base64_encode('PRINT');?>&pr=<?=
-	base64_encode('DE');?>" 
-	class="fancybox fancybox.ajax btn-see-slip">Ver Slip Cotización</a>
+<a href="certificate-detail.php?idc=<?=base64_encode($idc);?>&cia=<?=$_GET['cia'];?>&type=<?=base64_encode('PRINT');?>&pr=<?=base64_encode('DE');?>" class="fancybox fancybox.ajax btn-see-slip">Ver Slip Cotización</a>
+<?php
+/*if ($link->verifyModality($_SESSION['idEF'], 'DE') === false) {
+?>
+<a href="certificate-detail.php?idc=<?=base64_encode($idc);?>&cia=<?=$_GET['cia'];?>&type=<?=base64_encode('PRINT');?>&pr=<?=base64_encode('DE');?>&category=<?=base64_encode('PES');?>" class="fancybox fancybox.ajax btn-see-slip">Ver Slip Vida en Grupo</a>
+<?php
+}*/
+?>
+
 <form id="fde-issue" name="fde-issue" action="" method="post" class="form-quote form-customer">
-	<?php foreach ($data as $key => $row): 
-		$cont += 1;
-		$rsCl[$cont] 	= json_decode($row['cl_respuesta'], true);
-		$cr_coverage 	= $row['cobertura'];
-		$cr_product 	= $row['id_prcia'];
-		$cr_modality 	= $row['modalidad'];
-		$cr_amount 		= $row['monto'];
-		$cr_currency 	= $row['moneda'];
-		$cr_term 		= $row['plazo'];
-		$cr_type_term 	= $row['tipo_plazo'];
-		$cl_dir_office 	= '';
-		$cl_hand 		= '';	
-		$cl_avc 		= '';	
-		$cl_nd 			= '';	
+<?php
+$cont = 0;
+$rsCl = array();
 
-		if($sw !== 1){
-			$idNE 			= $row['prefijo'] . '-' . $row['no_emision'];
-			$cr_type_mov 	= $row['operacion'];
-			$cr_opp 		= $row['no_operacion'];
-			$cr_policy 		= $row['id_poliza'];
-			$cl_hand 		= $row['cl_mano'];	
-			$cl_avc 		= $row['cl_avenida'];
-			$cl_nd 			= $row['cl_nd'];
-			$cl_dir_office 	= $row['cl_direccion_laboral'];
-			$mFC 			= $row['motivo_facultativo'];
-			
-			if((boolean)$row['facultativo'] === true) {
-				$FC = true;
-			}
+$cr_coverage = 0;
+$cr_product = 0;
+$cr_modality = '';
+$cr_amount = 0;
+$cr_currency = '';
+$cr_term = 0;
+$cr_type_term = '';
+$cr_type_mov = '';
+$cr_opp = '';
+$cr_policy = '';
+$cr_amount_de = 0;
+$cr_amount_cc = 0;
+$cr_amount_ac = '';
+//$cr_amount_acc = '';
+$idNE = '';
+$swDE = false;
+$swMo = false;
+$disMo = '';
+$readMo = '';
+$FC = false;
 
-		} else {
-			$cp = $row['cp'];
-	        if($cont === 1) {
-	            $cr_amount_de = $row['cl_saldo'];
-	        } elseif($cont === 2) {
-	            $cr_amount_cc = $row['cl_saldo'];
-	        }
-		}
-		
-		if(($cr_currency === 'BS' && $cr_amount > 35000) 
-			|| ($cr_currency === 'USD' && $cr_amount > 5000)){
-			$swDE = true;
-		}
-			
-		if ($cr_modality !== null) {
-			$swMo 	= true;
-			$disMo 	= 'display: none;';
-			$readMo = 'readonly';
-		}
+if($rs->data_seek(0) === TRUE){
+while($row = $rs->fetch_array(MYSQLI_ASSOC)){
+	$cont += 1;
 
+	$rsCl[$cont] = json_decode($row['cl_respuesta'], true);
 	
-	?>
+	$cr_coverage = $row['cobertura'];
+	$cr_product = $row['id_prcia'];
+	$cr_modality = $row['modalidad'];
+	$cr_amount = $row['monto'];
+	$cr_currency = $row['moneda'];
+	$cr_term = $row['plazo'];
+	$cr_type_term = $row['tipo_plazo'];
+
+	if($sw !== 1){
+		$idNE = $row['prefijo'] . '-' . $row['no_emision'];
+		$cr_type_mov = $row['operacion'];
+		$cr_opp = $row['no_operacion'];
+		$cr_policy = $row['id_poliza'];
+		//$cr_amount_de = $row['monto_deudor'];
+		//$cr_amount_cc = $row['monto_codeudor'];
+		//$cr_amount_acd = $row['cumulo_deudor'];
+		//$cr_amount_acc = $row['cumulo_codeudor'];
+		$mFC = $row['motivo_facultativo'];
+		
+		if($sw === 2 || $sw === 3){
+			if((boolean)$row['facultativo'] === TRUE) {
+				$FC = TRUE;
+			}
+		}
+	} else {
+		$cp = $row['cp'];
+        if($cont === 1) {
+            $cr_amount_de = $row['cl_saldo'];
+        } elseif($cont === 2) {
+            $cr_amount_cc = $row['cl_saldo'];
+        }
+	}
+	
+	$cl_hand = '';	$cl_avc = '';	$cl_nd = '';	$cl_dir_office = '';
+	if($sw === 2 || $sw === 3){
+		$cl_hand = $row['cl_mano'];	$cl_avc = $row['cl_avenida'];	$cl_nd = $row['cl_nd'];
+		$cl_dir_office = $row['cl_direccion_laboral'];
+	}
+	
+	if(($cr_currency === 'BS' && $cr_amount > 35000) 
+		|| ($cr_currency === 'USD' && $cr_amount > 5000)){
+		$swDE = true;
+	}
+		
+	if ($cr_modality !== null) {
+		$swMo = true;
+		$disMo = 'display: none;';
+		$readMo = 'readonly';
+	}
+	
+?>
 	<h4>Titular <?=$cont;?></h4>
 	<div class="form-col">
 		<label>Nombres: <span>*</span></label>
@@ -543,7 +747,9 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
 				autocomplete="off" value="<?=$row['cl_estatura'];?>" 
 				class="required fbin" <?=$read_new.$read_edit;?>>
 		</div><br>
-		<?php if ($bc === true): ?>
+<?php
+if ($bc === true) {
+?>
 		<label>Monto<br>Banca Comunal: <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-amount-bc" name="dc-<?=$cont;?>-amount-bc" 
@@ -552,58 +758,66 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
 		</div><br>
 		<input type="hidden" id="dc-<?=$cont;?>-tasa" name="dc-<?=$cont;?>-tasa" 
 			value="<?=$row['cl_tasa'];?>" >
-		<?php endif ?>
-
+<?php
+}
+?>		
 		<label>Participación: % <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-<?=$cont;?>-share" name="dc-<?=$cont;?>-share" 
 				autocomplete="off" value="<?=$row['cl_porcentaje_credito'];?>" 
 				class="required real fbin" <?=$read_new.$read_edit;?>>
 		</div><br>
-		<?php if ($sw === 1): $row['id_cliente'] = uniqid('@S#1$2013-' . $cont . '-', true); ?>
-			
-		<?php endif ?>
-
+<?php
+if($sw === 1){
+	$row['id_cliente'] = uniqid('@S#1$2013-'.$cont.'-',true);
+}
+?>
 		<input type="hidden" id="dc-<?=$cont;?>-idcl" name="dc-<?=$cont;?>-idcl" 
 			autocomplete="off" value="<?=base64_encode($row['id_cliente']);?>" 
 			class="required fbin" <?=$read_new;?>>
 	</div><br>
-	<?php if ($cont === 1): ?>
-		<input type="hidden" id="dc-<?= $cont ;?>-titular" 
-		name="dc-<?= $cont ;?>-titular" value="DD">
-	<?php elseif ($cont >= 2): ?>
-		<input type="hidden" id="dc-<?= $cont ;?>-titular" 
-			name="dc-<?= $cont ;?>-titular" value="CC">
-	<?php endif ?>
-	<br>
-	<?php endforeach ?>
+<?php
+if($cont === 1) {
+	echo '<input type="hidden" id="dc-'.$cont.'-titular" name="dc-'.$cont.'-titular" value="DD">';
+} elseif($cont >= 2) {
+	echo '<input type="hidden" id="dc-'.$cont.'-titular" name="dc-'.$cont.'-titular" value="CC">';
+}
 
-	<?php if (($questions = $QuestionController->getQuestion($_SESSION['idEF'])) !== false): 
+?>
+	<br>
+<?php
+	}
+}
+
+if($rs->data_seek(0) === TRUE){
+	if (($questions = $QuestionController->getQuestion($_SESSION['idEF'])) !== false) {
+?>
+	<hr>
+	<h4>Resultado de las Preguntas</h4>
+	<div style="width: 100%; overflow-x: scroll;">
+		<div class="question result-question" style="width: 600%;">
+			<span class="qs-no">&nbsp;</span>
+			<p class="qs-title" style="text-align:center; font-weight:bold;">Preguntas</p>
+	<?php 
 		$resp 		= array();
 		$required 	= array();
 		$fac 		= array();
-	?>
-		<hr>
-		<h4>Resultado de las Preguntas</h4>
-		<div style="width: 100%; overflow-x: scroll;">
-			<div class="question result-question" style="width: 600%;">
-				<span class="qs-no">&nbsp;</span>
-				<p class="qs-title" style="text-align:center; font-weight:bold;">Preguntas</p>
-				<?php for ($i = 1; $i <= $n_cl; $i++): 
-					$resp[$i] 		= '';
-					$required[$i] 	= '';
-					$fac[$i] 		= 1;
-				?>
-				<div class="qs-option">Titular <?= $i ;?></div>
-				<?php endfor ?>
-			</div>
 
-			<?php foreach ($questions as $key => $question): ?>
+		for ($i = 1; $i <= $nCl; $i++): 
+			$resp[$i] 		= '';
+			$required[$i] 	= '';
+			$fac[$i] 		= 1;
+		?>
+			<div class="qs-option">Titular <?= $i ;?></div>
+	<?php endfor ?>
+		</div>
+
+		<?php foreach ($questions as $key => $question): ?>
 			<div class="question result-question" style="width: 600%;">
 				<span class="qs-no"><?= $question['orden'] ;?></span>
 				<p class="qs-title"><?= $question['pregunta'] ;?></p>
 <?php
-			for ($i = 1; $i <= $n_cl; $i++) {
+			for ($i = 1; $i <= $nCl; $i++) { 
 				if (count($rsCl[$i]) > 0) {
 					$respCl = $rsCl[$i][$question['orden']];
 					
@@ -627,28 +841,33 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
 			</div>
 		<?php endforeach ?>
 		</div>
+<?php
+		if($rs->data_seek(0) === TRUE){
+			$cont = 0;
+			$required_qs = '';
+			$fac_qs = 0;
 
-		<?php 
-			$cont 			= 0;
-			$required_qs 	= '';
-			$fac_qs 		= 0;
-			foreach ($data as $key => $row):
+			while($row = $rs->fetch_array(MYSQLI_ASSOC)){
 				$cont += 1;
-				$required_qs	= $required[$cont];	
-				$fac_qs 		= $fac[$cont];
-			?>
-			<label style="width:auto;">Aclaraciones Titular <?=$cont;?></label>
-			<textarea id="dq-<?=$cont;?>-resp" name="dq-<?=$cont;?>-resp" 
-				style="width:600px; height:100px; margin:4px auto 18px auto;" 
-				class="fbin <?=$required_qs;?>" <?=$read_save;?>><?=$row['cl_observacion'];?></textarea>
-		    <input type="hidden" id="dq-<?=$cont;?>-idd" name="dq-<?=$cont;?>-idd" 
-		    	value="<?=base64_encode($row['id_detalle']);?>">
-		    <input type="hidden" id="dq-<?=$cont;?>-idr" name="dq-<?=$cont;?>-idr" 
-		    	value="<?=base64_encode($row['id_respuesta']);?>">
-		    <input type="hidden" id="dq-<?=$cont;?>-fac" name="dq-<?=$cont;?>-fac" 
-		    	value="<?=base64_encode($fac[$cont]);?>"><br>
-			<?php endforeach ?>
-	<?php endif ?>
+				$required_qs = $required[$cont];	
+				$fac_qs = $fac[$cont];
+?>
+	<label style="width:auto;">Aclaraciones Titular <?=$cont;?></label>
+	<textarea id="dq-<?=$cont;?>-resp" name="dq-<?=$cont;?>-resp" 
+		style="width:600px; height:100px; margin:4px auto 18px auto;" 
+		class="fbin <?=$required_qs;?>" <?=$read_save;?>><?=$row['cl_observacion'];?></textarea>
+    <input type="hidden" id="dq-<?=$cont;?>-idd" name="dq-<?=$cont;?>-idd" 
+    	value="<?=base64_encode($row['id_detalle']);?>">
+    <input type="hidden" id="dq-<?=$cont;?>-idr" name="dq-<?=$cont;?>-idr" 
+    	value="<?=base64_encode($row['id_respuesta']);?>">
+    <input type="hidden" id="dq-<?=$cont;?>-fac" name="dq-<?=$cont;?>-fac" 
+    	value="<?=base64_encode($fac[$cont]);?>"><br>
+<?php
+			}
+		}
+	}
+}
+?>
 	<hr>
 	<h4>Datos del Crédito Solicitado</h4>
 	<div class="form-col">
@@ -709,29 +928,31 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
 		</div><br>
 	</div><!--
 	--><div class="form-col">
-		<?php if (count(($products = $Diaconia->getProductData($_SESSION['idEF']))) > 0): ?>
-		<label>Producto: <span>*</span></label>
-		<div class="content-input">
-			<select id="dl-product" name="dl-product" class="required 
-				fbin <?= $read_new . $read_edit ;?>" <?=$read_save;?>>
-				<option value="">Seleccione...</option>
-				<?php foreach ($products as $key => $value): $selected = '' ?>
-					<?php if ($value['id'] === $cr_product): $selected = 'selected' ?>
-					<?php endif ?>
-				<option value="<?= $value['id'] ;?>" <?= $selected ;?>><?= $value['producto'] ;?></option>
-				<?php endforeach ?>
-			</select>
-		</div>
-		<?php else: ?>
-			<input type="hidden" id="prcia" name="prcia" 
-				value="<?= base64_encode($cr_product) ;?>">
-		<?php endif ?>
-
-		<?php if ($swMo): ?>
-		<input type="hidden" id="dcr-modality" name="dcr-modality" 
-			value="<?=base64_encode($cr_modality);?>">
-		<?php else: $disMo = 'display: none;'; ?>
-			<?php if ($sw === 1): ?>
+	<?php if (count(($products = $Diaconia->getProductData($_SESSION['idEF']))) > 0): ?>
+	<label>Producto: <span>*</span></label>
+	<div class="content-input">
+		<select id="dl-product" name="dl-product" class="required 
+			fbin <?= $read_new . $read_edit ;?>" <?=$read_save;?>>
+			<option value="">Seleccione...</option>
+			<?php foreach ($products as $key => $value): $selected = '' ?>
+				<?php if ($value['id'] === $cr_product): $selected = 'selected' ?>
+				<?php endif ?>
+			<option value="<?= $value['id'] ;?>" <?= $selected ;?>><?= $value['producto'] ;?></option>
+			<?php endforeach ?>
+		</select>
+	</div>
+	<?php else: ?>
+		<input type="hidden" id="prcia" name="prcia" value="<?= base64_encode($cr_product) ;?>">
+	<?php endif ?>
+<?php
+if ($swMo === true) {
+?>
+		<input type="hidden" id="dcr-modality" name="dcr-modality" value="<?=base64_encode($cr_modality);?>">
+<?php
+} else {
+	$disMo = 'display: none;';
+	if ($sw === 1) {
+?>
 <script type="text/javascript">
 $(document).ready(function(){
 	$('#dcr-type-mov option[value="AD"]').prop('selected', true);
@@ -742,104 +963,123 @@ $(document).ready(function(){
 	});
 });
 </script>
-			<?php endif ?>
-		<?php endif ?>
-
+<?php
+	}
+}
+?>
 		<div style="<?=$disMo;?>">
 			<label>Tipo de Movimiento: <span>*</span></label>
 			<div class="content-input">
 				<select id="dcr-type-mov" name="dcr-type-mov" 
-					class="required fbin" <?=$read_save . ' ' . $read_edit;?>>
+					class="required fbin" <?=$read_save.' '.$read_edit;?>>
 					<option value="">Seleccione...</option>
-					<?php foreach ($Diaconia->getMoviment() as $key => $value): $selected = '' ?>
-						<?php if ($key === $cr_type_mov): $selected = 'selected' ?>
-						<?php endif ?>
-						<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
-					<?php endforeach ?>
+<?php
+$arr_mov = $link->moviment;
+for($i = 0; $i < count($arr_mov); $i++){
+	$mov = explode('|',$arr_mov[$i]);
+	if($mov[0] === $cr_type_mov) {
+		echo '<option value="'.$mov[0].'" selected>'.$mov[1].'</option>';
+	} else {
+		echo '<option value="'.$mov[0].'">'.$mov[1].'</option>';
+	}
+}
+?>
 				</select>
 			</div>
 		</div>
 
 		<label>Número de Operación: </label>
 		<div class="content-input" style="width:auto;">
-			<input type="text" id="dcr-opp" name="dcr-opp" autocomplete="off" 
-				value="<?=$cr_opp;?>" class="not-required number fbin" <?=$read_save;?>>
+			<input type="text" id="dcr-opp" name="dcr-opp" autocomplete="off" value="<?=$cr_opp;?>" class="not-required number fbin" <?=$read_save;?>>
 		</div>
-
-		<?php if ($swMo === false): ?>
-			<label>Número de Póliza: <span>*</span></label>
-			<div class="content-input">
-				<select id="dcr-policy" name="dcr-policy" class="required fbin" <?=$read_save;?>>
-					<?php if (count($policies = $Diaconia->getPolicy($_SESSION['idEF'])) > 0): ?>
-						<?php foreach ($policies as $key => $policy): $selected = '' ?>
-							<option value="<?= base64_encode($policy['id_poliza']) ;?>" 
-								<?= $selected ;?>><?= $policy['no_poliza'] ;?></option>
-						<?php endforeach ?>
-					<?php endif ?>
-				</select>
-			</div><br>
-		<?php endif ?>
 <?php
-$opp_dis1 	= '';
-$opp_dis2 	= '';
-$opp_dis3 	= '';
-$opp_dis4 	= '';
-$opp_txt1 	= 'No tomar en cuenta<br>Solicitud Actual';
-$opp_class 	= '';
-$opp_read 	= 'readonly';
+if ($swMo === false) {
+?>
+		<label>Número de Póliza: <span>*</span></label>
+		<div class="content-input">
+			<select id="dcr-policy" name="dcr-policy" class="required fbin" <?=$read_save;?>>
+				<!--<option value="">Seleccione...</option>-->
+<?php
+if (($rsPl = $link->get_policy($_SESSION['idEF'])) !== FALSE) {
+	while($rowPl = $rsPl->fetch_array(MYSQLI_ASSOC)){
+		if($rowPl['id_poliza'] == $cr_policy) {
+			echo '<option value="'.base64_encode($rowPl['id_poliza']).'" selected>'.$rowPl['no_poliza'].'</option>';
+		} else {
+			echo '<option value="'.base64_encode($rowPl['id_poliza']).'">'.$rowPl['no_poliza'].'</option>';
+		}
+	}
+}
+?>
+			</select>
+		</div><br>
+<?php
+}
 
-if ($sw === 3) {
+$opp_dis1 = '';
+$opp_dis2 = '';
+$opp_dis3 = '';
+$opp_dis4 = '';
+$opp_txt1 = 'No tomar en cuenta<br>Solicitud Actual';
+$opp_class = '';
+$opp_read = 'readonly';
+if($sw === 3){
 	$opp_dis1 = 'display: block;';
 	$opp_dis2 = 'display: block;';	
-	
 	switch($cr_type_mov){
-	case 'PU':
-		$opp_dis4 = 'display: none;';
-		break;
-	case 'AD':
-		$opp_dis4 = 'display: none;';
-		$opp_read = '';
-		break;
-	case 'LC':
-		$opp_txt1 	= 'Llenar solo en caso que el cliente tenga 
-			créditos adicionales, FUERA de la línea.';
-		$opp_dis3 	= 'display: none;';
-		$opp_class 	= 'amount-lc';
-		$opp_read 	= '';
-		break;
+		case 'PU':
+			$opp_dis4 = 'display: none;';
+			break;
+		case 'AD':
+			$opp_dis4 = 'display: none;';	$opp_read = '';
+			break;
+		case 'LC':
+			$opp_txt1 = 'Llenar solo en caso que el cliente tenga créditos adicionales, FUERA de la línea.';
+			$opp_dis3 = 'display: none;';	$opp_class = 'amount-lc';	$opp_read = '';
+			break;
 	}
-} elseif ($sw === 2) {
+}elseif($sw === 2){
 	$opp_dis2 = 'display: block;';
 	$opp_dis3 = 'visibility:visible;';
 	$opp_dis4 = 'display: none;';
+	
+	switch($cr_type_mov){
+		case 'PU':
+			
+			break;
+		case 'AD':
+			
+			break;
+		case 'LC':
+			
+			break;
+	}
 }
 
-$arr_sub_title 	= ['Titular', 'Deudor', 'Codeudor'];
-$sub_title 		= '';
-$percentage 	= 0;
-
-$k = 0;
-
-foreach ($data as $key => $row) {
-	$k += 1;
-	if ($bc === true) {
-		$sub_title = $arr_sub_title[0] . ' ' . $k;
-	} else {
-		$sub_title = $arr_sub_title[$k];
-	}
-
-	$cr_amount_de = (float)$row['cl_saldo'];
-
-	if ($sw !== 1) {
-		$cr_amount_ac = (float)$row['cl_cumulo'];
-	} else {
-		$percentage = (float)$row['cl_porcentaje_credito'] / 100;
-		//$cr_amount_ac = (int)$row['monto'] * $percentage;
-		$cr_amount_ac = (float)$row['cl_monto_bc'];
-		if (empty($cr_amount_ac) === true) {
-			$cr_amount_ac = (int)$cr_amount;
+$arr_sub_title = array('Titular', 'Deudor', 'Codeudor');
+$sub_title = '';
+$percentage = 0;
+if ($rs->data_seek(0) === true) {
+	$k = 0;
+	while ($row = $rs->fetch_array(MYSQLI_ASSOC)) {
+		$k += 1;
+		if ($bc === true) {
+			$sub_title = $arr_sub_title[0] . ' ' . $k;
+		} else {
+			$sub_title = $arr_sub_title[$k];
 		}
-	}
+
+		$cr_amount_de = (float)$row['cl_saldo'];
+
+		if ($sw !== 1) {
+			$cr_amount_ac = (float)$row['cl_cumulo'];
+		} else {
+			$percentage = (float)$row['cl_porcentaje_credito'] / 100;
+			//$cr_amount_ac = (int)$row['monto'] * $percentage;
+			$cr_amount_ac = (float)$row['cl_monto_bc'];
+			if (empty($cr_amount_ac) === true) {
+				$cr_amount_ac = (int)$cr_amount;
+			}
+		}
 ?>
 		<label>Saldo <?=$sub_title;?> actual del asegurado (Bs.) : </label>
 		<div class="content-input" style="width:auto;">
@@ -868,44 +1108,46 @@ foreach ($data as $key => $row) {
             </span>
 		</div>
 <?php
-
-
+	}
 }
-
 ?>
 	</div>
-
-	<input type="hidden" id="ms" name="ms" value="<?=$_GET['ms'];?>">
+    <input type="hidden" id="ms" name="ms" value="<?=$_GET['ms'];?>">
 	<input type="hidden" id="page" name="page" value="<?=$_GET['page'];?>">
 	<input type="hidden" id="pr" name="pr" value="<?=$_GET['pr'];?>">
     <input type="hidden" id="flag" name="flag" value="<?=$_GET['flag'];?>">
     <input type="hidden" id="cia" name="cia" value="<?=$_GET['cia'];?>">
-    <input type="hidden" id="ncl-data" name="ncl-data" value="<?=base64_encode($n_cl);?>" >
-    <?php if ($sw === 1): ?>
-    	<input type="hidden" id="cp" name="cp" value="<?= base64_encode($cp) ;?>">
-    <?php endif ?>
-    <?php $target = ''; 
-    if ($_target): $target = '&target=' . $_GET['target']; ?>
-    	<input type="hidden" id="target" name="target" value="<?= $_GET['target'] ;?>">
-    <?php endif ?>
-    <?php $idd = ''; 
-    if (isset($_GET['idd'])): $idd = '&idd=' . $_GET['idd']; ?>
-    	<input type="hidden" id="idd" name="idd" value="<?= $_GET['idd'] ;?>" >
-    <?php endif ?>
-    <?php if (isset($_GET['ide'])): ?>
-    	<input type="hidden" id="de-ide" name="de-ide" value="<?= $ide ;?>" >
-    <?php elseif(isset($_GET['idc'])): ?>
-    	<input type="hidden" id="de-idc" name="de-idc" value="<?= $idc ;?>" >
-    <?php endif ?>
-	
-	<div style="text-align:center;">
-	<?php if ($sw === 2): ?>
-		<input type="button" id="dc-edit" name="dc-edit" value="Editar" class="btn-next btn-issue" >
-	<?php endif ?>
+    <input type="hidden" id="ncl-data" name="ncl-data" value="<?=base64_encode($nCl);?>" >
 <?php
+	if($sw === 1) {
+		echo '<input type="hidden" id="cp" name="cp" value="'.base64_encode($cp).'">';
+	}
+	$target = '';
+	if($_target === true){
+		echo '<input type="hidden" id="target" name="target" value="' . $_GET['target'] . '">';
+		$target = '&target=' . $_GET['target'];
+	}
+
+	$idd = '';
+	if (isset($_GET['idd'])) {
+		echo '<input type="hidden" id="idd" name="idd" value="' . $_GET['idd'] . '" >';
+		$idd = '&idd=' . $_GET['idd'];
+	}
+
+	if(isset($_GET['ide'])) {
+		echo '<input type="hidden" id="de-ide" name="de-ide" value="'.base64_encode($ide).'" >';
+	} elseif(isset($_GET['idc'])) {
+		echo '<input type="hidden" id="de-idc" name="de-idc" value="'.base64_encode($idc).'" >';
+	}
+?>
+	<div style="text-align:center;">
+<?php
+	if($sw === 2) {
+		echo '<input type="button" id="dc-edit" name="dc-edit" value="Editar" class="btn-next btn-issue" > ';
+	}
+	
 	// IMPLANTE
-	// $_IMP = $link->verify_implant($_SESSION['idEF'], 'DE');
-	$_IMP = false;
+	$_IMP = $link->verify_implant($_SESSION['idEF'], 'DE');
 	
 	if($_IMP === TRUE) {
 		if ($link->verify_agency_issuing($_SESSION['idUser'], $_SESSION['idEF'], 'DE') === TRUE && $sw === 2) {
@@ -919,7 +1161,7 @@ foreach ($data as $key => $row) {
 			}
 		} elseif ($sw === 2) {
 			if ($_target === false) {
-				echo '<a href="implant-send-approve.php?ide='.$ide.'&pr='.base64_encode('DE').'" class="fancybox fancybox.ajax btn-issue">Solicitar aprobación del Intermediario</a> ';
+				echo '<a href="implant-send-approve.php?ide='.base64_encode($ide).'&pr='.base64_encode('DE').'" class="fancybox fancybox.ajax btn-issue">Solicitar aprobación del Intermediario</a> ';
 			}
 		} else {
 			goto btnIssue;
@@ -929,7 +1171,7 @@ foreach ($data as $key => $row) {
 		if($FC === TRUE && $sw === 2){
 			if($_target === false) {
 				btnApproval:
-				echo '<a href="company-approval.php?ide='.$ide.'&pr='.base64_encode('DE').'" class="fancybox fancybox.ajax btn-issue">Solicitar aprobación de la Compañia</a> ';
+				echo '<a href="company-approval.php?ide='.base64_encode($ide).'&pr='.base64_encode('DE').'" class="fancybox fancybox.ajax btn-issue">Solicitar aprobación de la Compañia</a> ';
 			}
 		} else{
 			goto btnIssue;
@@ -941,7 +1183,7 @@ foreach ($data as $key => $row) {
 		$type_btn = 'button';
 		if ($_target === true) {
 			$type_btn = 'submit';
-			echo '<input type="hidden" id="fp-ide" name="fp-ide" value="' . $ide . '" >
+			echo '<input type="hidden" id="fp-ide" name="fp-ide" value="' . base64_encode($ide) . '" >
 				<input type="hidden" id="fp-obs" name="fp-obs" value="" >';
 
 			if (isset($_GET['idd'])) {
@@ -955,10 +1197,10 @@ foreach ($data as $key => $row) {
 	}
 ?>
     </div>
+    
     <div class="loading">
 		<img src="img/loading-01.gif" width="35" height="35" />
 	</div>
-
 </form>
 <script type="text/javascript">
 $(document).ready(function(e) {
@@ -975,7 +1217,7 @@ if ($_target === false) {
 	
 	$("#dc-edit").click(function(e){
 		e.preventDefault();
-		location.href = 'de-quote.php?ms=<?=$_GET['ms'];?>&page=<?=$_GET['page'];?>&pr=<?=$_GET['pr'];?>&ide=<?=$ide;?>&flag=<?=md5('i-edit');?>&cia=<?=$_GET['cia'].$target.$idd;?>';
+		location.href = 'de-quote.php?ms=<?=$_GET['ms'];?>&page=<?=$_GET['page'];?>&pr=<?=$_GET['pr'];?>&ide=<?=base64_encode($ide);?>&flag=<?=md5('i-edit');?>&cia=<?=$_GET['cia'].$target.$idd;?>';
 	});
 <?php
 switch($sw){
@@ -985,7 +1227,9 @@ switch($sw){
 		action: '<?=$action;?>',
 		tm: true
 	});
+	//$("#fde-issue").submit();
 	
+	get_change_amount();
 <?php
 		break;
 	case 2:
@@ -1029,6 +1273,8 @@ switch($sw){
 		tm: true
 	});
 	$("#issue-title").append(' <?=$idNE;?>');
+	
+	get_change_amount();
 <?php
 		break;
 }
@@ -1040,6 +1286,54 @@ if($FC === TRUE && ($sw === 2 || $sw === 3)){
 }
 ?>
 });
+
+function get_change_amount(){
+	/*$("#dcr-currency").change(function(){
+		var amountR = $("#dcr-amount-r").prop('value');
+		var amount = $("#dcr-amount").prop('value');
+		
+		if(amountR !== amount){
+			$("#dcr-amount").prop('value', amountR);
+		}
+	});*/
+	
+	/*$("#dcr-amount").keyup(function(e){
+		var arr_key = new Array(37, 39, 8, 16, 32, 18, 17, 46, 36, 35);
+		var amount = $(this).prop('value');
+		var amountR = $("#dcr-amount-r").prop('value');
+		var currency = $("#dcr-currency").prop('value');
+		var currencyR = $("#dcr-currency-r").prop('value');
+		
+		var pr = '';
+		if(arr_key.indexOf(e.keyCode) < 0){
+			if(/^([0-9])*$/.test(amount)){
+				switch(currencyR){
+					case 'BS':
+						if(amountR > 0 && amountR <= 35000){
+							pr = 'VG';
+						}else if(amountR > 35000){
+							pr = 'DE'
+						}
+						break;
+					case 'USD':
+						if(amountR > 0 && amountR <= 5000){
+							pr = 'VG';
+						}else if(amountR > 5000){
+							pr = 'DE'
+						}
+						break;
+				}
+				
+				if(get_new_amount(pr, amount, amountR, currency, currencyR) === false){
+					$(this).prop('value', amountR);
+					alert('El Monto Actual Solicitado NO puede ser modificado');
+				}
+			}else{
+				$(this).prop('value', amountR);
+			}
+		}
+	});*/
+}
 
 function get_new_amount(pr, amount, amountR, currency, currencyR){
 	var arr_limit = new Array();
@@ -1085,10 +1379,7 @@ function get_new_amount(pr, amount, amountR, currency, currencyR){
 }
 </script>
 <?php
-	} else {
-		echo 'No existen Clientes';
-	}
-} else {
-	echo "No existen Clientes.";
+}else{
+	echo 'No existen Clientes';
+	exit();
 }
-?>
