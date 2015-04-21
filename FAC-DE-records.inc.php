@@ -1,5 +1,11 @@
 <?php
+
 require_once('sibas-db.class.php');
+require __DIR__ . '/app/controllers/ClientController.php';
+
+$ClientController = new ClientController();
+
+
 $link = new SibasDB();
 $product = $seguro;
 
@@ -115,17 +121,11 @@ if(($rsEf = $link->get_financial_institution_user($_SESSION['idUser'])) !== FALS
         <label style="width:auto;">Extension: </label>
         <select id="fde-ext" name="fde-ext">
         	<option value="">Seleccione...</option>
-<?php
-if (($rsEx = $link->get_depto()) !== FALSE) {
-	while($rowEx = $rsEx->fetch_array(MYSQLI_ASSOC)){
-		if ((boolean)$rowEx['tipo_ci'] === TRUE) {
-			echo '<option value="'.$rowEx['id_depto'].'">'.$rowEx['departamento'].'</option>';
-		}
-	}
-	$rsEx->free();
-}
-?>
-        	
+        	<?php foreach ($ClientController->getDepto() as $key => $value): ?>
+        		<?php if ((boolean)$value['tipo_ci']): ?>
+				<option value="<?= $value['id_depto'] ;?>"><?= $value['departamento'] ;?></option>
+        		<?php endif ?>
+        	<?php endforeach ?>
         </select><br>
         
         <label style="width:auto;">Fecha: </label>

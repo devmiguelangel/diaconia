@@ -409,14 +409,14 @@ if (($rsMenu = $link->get_product_menu($_SESSION['idEF'])) !== FALSE) {
     </li>
 <?php
 if($tokenM === TRUE){
-	if($user_type === 'LOG' || $user_type === 'ROOT' || $user_type === 'FAC' || $user_type === 'REP'){
+	/*if($user_type === 'LOG' || $user_type === 'ROOT' || $user_type === 'FAC' || $user_type === 'REP'){
 ?>  
 	<li><a href="#">Siniestros</a>
         <ul style="padding:8px;">
            <div style="font-size:70%; font-weight:bold; padding:2; text-align:center; background:#faffe5; border-radius: 5px; border: 1px solid #e06262; margin: 0 auto;">
            La denuncia de siniestros debe enviarse al siguente correo electronico siniestros@crecer.bo
            </div>
-        <!--
+        
 <?php
 			if ($user_type == 'LOG') {
 			?>
@@ -426,11 +426,11 @@ if($tokenM === TRUE){
 		    }
 ?>
 	        <li><a href="rc-report.php?ms=<?=md5('MS_RC');?>&page=<?=md5('P_records');?>">Reporte General</a></li>
--->
+
 		</ul>
     </li>
 <?php
-	}
+	}*/
 }
 
 if($tokenM === TRUE){
@@ -440,9 +440,9 @@ if($tokenM === TRUE){
         <ul>
 <?php
 		if ($user_type !== 'LOG') {
+			/*<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_general_prop');?>">Consolidado Aseguradora</a></li>*/
 ?>
 			<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_general');?>">Generales</a></li>
-			<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_general_prop');?>">Consolidado Aseguradora</a></li>
 <?php
 		}
 

@@ -1,5 +1,10 @@
 <?php
+
 require_once('sibas-db.class.php');
+require __DIR__ . '/app/controllers/ClientController.php';
+
+$ClientController = new ClientController();
+
 $link = new SibasDB();
 
 $title = '';
@@ -131,20 +136,13 @@ $(document).ready(function(e) {
             <input type="text" id="frp-comp" name="frp-comp" value="" autocomplete="off" style="width:40px;">
             
             <label style="width:auto;">Extension: </label>
-            <select id="frp-ext" name="frp-ext">
-                <option value="">Seleccione...</option>
-<?php
-$rsEx = $link->get_depto();
-if($rsEx->data_seek(0) === TRUE){
-	if($rsEx->num_rows > 1){
-		while($rowEx = $rsEx->fetch_array(MYSQLI_ASSOC)){
-			if((boolean)$rowEx['tipo_ci'] === TRUE)
-				echo '<option value="'.$rowEx['id_depto'].'">'.$rowEx['departamento'].'</option>';
-		}
-		$rsEx->free();
-	}
-}
-?>
+	            <select id="frp-ext" name="frp-ext">
+	                <option value="">Seleccione...</option>
+	                <?php foreach ($ClientController->getDepto() as $key => $value): ?>
+	        		<?php if ((boolean)$value['tipo_ci']): ?>
+					<option value="<?= $value['id_depto'] ;?>"><?= $value['departamento'] ;?></option>
+	        		<?php endif ?>
+	        	<?php endforeach ?>
             </select><br>
             
             <label style="">Fecha: </label>

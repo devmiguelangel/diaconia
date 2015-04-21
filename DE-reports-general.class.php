@@ -1,5 +1,9 @@
 <?php
+
+set_time_limit(0);
+
 require('sibas-db.class.php');
+
 class ReportsGeneralDE{
 	private $cx, $sql, $rs, $row, $sqlcl, $rscl, $rowcl,
             $pr, $flag, $token, $nEF, $dataToken, $xls, $xlsTitle;

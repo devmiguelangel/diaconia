@@ -90,6 +90,7 @@ class WsRepo
 				$client['weight'] 		= '';
 				$client['height'] 		= '';
 				$client['amount'] 		= $row['cl_saldo'];
+				$client['amount_bc'] 	= $row['cl_monto_bc'];
 
 				$this->data[] = $client;
 				

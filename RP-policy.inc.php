@@ -1,5 +1,10 @@
 <?php
+
 require_once('sibas-db.class.php');
+require __DIR__ . '/app/controllers/ClientController.php';
+
+$ClientController = new ClientController();
+
 $link = new SibasDB();
 
 $user = '';
@@ -45,14 +50,12 @@ if (isset($_SESSION['idUser']) && isset($_SESSION['idEF'])) {
 					'depto'	=> 'Todos',
 					);
 
-				if (($rsSb = $link->get_depto()) !== false) {
-					while ($rowSb = $rsSb->fetch_array(MYSQLI_ASSOC)) {
-						if ((boolean)$rowSb['tipo_dp'] === true) {
-							$data_subsidiary[] = array(
-								'id'	=> base64_encode($rowSb['id_depto']),
-								'depto'	=> $rowSb['departamento'],
-								);
-						}
+				foreach ($ClientController->getDepto() as $key => $value) {
+					if ((boolean)$value['tipo_dp']) {
+						$data_subsidiary[] = array(
+							'id'	=> base64_encode($value['id_depto']),
+							'depto'	=> $value['departamento'],
+							);
 					}
 				}
 
@@ -267,18 +270,6 @@ if (($rsMenu = $link->get_product_menu($_SESSION['idEF'])) !== FALSE) {
 ?>
 	<div class="rp-pr-container" id="rp-tab-<?=$k;?>" style=" <?=$display;?> ">
     	<form class="f-reports">
-        	<!--<label>N° de Póliza: </label>
-            <select id="frp-policy" name="frp-policy">
-                <option value="">Seleccione...</option>
-<?php
-if (($rsPo = $link->get_policy($_SESSION['idEF'], $rowMenu['producto'])) !== FALSE) {
-	while($rowPo = $rsPo->fetch_array(MYSQLI_ASSOC)){
-		echo '<option value="'.base64_encode($rowPo['id_poliza']).'">'.$rowPo['no_poliza'].'</option>';
-	}
-}
-?>
-            </select>-->
-            
             <label>N° de Certificado: </label>
 <?php
 			if ($rowMenu['producto'] === 'DE') {
@@ -338,18 +329,11 @@ if (($rsPo = $link->get_policy($_SESSION['idEF'], $rowMenu['producto'])) !== FAL
             <label style="width:auto;">Extension: </label>
             <select id="frp-ext" name="frp-ext">
                 <option value="">Seleccione...</option>
-<?php
-$rsEx = $link->get_depto();
-if($rsEx->data_seek(0) === TRUE){
-	if($rsEx->num_rows > 1){
-		while($rowEx = $rsEx->fetch_array(MYSQLI_ASSOC)){
-			if((boolean)$rowEx['tipo_ci'] === TRUE)
-				echo '<option value="'.$rowEx['id_depto'].'">'.$rowEx['departamento'].'</option>';
-		}
-		$rsEx->free();
-	}
-}
-?>
+	                <?php foreach ($ClientController->getDepto() as $key => $value): ?>
+	        		<?php if ((boolean)$value['tipo_ci']): ?>
+					<option value="<?= $value['id_depto'] ;?>"><?= $value['departamento'] ;?></option>
+	        		<?php endif ?>
+	        	<?php endforeach ?>
             </select><br>
             
             <label style="">Anulados: </label>
