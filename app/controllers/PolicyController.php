@@ -178,14 +178,18 @@ class PolicyController extends Diaconia
 				$cont 		= 0;
 				$slug		= '';
 
+				if ($vars['dcr_currency'] === 'USD') {
+					$vars['amount'] = $vars['amount'] * $tcm;
+				}
+
 				foreach ($arr_cl as $key => $client_data) {
 					$token_range = false;
 					$age = $client_data['cl-age'];
 
 					foreach ($data_range as $key1 => $ranges) {
 						foreach ($ranges['range'] as $key2 => $range) {
-							if (($vars['dcr_amount'] >= $range['amount_min'] 
-									&& $vars['dcr_amount'] <= $range['amount_max'])
+							if (($vars['amount'] >= $range['amount_min'] 
+									&& $vars['amount'] <= $range['amount_max'])
 									&& ($age >= $range['edad_min'] && $age <= $range['edad_max'])) {
 								$slug 			= $ranges['slug'];
 								$token_range 	= true;
@@ -390,6 +394,7 @@ class PolicyController extends Diaconia
 		$vars['dcr_modality'] 	= 'null';
 		$vars['dcr_coverage'] 	= $this->cx->real_escape_string(trim($vars['dcr-coverage']));
 		$vars['dcr_amount'] 	= $this->cx->real_escape_string(trim($vars['dcr-amount']));
+		$vars['amount']			= $vars['dcr_amount'];
 		$vars['dcr_currency'] 	= $this->cx->real_escape_string(trim($vars['dcr-currency']));
 		$vars['dcr_term'] 		= $this->cx->real_escape_string(trim($vars['dcr-term']));
 		$vars['dcr_type_term'] 	= $this->cx->real_escape_string(trim($vars['dcr-type-term']));
