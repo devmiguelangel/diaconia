@@ -341,23 +341,13 @@ if (($rsMenu = $link->get_product_menu($_SESSION['idEF'])) !== FALSE) {
 <?php
 				}
 			
-				if ($link->verify_implant($_SESSION['idEF'], $rowMenu['producto']) === false) {
-					if ($rowMenu['producto'] !== 'TH') {
+				if ($rowMenu['producto'] !== 'TH') {
 ?>
-					<li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_app_ok');?>" class="link-pr">
-						Solicitudes Preaprobadas
-					</a></li>
+                <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_app_pe');?>" class="link-pr">
+					Solicitudes Pendientes
+				</a></li>
 <?php
-					}
-				} else {
-					if ($rowMenu['producto'] !== 'TH') {
-?>
-                    <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_app_pe');?>" class="link-pr">
-						Solicitudes Pendientes
-					</a></li>
-<?php
-					}
-	            }
+				}
 				
 				if ($rowMenu['producto'] !== 'TH') {
 ?>

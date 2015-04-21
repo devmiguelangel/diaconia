@@ -339,31 +339,7 @@ class ReportsGeneralDE{
 			            ''))) regexp '".$this->data['approved']."'
 					and sde.anulado like '%".$this->data['r-canceled']."%'
 					";
-		}elseif($this->token === 'IM'){
-			$idUser = base64_encode($this->data['idUser']);
-			$idef = base64_encode($this->data['idef']);
-			$sqlAg = '';
-			if (($rsAg = $this->cx->get_agency_implant($idUser, $idef)) !== FALSE) {
-				$sqlAg = ' and (';
-				while ($rowAg = $rsAg->fetch_array(MYSQLI_ASSOC)) {
-					$sqlAg .= 'sag.id_agencia = "'.$rowAg['ag_id'].'" or ';
-				}
-				$sqlAg = trim($sqlAg, 'or ').') ';
-				$rsAg->free();
-			}
-			
-			$this->sql .= $sqlAg." and sde.emitir = false
-					and sde.anulado like '%".$this->data['r-canceled']."%'
-					and sde.aprobado = false
-					and sde.rechazado = false
-					and not exists( select 
-						saf2.id_emision
-					from
-						s_de_facultativo as saf2
-					where
-						saf2.id_emision = sde.id_emision )
-					";
-		}
+		}elseif($this->token === 'IM'){}
 		$this->sql .= "group by sde.id_emision
 		order by sde.id_emision desc
 		;";

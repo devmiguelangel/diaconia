@@ -127,8 +127,6 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
 	$_IMP = FALSE;
 	if($token === 1){
 		$s_user = $idUSer;
-		
-		$_IMP = $link->verify_implant($s_ef[0], 'DE');
 	}
 		
 	$_SW_EM = FALSE;
@@ -258,15 +256,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
 	        or su.id_usuario = '".$s_user."')";
 	} else {
 		if ($type_user === 'IMP') {
-			$_SW_EM = TRUE;
-			if (($rsAg = $link->get_agency_implant(base64_encode($idUSer), $s_ef[0])) !== FALSE) {
-				$sqlAg = ' and (';
-				while ($rowAg = $rsAg->fetch_array(MYSQLI_ASSOC)) {
-					$sqlAg .= 'sag.id_agencia = "'.$rowAg['ag_id'].'" or ';
-				}
-				$sqlAg = trim($sqlAg, 'or ').') ';
-				$rsAg->free();
-			}
+			
 		} elseif ($type_user === 'LOG') {
 			$_SW_EM = FALSE;
 			goto user_log;

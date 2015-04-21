@@ -196,7 +196,7 @@ class FACEmailDE{
 					$mail->Subject = $subject . ' a Caso Facultativo No. ' 
 						. $this->row['prefijo'] . '-' . $this->row['no_emision'] . ' ' . $arrCl[1];
 					
-					$_IMP = $this->cx->verify_implant(base64_encode($this->row['idef']), 'DE');
+					$_IMP = false;
 					if ($_IMP === TRUE) {
 						if (($rsUi = $this->cx->get_user_implant(
 							base64_encode($this->row['u_id']), 

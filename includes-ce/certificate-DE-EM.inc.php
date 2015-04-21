@@ -1013,12 +1013,12 @@ if($_coverage === 'IM'){
                                    <td style="width:25%;"></td>
                                  </tr>
                               </table>
-                              <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+                              <table 2cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
                                 <tr>
                                  <td style="width:30%; text-align:right;"><img src="<?=$url;?>img/firma-nv-1.jpg"/></td>
                                  <td style="width:40%;"></td>
                                  <td style="width:30%; text-align:left;"><img src="<?=$url;?>img/firma-nv-2.jpg"/></td>
-                                </tr> 
+                                </tr>
                               </table>
                             </td>
                           </tr>
@@ -1972,10 +1972,10 @@ if($_coverage === 'IM'){
                               </table>
                               <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
                                 <tr>
-                                 <td style="width:30%;" align="right"><img src="../compania/firma-1.jpg"/></td>
+                                 <td style="width:30%; text-align:right;"><img src="<?=$url;?>img/firma-nv-1.jpg"/></td>
                                  <td style="width:40%;"></td>
-                                 <td style="width:30%;" align="left"><img src="../compania/firma-1.jpg"/></td>
-                                </tr> 
+                                 <td style="width:30%; text-align:left;"><img src="<?=$url;?>img/firma-nv-2.jpg"/></td>
+                                </tr>
                               </table>
                             </td>
                           </tr>
