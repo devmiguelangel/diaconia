@@ -44,7 +44,7 @@ class PolicyController extends Diaconia
 		}
 	}
 
-	public function getPolicyData($sw, $idc, $ide, $idef)
+	public function getPolicyData($sw, &$idc, $ide, $idef)
 	{
 		$PolicyRepo = new PolicyRepo($this->cx);
 		$idc	= $this->cx->real_escape_string(trim(base64_decode($idc)));
@@ -56,6 +56,7 @@ class PolicyController extends Diaconia
 			$data = $PolicyRepo->getQuoteData($idc, $idef);
 		} else {
 			$data = $PolicyRepo->getPolicyData($ide, $idef);
+			$idc = base64_encode($data[0]['id_cotizacion']);
 		}
 
 		if (count($data) > 0) {

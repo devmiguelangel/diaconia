@@ -91,7 +91,7 @@ class PolicyRepo
 		$data = array();
 
 		$sql = 'select 
-			sdc.id_emision as idc,
+			sdc.id_emision,
 			sdc.id_cotizacion,
 			sdc.no_emision,
 			sdc.prefijo,

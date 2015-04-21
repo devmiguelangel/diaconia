@@ -9,8 +9,8 @@ function de_em_certificate($link, $row, $rsDt, $url, $implant, $type, $fac, $rea
     }
 
     $row['fecha_emision'] = $row['u_departamento'] . ', ' . date('d/m/Y', strtotime($row['fecha_emision']));
-	
-	$nCl = $rsDt->num_rows;
+    
+    $nCl = $rsDt->num_rows;
     $_coverage = $row['cobertura'];
 
     $coverage = array('', '', '');
@@ -57,14 +57,14 @@ if($_coverage === 'IM'){
         <br/>
         
         <div style="width: 775px; border: 0px solid #FFFF00;">
-			<span style="font-weight:bold; font-size:75%;">
+            <span style="font-weight:bold; font-size:75%;">
             Estimado Cliente, agradeceremos completar la información que se requiere a continuación: (utilice letra clara)<br>
 <?php
      $titular=array();
      if($rsDt->data_seek(0)){ 
-	     while($rowcl = $rsDt->fetch_array(MYSQLI_ASSOC)){
-		    $k += 1;
-			$titular[$k]=$rowcl['nombre'].' '.$rowcl['paterno'].' '.$rowcl['materno'];  
+         while($rowcl = $rsDt->fetch_array(MYSQLI_ASSOC)){
+            $k += 1;
+            $titular[$k]=$rowcl['nombre'].' '.$rowcl['paterno'].' '.$rowcl['materno'];  
 ?>             
             DATOS PERSONALES: (TITULAR <?=$k;?>):</span> 
             <table 
@@ -153,10 +153,10 @@ if($_coverage === 'IM'){
                 </tr> 
             </table>
 <?php
-		 }
-	 }
-	 if($nCl === 1){
-		 $titular[2]='';
+         }
+     }
+     if($nCl === 1){
+         $titular[2]='';
 ?>            
             <span style="font-weight:bold; font-size:75%;">DATOS PERSONALES: (TITULAR 2)</span>
             <table 
@@ -245,7 +245,7 @@ if($_coverage === 'IM'){
                 </tr> 
             </table>
 <?php
-	 }
+     }
 ?>            
             <span style="font-weight:bold; font-size:75%;">DEL CRÉDITO SOLICITADO:</span> 
             <table 
@@ -319,18 +319,18 @@ if($_coverage === 'IM'){
                </tr>
 <?php
       if($rsDt->data_seek(0)){
-		  $cont = 0;
+          $cont = 0;
           $rsCl_1 = array();
           $rsCl_2 = array();
-		  while($rowrp=$rsDt->fetch_array(MYSQLI_ASSOC)){
-			  $cont += 1;
-			  if($cont === 1) {
-				  $rsCl_1 = json_decode($rowrp['respuesta'],TRUE);
-			  } elseif($cont === 2) {
-				  $rsCl_2 = json_decode($rowrp['respuesta'],TRUE);
-			  }
-		  }  
-	  }
+          while($rowrp=$rsDt->fetch_array(MYSQLI_ASSOC)){
+              $cont += 1;
+              if($cont === 1) {
+                  $rsCl_1 = json_decode($rowrp['respuesta'],TRUE);
+              } elseif($cont === 2) {
+                  $rsCl_2 = json_decode($rowrp['respuesta'],TRUE);
+              }
+          }  
+      }
         
         $resp1_yes = $resp1_no = '';    $resp2_yes = $resp2_no = '';
         foreach ($row['questions'] as $key => $question) {
@@ -399,9 +399,9 @@ if($_coverage === 'IM'){
                 padding-top:4px;">
 <?php
      if($rsDt->data_seek(0)){
-		 $cont=0;
-		 while($rowobs=$rsDt->fetch_array(MYSQLI_ASSOC)){
-			$cont += 1;   
+         $cont=0;
+         while($rowobs=$rsDt->fetch_array(MYSQLI_ASSOC)){
+            $cont += 1;   
 ?>                
                <tr>
                 <td style="width:10%;">TITULAR <?=$cont;?>: </td>
@@ -411,10 +411,10 @@ if($_coverage === 'IM'){
                </tr>
 <?php
              if($cont<$nCl){
-				echo'<tr><td colspan="2" style="width:100%; padding:3px;"></td></tr>'; 
-			 }
-		 }
-		 if($nCl===1){
+                echo'<tr><td colspan="2" style="width:100%; padding:3px;"></td></tr>'; 
+             }
+         }
+         if($nCl===1){
 ?>
               <tr><td colspan="2" style="width:100%; padding:3px;"></td></tr>
               <tr>
@@ -424,8 +424,8 @@ if($_coverage === 'IM'){
                 </td> 
                </tr>
 <?php
-		 }
-	 }
+         }
+     }
 ?>                
             </table><br>
             <div style="font-size: 75%; text-align:justify;">  
@@ -514,9 +514,11 @@ if($_coverage === 'IM'){
             <div style="'width: 100%; height: auto; margin: 0 0 5px 0;">
 <?php
            if((boolean)$row['facultativo']===true){
-			   if((boolean)$row['aprobado']===true){
+               if((boolean)$row['aprobado']===true){
 ?>
-                 <table border="0" cellpadding="1" cellspacing="0" style="width: 100%; font-size: 8px; font-weight: normal; font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">
+                 <table border="0" cellpadding="1" cellspacing="0" 
+                  style="width: 100%; font-size: 8px; font-weight: normal; font-family: Arial; 
+                    margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">
                     <tr>
                         <td colspan="7" style="width:100%; text-align: center; font-weight: bold; background: #e57474; color: #FFFFFF;">Caso Facultativo</td>
                     </tr>
@@ -541,57 +543,59 @@ if($_coverage === 'IM'){
                </table>
             
 <?php
-			   }else{
+               }else{
 ?>
-                  <table border="0" cellpadding="1" cellspacing="0" style="width: 80%; font-size: 9px; border-collapse: collapse; font-weight: normal; font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">         
+                  <table border="0" cellpadding="1" cellspacing="0" 
+                    style="width: 100%; font-size: 9px; border-collapse: collapse; font-weight: normal; 
+                    font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">         
                    <tr>
-                      <td  style="text-align: center; font-weight: bold; background: #e57474; color: #FFFFFF;">
+                      <td  style="width: 100%; text-align: center; font-weight: bold; background: #e57474; color: #FFFFFF;">
                         Caso Facultativo
                       </td>
                      </tr>
                      <tr>
-                      <td style="text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">
+                      <td style="width: 100%; text-align: center; font-weight: bold; border: 1px solid #dedede; background: #e57474;">
                         Observaciones
                       </td>
                      </tr>
                      <tr>
-                      <td style="text-align: justify; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['motivo_facultativo'];?></td>
+                      <td style="width: 100%; text-align: justify; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['motivo_facultativo'];?></td>
                      </tr>
                 </table>
-<?php				   
-			   
-			   }
-		   }
+<?php                  
+               
+               }
+           }
 ?>
             </div>
             
             <div style="'width: 100%; height: auto; margin: 0 0 5px 0;">
 <?php
-			 $queryVar = 'set @anulado = "Polizas Anuladas: ";';
-			 if($link->query($queryVar,MYSQLI_STORE_RESULT)){
-				 $canceled="select 
-								max(@anulado:=concat(@anulado, prefijo, '-', no_emision, ', ')) as cert_canceled
-							from
-								s_de_em_cabecera
-							where
-								anulado = 1
-									and id_cotizacion = '".$row['id_cotizacion']."';";
-				 if($resp = $link->query($canceled,MYSQLI_STORE_RESULT)){
-					 $regis = $resp->fetch_array(MYSQLI_ASSOC);
-					 echo '<span style="font-size:8px;">'.trim($regis['cert_canceled'],', ').'</span>';
-				 }else{
-					 echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;
-				 }
-			 }else{
-			   echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;   
-			 }
+             $queryVar = 'set @anulado = "Polizas Anuladas: ";';
+             if($link->query($queryVar,MYSQLI_STORE_RESULT)){
+                 $canceled="select 
+                                max(@anulado:=concat(@anulado, prefijo, '-', no_emision, ', ')) as cert_canceled
+                            from
+                                s_de_em_cabecera
+                            where
+                                anulado = 1
+                                    and id_cotizacion = '".$row['id_cotizacion']."';";
+                 if($resp = $link->query($canceled,MYSQLI_STORE_RESULT)){
+                     $regis = $resp->fetch_array(MYSQLI_ASSOC);
+                     echo '<span style="font-size:8px;">'.trim($regis['cert_canceled'],', ').'</span>';
+                 }else{
+                     echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;
+                 }
+             }else{
+               echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;   
+             }
 ?>
             </div>
             <div style="font-size: 60%; text-align:center; margin-top:20px;">  
                 <b>NACIONAL VIDA SEGUROS DE PERSONAS S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
                 SUCRE Tel.Piloto (591-4) 642-5196 * Fax: (591-4) 642-5197-TARIJA Tel. (591-4) 666-6229 * Beni Tel/fax (591-3) 463-4109 * MONTERO Tel. (591-3) 922-6012<br>
                 206-934901-2000 03 006-3012     
-            </div>  	
+            </div>      
         </div>            
 <?php 
        if($type!=='MAIL' && (boolean)$row['emitir']===true && (boolean)$row['anulado']===false){
@@ -634,8 +638,8 @@ if($_coverage === 'IM'){
                                         <tr>
                                            <td style="width: 15%;">Límites de edad:</td>
                                            <td style="width: 15%;">De Ingreso:<br>De Permanencia</td>
-                                           <td style="width: 70%;">Desde los 15 años hasta los 70	años (hasta un día 
-                                           antes	de cumplir 71 años)<br>Máxima 70 años (hasta un día antes de 
+                                           <td style="width: 70%;">Desde los 15 años hasta los 70   años (hasta un día 
+                                           antes    de cumplir 71 años)<br>Máxima 70 años (hasta un día antes de 
                                            cumplir 71 años)</td>
                                         </tr>
                                       </table>
@@ -650,8 +654,8 @@ if($_coverage === 'IM'){
                                          <tr>
                                            <td style="width: 15%;">Límites de edad:</td>
                                            <td style="width: 15%;">De Ingreso:<br/>De Permanencia</td>
-                                           <td style="width: 70%;">Desde los 15 años hasta los 65 años (hasta un	día 
-                                           antes de cumplir 66	años)<br/>Hasta los 65 años (hasta un día antes de cumplir 
+                                           <td style="width: 70%;">Desde los 15 años hasta los 65 años (hasta un    día 
+                                           antes de cumplir 66  años)<br/>Hasta los 65 años (hasta un día antes de cumplir 
                                            66 años)</td>
                                          </tr>
                                       </table>  
@@ -672,29 +676,29 @@ if($_coverage === 'IM'){
                                <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
                                  <tr>
                                    <td style="width:10%; font-weight:bold;">EXCLUSIONES:</td>
-                                   <td style="width:90%;">-Para edades entre 15 a 49 años aplicable	solo para ereditar 
-                                   mayores	a $us. 7.902.30</td>
+                                   <td style="width:90%;">-Para edades entre 15 a 49 años aplicable solo para ereditar 
+                                   mayores  a $us. 7.902.30</td>
                                  </tr>
                                  <tr>
                                    <td style="width:10%;"></td>
-                                   <td style="width:90%;">-Para edades entre 50 a 64 años	aplicable	solo para ereditar 
-                                   mayores	a $us.	5.747.13</td>
+                                   <td style="width:90%;">-Para edades entre 50 a 64 años   aplicable   solo para ereditar 
+                                   mayores  a $us.  5.747.13</td>
                                  </tr>
                                  <tr>
                                    <td style="width:10%;"></td>
-                                   <td style="width:90%;">-Para edades entre 65 a 70 años	aplicable	solo para ereditar 
-                                   mayores	a $us.	5.747.13</td>
+                                   <td style="width:90%;">-Para edades entre 65 a 70 años   aplicable   solo para ereditar 
+                                   mayores  a $us.  5.747.13</td>
                                  </tr>
                                </table>
-                               Este seguro no será aplicable en ninguna de	las siguientes circunstancias:
+                               Este seguro no será aplicable en ninguna de  las siguientes circunstancias:
                                <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
                                 <tr>
                                   <td style="width:2%;">a)</td>
-                                  <td style="width:98%;">Si el asegurado participa como conductor o	acompañante en competencias de automóviles, motocicletas, lanchas de motor o avioneta, prácticas de paracaídas;</td>
+                                  <td style="width:98%;">Si el asegurado participa como conductor o acompañante en competencias de automóviles, motocicletas, lanchas de motor o avioneta, prácticas de paracaídas;</td>
                                 </tr>
                                 <tr>
                                   <td style="width:2%;">b)</td>
-                                  <td style="width:98%;">Si el asegurado realiza operaciones o viajes	submarinos o en transportes aéreos no autorizados para transporte de pasajeros;</td>
+                                  <td style="width:98%;">Si el asegurado realiza operaciones o viajes   submarinos o en transportes aéreos no autorizados para transporte de pasajeros;</td>
                                 </tr>
                                 <tr>
                                   <td style="width:2%;">c)</td>
@@ -763,11 +767,11 @@ if($_coverage === 'IM'){
                                 </tr>
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
-                                  <td style="width:98%;">Certificado Médico único	de	Defunción - Fotocopia simple. Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30	-Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
+                                  <td style="width:98%;">Certificado Médico único   de  Defunción - Fotocopia simple. Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30 -Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
                                 </tr>
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
-                                  <td style="width:98%;">Historial Clínica, si corresponde (Para casos de muerte natural) -Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30	-Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
+                                  <td style="width:98%;">Historial Clínica, si corresponde (Para casos de muerte natural) -Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30    -Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
                                 </tr>
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
@@ -826,7 +830,7 @@ if($_coverage === 'IM'){
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
                                   <td style="width:98%;">Historial clínico O en SU defecto un informe médico- Para edades 
-                                  entre 15 a 49 años y creditos mayores a $us. 7.902.30	-	Para edades entre 50 a 70 años 
+                                  entre 15 a 49 años y creditos mayores a $us. 7.902.30 -   Para edades entre 50 a 70 años 
                                   y creditos mayores a $us. 5.747.13</td>
                                 </tr>
                                 <tr>
@@ -1024,10 +1028,10 @@ if($_coverage === 'IM'){
                  </table>     
             </div>  
 <?php
-	   }
+       }
        if ($fac === TRUE) {
-		   $url .= 'index.php?ms='.md5('MS_DE').'&page='.md5('P_fac').'&ide='.base64_encode($row['id_emision']).'';
-?>		
+           $url .= 'index.php?ms='.md5('MS_DE').'&page='.md5('P_fac').'&ide='.base64_encode($row['id_emision']).'';
+?>      
           <br/>
           <div style="width:500px; height:auto; padding:10px 15px; font-size:11px; font-weight:bold; text-align:left;">
               No. de Slip de Cotizaci&oacute;n: <?=$row['no_cotizacion'];?>
@@ -1039,13 +1043,13 @@ if($_coverage === 'IM'){
               Para procesar la solicitud ingrese al siguiente link con sus credenciales de usuario:<br>
               <a href="<?=$url;?>" target="_blank">Procesar caso facultativo</a>
           </div>
-<?php		   
-	   }
+<?php          
+       }
 }elseif($_coverage === 'BC'){
-	$k=0;
-	while($rowcl=$rsDt->fetch_array(MYSQLI_ASSOC)){
-		$k += 1;
-		$rsCl_1 = json_decode($rowcl['respuesta'],TRUE);
+    $k=0;
+    while($rowcl=$rsDt->fetch_array(MYSQLI_ASSOC)){
+        $k += 1;
+        $rsCl_1 = json_decode($rowcl['respuesta'],TRUE);
 ?>        
         <div style="width: 775px; border: 0px solid #FFFF00; text-align:center;">
             <table 
@@ -1066,7 +1070,7 @@ if($_coverage === 'IM'){
         <br/>
         
         <div style="width: 775px; border: 0px solid #FFFF00;">
-			<span style="font-weight:bold; font-size:75%;">
+            <span style="font-weight:bold; font-size:75%;">
             Estimado Cliente, agradeceremos completar la información que se requiere a continuación: (utilice letra clara)<br>
             DATOS PERSONALES: (TITULAR 1):</span> 
             <table 
@@ -1471,7 +1475,7 @@ if($_coverage === 'IM'){
             <div style="'width: 100%; height: auto; margin: 0 0 5px 0;">
 <?php
            if((boolean)$row['facultativo']===true){
-			   if((boolean)$row['aprobado']===true){
+               if((boolean)$row['aprobado']===true){
 ?>
                  <table border="0" cellpadding="1" cellspacing="0" style="width: 100%; font-size: 8px; font-weight: normal; font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">
                     <tr>
@@ -1498,7 +1502,7 @@ if($_coverage === 'IM'){
                </table>
             
 <?php
-			   }else{
+               }else{
 ?>
                   <table border="0" cellpadding="1" cellspacing="0" style="width: 80%; font-size: 9px; border-collapse: collapse; font-weight: normal; font-family: Arial; margin: 2px 0 0 0; padding: 0; border-collapse: collapse; vertical-align: bottom;">         
                    <tr>
@@ -1515,40 +1519,40 @@ if($_coverage === 'IM'){
                       <td style="text-align: justify; background: #e78484; color: #FFFFFF; border: 1px solid #dedede;"><?=$row['motivo_facultativo'];?></td>
                      </tr>
                 </table>
-<?php				   
-			   
-			   }
-		   }
+<?php                  
+               
+               }
+           }
 ?>
             </div>
             
             <div style="'width: 100%; height: auto; margin: 0 0 5px 0;">
 <?php
-			 $queryVar = 'set @anulado = "Polizas Anuladas: ";';
-			 if($link->query($queryVar,MYSQLI_STORE_RESULT)){
-				 $canceled="select 
-								max(@anulado:=concat(@anulado, prefijo, '-', no_emision, ', ')) as cert_canceled
-							from
-								s_de_em_cabecera
-							where
-								anulado = 1
-									and id_cotizacion = '".$row['id_cotizacion']."';";
-				 if($resp = $link->query($canceled,MYSQLI_STORE_RESULT)){
-					 $regis = $resp->fetch_array(MYSQLI_ASSOC);
-					 echo '<span style="font-size:8px;">'.trim($regis['cert_canceled'],', ').'</span>';
-				 }else{
-					 echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;
-				 }
-			 }else{
-			   echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;   
-			 }
+             $queryVar = 'set @anulado = "Polizas Anuladas: ";';
+             if($link->query($queryVar,MYSQLI_STORE_RESULT)){
+                 $canceled="select 
+                                max(@anulado:=concat(@anulado, prefijo, '-', no_emision, ', ')) as cert_canceled
+                            from
+                                s_de_em_cabecera
+                            where
+                                anulado = 1
+                                    and id_cotizacion = '".$row['id_cotizacion']."';";
+                 if($resp = $link->query($canceled,MYSQLI_STORE_RESULT)){
+                     $regis = $resp->fetch_array(MYSQLI_ASSOC);
+                     echo '<span style="font-size:8px;">'.trim($regis['cert_canceled'],', ').'</span>';
+                 }else{
+                     echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;
+                 }
+             }else{
+               echo "Error en la consulta "."\n ".$link->errno. ": " . $link->error;   
+             }
 ?>
             </div>
             <div style="font-size: 60%; text-align:center; margin-top:20px;">  
                 <b>NACIONAL VIDA SEGUROS DE PERSONAS S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
                 SUCRE Tel.Piloto (591-4) 642-5196 * Fax: (591-4) 642-5197-TARIJA Tel. (591-4) 666-6229 * Beni Tel/fax (591-3) 463-4109 * MONTERO Tel. (591-3) 922-6012<br>
                 206-934901-2000 03 006-3012     
-            </div>  	
+            </div>      
         </div>            
 <?php
         if($type!=='MAIL' && (boolean)$row['emitir']===true && (boolean)$row['anulado']===false){
@@ -1591,8 +1595,8 @@ if($_coverage === 'IM'){
                                         <tr>
                                            <td style="width: 15%;">Límites de edad:</td>
                                            <td style="width: 15%;">De Ingreso:<br>De Permanencia</td>
-                                           <td style="width: 70%;">Desde los 15 años hasta los 70	años (hasta un día 
-                                           antes	de cumplir 71 años)<br>Máxima 70 años (hasta un día antes de 
+                                           <td style="width: 70%;">Desde los 15 años hasta los 70   años (hasta un día 
+                                           antes    de cumplir 71 años)<br>Máxima 70 años (hasta un día antes de 
                                            cumplir 71 años)</td>
                                         </tr>
                                       </table>
@@ -1607,8 +1611,8 @@ if($_coverage === 'IM'){
                                          <tr>
                                            <td style="width: 15%;">Límites de edad:</td>
                                            <td style="width: 15%;">De Ingreso:<br/>De Permanencia</td>
-                                           <td style="width: 70%;">Desde los 15 años hasta los 65 años (hasta un	día 
-                                           antes de cumplir 66	años)<br/>Hasta los 65 años (hasta un día antes de cumplir 
+                                           <td style="width: 70%;">Desde los 15 años hasta los 65 años (hasta un    día 
+                                           antes de cumplir 66  años)<br/>Hasta los 65 años (hasta un día antes de cumplir 
                                            66 años)</td>
                                          </tr>
                                       </table>  
@@ -1629,29 +1633,29 @@ if($_coverage === 'IM'){
                                <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
                                  <tr>
                                    <td style="width:10%; font-weight:bold;">EXCLUSIONES:</td>
-                                   <td style="width:90%;">-Para edades entre 15 a 49 años aplicable	solo para ereditar 
-                                   mayores	a $us. 7.902.30</td>
+                                   <td style="width:90%;">-Para edades entre 15 a 49 años aplicable solo para ereditar 
+                                   mayores  a $us. 7.902.30</td>
                                  </tr>
                                  <tr>
                                    <td style="width:10%;"></td>
-                                   <td style="width:90%;">-Para edades entre 50 a 64 años	aplicable	solo para ereditar 
-                                   mayores	a $us.	5.747.13</td>
+                                   <td style="width:90%;">-Para edades entre 50 a 64 años   aplicable   solo para ereditar 
+                                   mayores  a $us.  5.747.13</td>
                                  </tr>
                                  <tr>
                                    <td style="width:10%;"></td>
-                                   <td style="width:90%;">-Para edades entre 65 a 70 años	aplicable	solo para ereditar 
-                                   mayores	a $us.	5.747.13</td>
+                                   <td style="width:90%;">-Para edades entre 65 a 70 años   aplicable   solo para ereditar 
+                                   mayores  a $us.  5.747.13</td>
                                  </tr>
                                </table>
-                               Este seguro no será aplicable en ninguna de	las siguientes circunstancias:
+                               Este seguro no será aplicable en ninguna de  las siguientes circunstancias:
                                <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
                                 <tr>
                                   <td style="width:2%;">a)</td>
-                                  <td style="width:98%;">Si el asegurado participa como conductor o	acompañante en competencias de automóviles, motocicletas, lanchas de motor o avioneta, prácticas de paracaídas;</td>
+                                  <td style="width:98%;">Si el asegurado participa como conductor o acompañante en competencias de automóviles, motocicletas, lanchas de motor o avioneta, prácticas de paracaídas;</td>
                                 </tr>
                                 <tr>
                                   <td style="width:2%;">b)</td>
-                                  <td style="width:98%;">Si el asegurado realiza operaciones o viajes	submarinos o en transportes aéreos no autorizados para transporte de pasajeros;</td>
+                                  <td style="width:98%;">Si el asegurado realiza operaciones o viajes   submarinos o en transportes aéreos no autorizados para transporte de pasajeros;</td>
                                 </tr>
                                 <tr>
                                   <td style="width:2%;">c)</td>
@@ -1720,11 +1724,11 @@ if($_coverage === 'IM'){
                                 </tr>
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
-                                  <td style="width:98%;">Certificado Médico único	de	Defunción - Fotocopia simple. Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30	-Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
+                                  <td style="width:98%;">Certificado Médico único   de  Defunción - Fotocopia simple. Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30 -Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
                                 </tr>
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
-                                  <td style="width:98%;">Historial Clínica, si corresponde (Para casos de muerte natural) -Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30	-Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
+                                  <td style="width:98%;">Historial Clínica, si corresponde (Para casos de muerte natural) -Para edades entre 15 a 49 años y creditos mayores a $us. 7.902.30    -Para edades entre 50 a 70 años y creditos mayores a $us. 5.747.13 </td>
                                 </tr>
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
@@ -1783,7 +1787,7 @@ if($_coverage === 'IM'){
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
                                   <td style="width:98%;">Historial clínico O en SU defecto un informe médico- Para edades 
-                                  entre 15 a 49 años y creditos mayores a $us. 7.902.30	-	Para edades entre 50 a 70 años 
+                                  entre 15 a 49 años y creditos mayores a $us. 7.902.30 -   Para edades entre 50 a 70 años 
                                   y creditos mayores a $us. 5.747.13</td>
                                 </tr>
                                 <tr>
@@ -1981,16 +1985,16 @@ if($_coverage === 'IM'){
                  </table>     
             </div>  
 <?php
-		}
-		
-	}
-	if ($k < $nCl) {
-		echo'<page><div style="page-break-before: always;">&nbsp;</div></page>';
-	}
-	if ($fac === TRUE) {
-		   $url .= 'index.php?ms='.md5('MS_DE').'&page='.md5('P_fac').'&ide='.base64_encode($row['id_emision']).'';
-?>	
-	       <br/>
+        }
+        
+    }
+    if ($k < $nCl) {
+        echo'<page><div style="page-break-before: always;">&nbsp;</div></page>';
+    }
+    if ($fac === TRUE) {
+           $url .= 'index.php?ms='.md5('MS_DE').'&page='.md5('P_fac').'&ide='.base64_encode($row['id_emision']).'';
+?>  
+           <br/>
            <div style="width:500px; height:auto; padding:10px 15px; font-size:11px; font-weight:bold; text-align:left;">
               No. de Slip de Cotizaci&oacute;n: <?=$row['no_cotizacion'];?>
            </div><br>
@@ -2001,8 +2005,8 @@ if($_coverage === 'IM'){
               Para procesar la solicitud ingrese al siguiente link con sus credenciales de usuario:<br>
               <a href="<?=$url;?>" target="_blank">Procesar caso facultativo</a>
            </div>
-<?php		   
-	}
+<?php          
+    }
 }
 ?>
     </div>
