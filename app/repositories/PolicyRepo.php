@@ -14,7 +14,7 @@ class PolicyRepo
 		$data = array();
 
 		$sql = 'select 
-			sdc.id_cotizacion as idc,
+			sdc.id_cotizacion,
 			sdc.certificado_provisional as cp,
 			sdc.cobertura,
 			sdc.id_prcia,

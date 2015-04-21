@@ -56,10 +56,10 @@ class PolicyController extends Diaconia
 			$data = $PolicyRepo->getQuoteData($idc, $idef);
 		} else {
 			$data = $PolicyRepo->getPolicyData($ide, $idef);
-			$idc = base64_encode($data[0]['id_cotizacion']);
 		}
 
 		if (count($data) > 0) {
+			$idc = base64_encode($data[0]['id_cotizacion']);
 			return $data;
 		}
 

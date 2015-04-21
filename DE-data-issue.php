@@ -244,7 +244,7 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
 		$FC 			= false;
 ?>
 <h3 id="issue-title"><?=$title;?></h3>
-<a href="certificate-detail.php?idc=<?=$idc;?>&cia=<?=
+<a href="certificate-detail.php?idc=<?= base64_encode($data[0]['id_cotizacion']) ;?>&cia=<?=
 	$_GET['cia'];?>&type=<?=base64_encode('PRINT');?>&pr=<?=
 	base64_encode('DE');?>" 
 	class="fancybox fancybox.ajax btn-see-slip">Ver Slip Cotización</a>
