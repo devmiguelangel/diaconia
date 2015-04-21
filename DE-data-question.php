@@ -1,8 +1,4 @@
 <h3>Seguro de Desgravamen - Cuestionario</h3>
-<p style="margin: 10px 0; font-size: 80%; font-style: italic; 
-	text-align: center; font-weight: bold; color: #037984; ">
-	"En caso que el cúmulo de la operación supere 15,000 USD, modificar las respuestas según corresponda".
-</p>
 <?php
 
 require __DIR__ . '/app/controllers/DiaconiaController.php';
