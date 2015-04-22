@@ -494,7 +494,7 @@ if($_coverage === 'IM'){
                <tr>
                 <td style="width:10%;">No. de Crédito</td>
                 <td style="width:35%; border-bottom: 1px solid #333;">&nbsp;
-                  
+                  <?= $row['no_operacion'] ;?>
                 </td>
                 <td style="width:25%;"></td>
                                 
@@ -612,7 +612,9 @@ if($_coverage === 'IM'){
                     <tr>
                       <td>
                         <div style="text-align: center; ">
-                           <strong>CERTIFICADO INDIVIDUAL DE SEGURO SEGURO DE VIDA DE DESGRAVAMEN N°</strong><br>
+                           <strong>CERTIFICADO INDIVIDUAL DE SEGURO SEGURO DE VIDA 
+                            DE DESGRAVAMEN N° <?= $row['no_emision'] ;?>
+                            </strong><br>
                            Formato aprobado por la Autoridad de Fiscalización y Control de Pensiones y Seguros -APS 
                            mediante R.A No.081 del 10/03/00<br>
                            POLIZA DE SEGURO DE DESGRAVAMEN HIPORTECARIO N° <?= $row['no_poliza'] ;?>
@@ -1571,7 +1573,9 @@ if($_coverage === 'IM'){
                     <tr>
                       <td>
                         <div style="text-align: center; ">
-                           <strong>CERTIFICADO INDIVIDUAL DE SEGURO SEGURO DE VIDA DE DESGRAVAMEN N°</strong><br/>
+                           <strong>CERTIFICADO INDIVIDUAL DE SEGURO SEGURO DE VIDA 
+                            DE DESGRAVAMEN N° <?= $row['no_emision'] ;?>
+                            </strong><br/>
                            Formato aprobado por la Autoridad de Fiscalización y Control de Pensiones y Seguros -APS 
                            mediante R.A No.081 del 10/03/00<br>
                            POLIZA DE SEGURO DE DESGRAVAMEN HIPOTECARIO N° <?= $row['no_poliza'] ;?>

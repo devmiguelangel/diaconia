@@ -455,7 +455,6 @@ if($tokenM === TRUE){
 			}
 ?>
 			<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_quote');?>">Cotizaciones</a></li>
-			<li><a href="<?=$url;?>" target="_blank">Re-impresión de Certificados</a></li>
 <?php
 		}
 ?>

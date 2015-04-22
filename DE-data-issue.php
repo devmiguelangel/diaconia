@@ -766,10 +766,10 @@ $(document).ready(function(){
 			</div>
 		</div>
 
-		<label>Número de Operación: </label>
+		<label>Número de Crédito: <span>*</span></label>
 		<div class="content-input" style="width:auto;">
 			<input type="text" id="dcr-opp" name="dcr-opp" autocomplete="off" 
-				value="<?=$cr_opp;?>" class="not-required number fbin" <?=$read_save;?>>
+				value="<?=$cr_opp;?>" class="required number fbin" <?=$read_save;?>>
 		</div>
 <?php
 $opp_dis1 	= '';
