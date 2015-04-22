@@ -1,5 +1,6 @@
 <?php
-require 'session.class.php';
+
+require __DIR__ . '/session.class.php';
 require __DIR__ . '/app/controllers/QuoteController.php';
 
 $session = new Session();
@@ -15,8 +16,8 @@ $mess = array(
 );
 
 if($token === false){
-	if(($_ROOT = $link->get_id_root()) !== false) {
-		$_SESSION['idUser'] = base64_encode($_ROOT['idUser']);
+	if(($user = $Quote->getRootUser()) !== false) {
+		$_SESSION['idUser'] = base64_encode($user['id_usuario']);
 	} else {
 		$mess[0] = 1;
 		$mess[1] = 'logout.php';

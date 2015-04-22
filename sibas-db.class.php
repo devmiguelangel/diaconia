@@ -181,30 +181,6 @@ class SibasDB extends MySQLi
             return false;
         }
     }
-	
-	public function get_id_root()
-	{
-		$this->sql = 'select 
-			su.id_usuario as idUser, su.usuario
-		from
-			s_usuario as su
-				inner join
-			s_usuario_tipo as sut ON (sut.id_tipo = su.id_tipo)
-		where
-			sut.codigo = "ROOT"
-		limit 0 , 1
-		;';
-		
-		if(($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT))){
-			if($this->rs->num_rows === 1) {
-				return $this->rs->fetch_array(MYSQLI_ASSOC);
-			} else {
-				return FALSE;
-			}
-		} else {
-			return FALSE;
-		}
-	}
 
 	public function verify_type_user($idUser, $idef) 
 	{

@@ -143,6 +143,32 @@ class QuoteController extends Diaconia
 		return false;
 	}
 
+	public function getRootUser()
+	{
+		$sql = 'select 
+			su.id_usuario, 
+			su.usuario
+		from
+			s_usuario as su
+				inner join
+			s_usuario_tipo as sut ON (sut.id_tipo = su.id_tipo)
+		where
+			sut.codigo = "ROOT"
+		limit 0 , 1
+		;';
+		
+		if(($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT))){
+			if($rs->num_rows === 1) {
+				$row = $rs->fetch_array(MYSQLI_ASSOC);
+				$rs->free();
+
+				return $row;
+			}
+		}
+		
+		return false;
+	}
+
 
 }
 
