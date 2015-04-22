@@ -1183,22 +1183,7 @@ function de_em_certificate_aps($link, $row, $rsDt, $url, $implant, $fac, $reason
                         Unidades de Fomento a la Vivienda). Si por esta vía no existiera un acuerdo,
                         la Autoridad de Fiscalización y Control de Pensiones y Seguros podrá conocer y 
                         resolver la controversia por resolución administrativa debidamente motivada.
-                        <!--
-                        <br>
-                        <br>
-                        <br>
-                        <table cellpadding="0" cellspacing="0" border="0"
-                            style="width: 100%; font-size: 100%;">
-                            <tr>
-                                <td style="width: 60%;">
-                                    <img src="<?=$url;?>img/firma-crecer.jpg"
-                                        height="70" class="container-logo" align="left" />
-                                </td>
-                                <td style="width: 20%; text-align: center; vertical-align: bottom; ">Titular</td>
-                                <td style="width: 20%; text-align: center; vertical-align: bottom; "></td>
-                            </tr>
-                        </table>
-                        -->
+                        
                     </td>
                 </tr>
             </table>

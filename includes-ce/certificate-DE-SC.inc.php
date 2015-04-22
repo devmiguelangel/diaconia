@@ -10,6 +10,16 @@ function de_sc_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '
 	
 	$tipo_cambio = (float)$row['tipo_cambio'];
 	
+	$response = json_decode($row['data'], true);
+	/*for($i=1;$i<=3;$i++){
+	   for($j=1;$j<=2;$j++){	
+		  echo $edad_min=$response['ranges'][$i]['range'][$j]['edad_min'];echo'&nbsp;';
+		  echo $edad_max=$response['ranges'][$i]['range'][$j]['edad_max'];echo'&nbsp;';
+		  echo $monto_min=$response['ranges'][$i]['range'][$j]['amount_min'];echo'&nbsp;';
+		  echo $monto_max=$response['ranges'][$i]['range'][$j]['amount_max'];echo'<br>';
+	   }
+	}*/
+	
 	ob_start();
 ?>
 <div id="container-main" style="<?=$width_ct;?> height: auto; padding: 5px;">
@@ -72,6 +82,17 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 			while($regiDt=$rsDt->fetch_array(MYSQLI_ASSOC)){
                 $jsonData = $regiDt['respuesta'];
                 $phpArray = json_decode($jsonData, true);
+				//if($row['cobertura']==='IM'){
+					switch($row['moneda']){
+					   case 'BS':
+					       $monto_final=$row['monto'];
+						 break;
+					   case 'USD':
+					       $monto_final=$row['monto']*$row['tipo_cambio'];	      	
+					}
+				/*}elseif($row['cobertura']==='BC'){
+					
+				}*/
 		    ?>
                 <div style="width: auto;	height: auto; text-align: left; margin: 7px 0; padding: 0; font-weight: bold; <?=$fontsizeh2;?>">Datos del titular <?=$j;?></div>                             
                 <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; <?=$fontSize;?>">
@@ -170,36 +191,54 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 										from
 										  s_pregunta
 										where
-										  id_pregunta=".$id_pregunta.";"; 			  
-							  //$regi4 = mysqli_fetch_array((mysqli_query($conexion,$select4)),MYSQLI_ASSOC);
+										  id_pregunta=".$id_pregunta." and id_ef_cia='".$row['id_ef_cia']."';"; 			  
 							  $res4 = $conexion->query($select4, MYSQLI_STORE_RESULT);
 							  $regi4 = $res4->fetch_array(MYSQLI_ASSOC); 
 							  echo'<tr>
 								   <td style="width:5%; text-align:left;">'.$regi4['orden'].'</td>
 								   <td style="width:80%; text-align:left;">'.$regi4['pregunta'].'</td>';
-							  if($respuesta==$regi4['respuesta']){
-									if($respuesta==1){ 
+							  if($respuesta == 1){
+									//if($respuesta==1){ 
 										echo'<td style="width:15%; text-align:right;">si</td>';
-									}elseif($respuesta==0){
-										echo'<td style="width:15%; text-align:right;">no</td>';
-									}	
-							  }else{
-									if($respuesta==1){ 
-										echo'<td style="width:15%; text-align:right;">si</td>';
-									}elseif($respuesta==0){
-										echo'<td style="width:15%; text-align:right;">no</td>';
-									}
+									//}elseif($respuesta==0){
+										//echo'<td style="width:15%; text-align:right;">no</td>';
+									//}
 									$error[$c]=$regi4['orden'];
-									$c++;
+									$c++;	
+							  }elseif($respuesta == 0){
+									//if($respuesta==1){ 
+										//echo'<td style="width:15%; text-align:right;">si</td>';
+									//}elseif($respuesta==0){
+										echo'<td style="width:15%; text-align:right;">no</td>';
+									//}
+									
 							  }
 							 echo'</tr>';
 						  }
 				   echo'</table>
 				        <div style="width: auto;	height: auto; text-align: left; margin: 7px 0; padding: 0; font-weight: bold; '.$fontsizeh2.'">Detalle</div>
 						<table border="0" cellpadding="0" cellspacing="0" style="width: 100%; '.$fontSize.'">
-						  <tr><td>';
+						  <tr><td>';  
+						     $i=1; $sw=TRUE;
 					         if(!empty($regiDt['observacion'])){
-								 if($link->getTypeIssueIdeproDE ($row['monto'], $row['moneda'], (float)$tipo_cambio) !== 'FC'){
+								 while(($i<=3) && ($sw===TRUE)){
+									$j=1;
+									while(($j<=2) && ($sw===TRUE)){	
+									   $edad_min = $response['ranges'][$i]['range'][$j]['edad_min'];
+									   $edad_max = $response['ranges'][$i]['range'][$j]['edad_max'];
+									   $monto_min = $response['ranges'][$i]['range'][$j]['amount_min'];
+									   $monto_max = $response['ranges'][$i]['range'][$j]['amount_max'];
+									   $abrv = $response['ranges'][$i]['slug'];
+									   if(($regiDt['edad']>=$edad_min) && ($regiDt['edad']<=$edad_max) && ($monto_final>=$monto_min) && ($monto_final<=$monto_max)){ 
+										  $sw=FALSE; 
+									   }
+									   
+									   $j++;	
+									}
+									$i++;
+								  }
+								  //echo $abrv;
+								 if(($abrv === 'AA')||($abrv === 'FA')){
 										 echo'<div style="text-align:justify; border:1px solid #C68A8A; background:#FFEBEA; padding:8px;">
 										 No cumple con la(s) pregunta(s) ';
 										 foreach($error as $valor){
@@ -212,7 +251,7 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 										</div>'; 
 								 }
 							 }else{
-								 if($link->getTypeIssueIdeproDE ($row['monto'], $row['moneda'], (float)$tipo_cambio) !== 'FC'){
+								 if($c===0){
 									 echo'<div style="text-align:justify; border:1px solid #3B6E22; background:#6AA74F; padding:8px; color:#ffffff;">
 											 Cumple con las preguntas del cuestionario 
 										  </div>';
@@ -244,15 +283,15 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 							 echo'<tr><td style="width:100%;" colspan="2">&nbsp;</td></tr>
 								  <tr><td colspan="2" style="width:100%;">';
 									 if($dato==1){
-										if($link->getTypeIssueIdeproDE ($row['monto'], $row['moneda'], (float)$tipo_cambio) !== 'FC'){
+										if($c===0){
 											 echo'<div style="text-align:justify; border:1px solid #3B6E22; background:#6AA74F; padding:8px; color:#ffffff;">
-												 Cumple con la estatura y peso adecuado. 
-											  </div>';
+												   Cumple con la estatura y peso adecuado. 
+											      </div>';
 										}
 									 }else{
-										if($link->getTypeIssueIdeproDE ($row['monto'], $row['moneda'], (float)$tipo_cambio) !== 'FC'){ 
+										if(($abrv === 'AA')||($abrv === 'FA')){ 
 										   echo'<div style="text-align:justify; border:1px solid #C68A8A; background:#FFEBEA; padding:8px;">
-												 <b>Nota:</b>&nbsp;Al no cumplir con el peso y la estatura adecuados, 
+												  <b>Nota:</b>&nbsp;Al no cumplir con el peso y la estatura adecuados, 
 		  la compa&ntilde;&iacute;a de seguros solicitar&aacute; ex&aacute;menes m&eacute;dicos para la autorizaci&oacute;n de aprobaci&oacute;n del seguro o en su defecto podr&aacute; declinar la misma.
 												</div>';
 										}
@@ -276,13 +315,13 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
             a <?=$row['compania'];?> a proporcionar &eacute;stos resultados a <?=$row['ef_nombre']?><br/><br/>
                                     
             <b>CONTRATANTE:</b> <?=$row['ef_nombre']?><br/>
-		    <b>BENEFICIARIO A TITULO ONEROSO:</b> Crédito con Educación Rural CRECER<br/>
+		    <b>BENEFICIARIO A TITULO ONEROSO:</b> <br/>
 		
 		    <b>CREDISEGURO S.A. SEGUROS PERSONALES</b> domiciliada en Av. José Ballivian No. 1059 (Calacoto), tercer piso,
             zona Sur de la ciudad de La Paz, teléfono 2175000, fax 2775716 (LA COMPAÑÍA), certifica que la persona 
             prestataria del TOMADOR nominado en el contrato de Crédito del que forma parte este documento y que cumpla con
             los límites de edad y requisitos de asegurabilidad de la póliza se encuentra asegurada bajo la presente Póliza 
-            (ASEGURADO), contratada por Crédito con Educación Rural CRECER (EL TOMADOR).<br/>
+            (ASEGURADO)<br/>
             La cobertura se inicia con el desembolso del Crédito, siempre que se haya cumplido con los requisitos de 
             asegurabilidad y cuenten con la autorización de LA COMPAÑÍA.<br/>
 

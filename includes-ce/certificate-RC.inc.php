@@ -77,7 +77,7 @@ function rc_certificate($link, $row, $rsDt, $url) {
 
         <tr>
             <td style="width:25%; padding:2px 0;">
-                <div style="padding:3px 8px; color:#000000;">Fecha de denuncia a CRECER: </div>
+                <div style="padding:3px 8px; color:#000000;">Fecha de denuncia a : </div>
             </td>
 
             <td style="width:25%; padding:2px 0;">

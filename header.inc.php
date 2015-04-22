@@ -404,7 +404,7 @@ if($tokenM === TRUE){
 	<li><a href="#">Siniestros</a>
         <ul style="padding:8px;">
            <div style="font-size:70%; font-weight:bold; padding:2; text-align:center; background:#faffe5; border-radius: 5px; border: 1px solid #e06262; margin: 0 auto;">
-           La denuncia de siniestros debe enviarse al siguente correo electronico siniestros@crecer.bo
+           La denuncia de siniestros debe enviarse al siguente correo electronico siniestros@diaconia.bo
            </div>
         
 <?php
@@ -446,7 +446,7 @@ if($tokenM === TRUE){
 			$self = $_SERVER['HTTP_HOST'];
 			$url = 'http://' . $self . '/';
 
-			$host_ws = 'crecer.';
+			$host_ws = 'diaconia-frif.';
 
 			if (strpos($self, 'localhost') !== false || filter_var($self, FILTER_VALIDATE_IP) !== false) {
 				$url .= 'administrator/' . trim($host_ws, '.') . '/';
