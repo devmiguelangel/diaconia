@@ -1766,32 +1766,32 @@ function show_edit_parameters($id_usuario_sesion, $tipo_sesion, $usuario_sesion,
 		        $jsondata = $row['data'];
 				$datapr = json_decode($jsondata, true);	
 				if(is_array($datapr)){
-					$txtEdadMin_fc1=$datapr[1]['range'][1]['edad_min'];
-					$txtEdadMax_fc1=$datapr[1]['range'][1]['edad_max'];
-					$amountMin_fc1=$datapr[1]['range'][1]['amount_min'];
-					$amountMax_fc1=$datapr[1]['range'][1]['amount_max'];
-					$txtEdadMin_fc2=$datapr[1]['range'][2]['edad_min'];
-					$txtEdadMax_fc2=$datapr[1]['range'][2]['edad_max'];
-					$amountMin_fc2=$datapr[1]['range'][2]['amount_min'];
-					$amountMax_fc2=$datapr[1]['range'][2]['amount_max'];
+					$txtEdadMin_fc1=$datapr['ranges'][1]['range'][1]['edad_min'];
+					$txtEdadMax_fc1=$datapr['ranges'][1]['range'][1]['edad_max'];
+					$amountMin_fc1=$datapr['ranges'][1]['range'][1]['amount_min'];
+					$amountMax_fc1=$datapr['ranges'][1]['range'][1]['amount_max'];
+					$txtEdadMin_fc2=$datapr['ranges'][1]['range'][2]['edad_min'];
+					$txtEdadMax_fc2=$datapr['ranges'][1]['range'][2]['edad_max'];
+					$amountMin_fc2=$datapr['ranges'][1]['range'][2]['amount_min'];
+					$amountMax_fc2=$datapr['ranges'][1]['range'][2]['amount_max'];
 					
-					$txtEdadMin_aa1=$datapr[2]['range'][1]['edad_min'];
-					$txtEdadMax_aa1=$datapr[2]['range'][1]['edad_max'];
-					$amountMin_aa1=$datapr[2]['range'][1]['amount_min'];
-					$amountMax_aa1=$datapr[2]['range'][1]['amount_max'];
-					$txtEdadMin_aa2=$datapr[2]['range'][2]['edad_min'];
-					$xtEdadMax_aa2=$datapr[2]['range'][2]['edad_max'];
-					$amountMin_aa2=$datapr[2]['range'][2]['amount_min'];
-					$amountMax_aa2=$datapr[2]['range'][2]['amount_max'];
+					$txtEdadMin_aa1=$datapr['ranges'][2]['range'][1]['edad_min'];
+					$txtEdadMax_aa1=$datapr['ranges'][2]['range'][1]['edad_max'];
+					$amountMin_aa1=$datapr['ranges'][2]['range'][1]['amount_min'];
+					$amountMax_aa1=$datapr['ranges'][2]['range'][1]['amount_max'];
+					$txtEdadMin_aa2=$datapr['ranges'][2]['range'][2]['edad_min'];
+					$xtEdadMax_aa2=$datapr['ranges'][2]['range'][2]['edad_max'];
+					$amountMin_aa2=$datapr['ranges'][2]['range'][2]['amount_min'];
+					$amountMax_aa2=$datapr['ranges'][2]['range'][2]['amount_max'];
 					
-					$txtEdadMin_fa1=$datapr[3]['range'][1]['edad_min'];
-					$txtEdadMax_fa1=$datapr[3]['range'][1]['edad_max'];
-					$amountMin_fa1=$datapr[3]['range'][1]['amount_min'];
-					$amountMax_fa1=$datapr[3]['range'][1]['amount_max'];
-					$txtEdadMin_fa2=$datapr[3]['range'][2]['edad_min'];
-					$txtEdadMax_fa2=$datapr[3]['range'][2]['edad_max'];
-					$amountMin_fa2=$datapr[3]['range'][2]['amount_min'];
-					$amountMax_fa2=$datapr[3]['range'][2]['amount_max'];
+					$txtEdadMin_fa1=$datapr['ranges'][3]['range'][1]['edad_min'];
+					$txtEdadMax_fa1=$datapr['ranges'][3]['range'][1]['edad_max'];
+					$amountMin_fa1=$datapr['ranges'][3]['range'][1]['amount_min'];
+					$amountMax_fa1=$datapr['ranges'][3]['range'][1]['amount_max'];
+					$txtEdadMin_fa2=$datapr['ranges'][3]['range'][2]['edad_min'];
+					$txtEdadMax_fa2=$datapr['ranges'][3]['range'][2]['edad_max'];
+					$amountMin_fa2=$datapr['ranges'][3]['range'][2]['amount_min'];
+					$amountMax_fa2=$datapr['ranges'][3]['range'][2]['amount_max'];
 				}else{
 					$txtEdadMin_fc1='';
 					$txtEdadMax_fc1='';

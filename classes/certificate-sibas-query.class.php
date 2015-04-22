@@ -543,11 +543,13 @@ class CertificateQuery extends CertificateHtml {
 	}
 	
 	//QUERYS CERTIFICADOS EMISION
-	private function set_query_de_em () {	//DESGRAVAMEN
+	private function set_query_de_em() {	//DESGRAVAMEN
 		$this->sqlPo = 'select 
 			sde.id_emision,
 			sde.no_emision,
 			sde.id_cotizacion,
+			sde.no_emision,
+			sde.no_poliza,
 			sdc.no_cotizacion,
 			sef.id_ef as idef,
 			sef.nombre as ef_nombre,
@@ -589,7 +591,6 @@ class CertificateQuery extends CertificateHtml {
 			sde.motivo_anulado,
 			sde.emitir,
 			sde.fecha_emision,
-			spo.no_poliza,
 			sde.facultativo,
 			sde.motivo_facultativo,
 			sde.prima_total,
@@ -620,8 +621,6 @@ class CertificateQuery extends CertificateHtml {
 			s_departamento as sdep ON (sdep.id_depto = su.id_depto)
 				inner join
 			s_producto_cia as spc ON (spc.id_prcia = sde.id_prcia)
-				inner join
-			s_poliza as spo ON (spo.id_poliza = sde.id_poliza)
 		where sde.id_emision = "' . $this->ide . '" 
 		;';
 		//echo $this->sqlPo;
@@ -637,7 +636,7 @@ class CertificateQuery extends CertificateHtml {
 					scl.nombre,
 					scl.ap_casada,
 					(if(scl.ap_casada="",
-					    concat(scl.nombre," ",scl.paterno," ",scl.paterno),
+					    concat(scl.nombre," ",scl.paterno," ",scl.materno),
 						 concat(scl.nombre," ",scl.paterno," de ",scl.ap_casada)
 						 )) as nombre_completo,
 					scl.genero,

@@ -4,7 +4,7 @@ class Diaconia
 {
 	protected $cx;
 
-	protected $certificate = 1;
+	protected $certificate = 0;
 
 	protected 
 		$coverage = [
@@ -42,8 +42,16 @@ class Diaconia
 		$this->cx = new SibasDB();
 	}
 
-	public function getCertificate()
+	public function getCertificate($data)
 	{
+		if (array_key_exists('certificates', $data)) {
+			foreach ($data['certificates'] as $key => $certificate) {
+				if ($certificate['active']) {
+					$this->certificate = $certificate['id'];
+				}
+			}
+		}
+
 		return $this->certificate;
 	}
 
@@ -243,39 +251,6 @@ class Diaconia
 		}
 
 		return '';
-	}
-
-	public function getPolicy($idef, $product = 'DE')
-	{
-		$idef = $this->cx->real_escape_string(trim(base64_decode($idef)));
-		$data = array();
-
-		$sql = 'select 
-			sp.id_poliza, sp.no_poliza
-		from
-			s_poliza sp
-				inner join
-			s_ef_compania as sec ON (sec.id_ef_cia = sp.id_ef_cia)
-				inner join
-			s_compania as scia ON (scia.id_compania = sec.id_compania)
-				inner join
-			s_entidad_financiera as sef ON (sef.id_ef = sec.id_ef)
-		where
-			sef.id_ef = "' . $idef . '"
-				and sef.activado = true
-				and sp.producto = "' . $product . '"
-				and curdate() between sp.fecha_ini and sp.fecha_fin
-		;';
-		
-		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT))) {
-			if ($rs->num_rows > 0) {
-				while ($row = $rs->fetch_array(MYSQLI_ASSOC)) {
-					$data[] = $row;
-				}
-			}
-		}
-		
-		return $data;
 	}
 
 	public function getRegistrationNumber($idef, $product, $token, $prefix = '') 

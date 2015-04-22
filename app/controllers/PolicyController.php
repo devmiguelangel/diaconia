@@ -74,7 +74,7 @@ class PolicyController extends Diaconia
 			$sw 		= 0;
 	        $data 		= array();
 	        $data_pr 	= array();
-	        $data_range = array();
+	        $data_product = array();
 	        $client 	= array();
 
 	        $ms 	= $this->cx->real_escape_string(trim($vars['ms']));
@@ -87,7 +87,7 @@ class PolicyController extends Diaconia
 				$max_item 		= (int)$data_pr['max_detalle'];
 				$amount_max_bs 	= (float)$data_pr['max_emision_bs'];
 				$amount_max_usd = (float)$data_pr['max_emision_usd'];
-				$data_range		= json_decode($data_pr['data'], true);
+				$data_product	= json_decode($data_pr['data'], true);
 			}
 
 			$target = '';
@@ -127,7 +127,7 @@ class PolicyController extends Diaconia
 				$birth_mess = '';
 				$cp 		= null;
 
-				$this->setPolicyData($vars);
+				$this->setPolicyData($vars, $data_product);
 
 				if ($vars['dcr_coverage'] === 'BC') {
 					$bc = true;
@@ -187,7 +187,7 @@ class PolicyController extends Diaconia
 					$token_range = false;
 					$age = $client_data['cl-age'];
 
-					foreach ($data_range as $key1 => $ranges) {
+					foreach ($data_product['ranges'] as $key1 => $ranges) {
 						foreach ($ranges['range'] as $key2 => $range) {
 							if (($vars['amount'] >= $range['amount_min'] 
 									&& $vars['amount'] <= $range['amount_max'])
@@ -385,9 +385,9 @@ class PolicyController extends Diaconia
 		return false;
 	}
 
-	private function setPolicyData(&$vars)
+	private function setPolicyData(&$vars, $data_product)
 	{
-		$vars['certificate']	= $this->getCertificate();
+		$vars['certificate']	= $this->getCertificate($data_product);
 		$vars['user']			= $this->cx->real_escape_string(trim(base64_decode($vars['user'])));
 		$vars['idef']			= $this->cx->real_escape_string(trim(base64_decode($vars['idef'])));
 		$vars['dcr_cia'] 		= $this->cx->real_escape_string(trim(base64_decode($vars['cia'])));
@@ -404,11 +404,12 @@ class PolicyController extends Diaconia
 			$vars['dcr_type_mov'] = $this->cx->real_escape_string(trim($vars['dcr-type-mov']));
 		}
 		$vars['dcr_opp'] = $this->cx->real_escape_string(trim($vars['dcr-opp']));
-		$vars['dcr_policy'] = 'null';
+		$vars['dcr_policy'] 	= 'null';
 		if (isset($vars['dcr-policy'])) {
 			$vars['dcr_policy'] = '"' . $this->cx->real_escape_string(trim(base64_decode($vars['dcr-policy']))) . '"';
 		}
-		$vars['dcr_amount_de'] = '';
+		$vars['no_policy'] 		= '';
+		$vars['dcr_amount_de'] 	= '';
 		//$dcr_amount_de = $this->cx->real_escape_string(trim($vars['dcr-amount-de']));
 		if(empty($dcr_amount_de) === true) {
 			$vars['dcr_amount_de'] = 0;
@@ -418,9 +419,15 @@ class PolicyController extends Diaconia
 		$vars['dcr_amount_acc'] 	= 0;
 		$vars['dcr_amount_acc_2'] 	= 0;
 
-		/*if($sw === 1 && isset($vars['cp'])) {
-			$cp = (int)$this->cx->real_escape_string(trim(base64_decode($vars['cp'])));
-		}*/
+		if (array_key_exists('policies', $data_product)) {
+			foreach ($data_product['policies'] as $key => $policy) {
+				if ($policy['currency'] === $vars['dcr_currency']
+						&& $policy['active']) {
+					$vars['no_policy'] = $policy['policy'];
+					break;
+				}
+			}
+		}
 	}
 
 	public function setClientData(&$vars, &$arr_cl, &$client, $n_cl)

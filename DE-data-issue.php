@@ -771,20 +771,6 @@ $(document).ready(function(){
 			<input type="text" id="dcr-opp" name="dcr-opp" autocomplete="off" 
 				value="<?=$cr_opp;?>" class="not-required number fbin" <?=$read_save;?>>
 		</div>
-
-		<?php if ($swMo === false): ?>
-			<label>Número de Póliza: <span>*</span></label>
-			<div class="content-input">
-				<select id="dcr-policy" name="dcr-policy" class="required fbin" <?=$read_save;?>>
-					<?php if (count($policies = $Diaconia->getPolicy($_SESSION['idEF'])) > 0): ?>
-						<?php foreach ($policies as $key => $policy): $selected = '' ?>
-							<option value="<?= base64_encode($policy['id_poliza']) ;?>" 
-								<?= $selected ;?>><?= $policy['no_poliza'] ;?></option>
-						<?php endforeach ?>
-					<?php endif ?>
-				</select>
-			</div><br>
-		<?php endif ?>
 <?php
 $opp_dis1 	= '';
 $opp_dis2 	= '';

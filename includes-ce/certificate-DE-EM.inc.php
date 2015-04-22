@@ -49,7 +49,8 @@ if($_coverage === 'IM'){
                 </tr>
                 <tr>
                   <td style="width:100%; font-weight:bold; text-align:center; font-size: 80%;">
-                     DECLARACIÓN JURADA DE SALUD Nº<br />SOLICITUD DE SEGURO DE DESGRAVAMEN HIPOTECARIO
+                     DECLARACIÓN JURADA DE SALUD Nº <?= $row['no_emision'] ;?>
+                     <br />SOLICITUD DE SEGURO DE DESGRAVAMEN HIPOTECARIO
                   </td> 
                 </tr>
             </table>     
@@ -58,7 +59,9 @@ if($_coverage === 'IM'){
         
         <div style="width: 775px; border: 0px solid #FFFF00;">
             <span style="font-weight:bold; font-size:75%;">
-            Estimado Cliente, agradeceremos completar la información que se requiere a continuación: (utilice letra clara)<br>
+            Estimado Cliente, agradeceremos completar la información que se requiere 
+            a continuación: (utilice letra clara)<br>
+            </span>
 <?php
      $titular=array();
      if($rsDt->data_seek(0)){ 
@@ -66,7 +69,7 @@ if($_coverage === 'IM'){
             $k += 1;
             $titular[$k]=$rowcl['nombre'].' '.$rowcl['paterno'].' '.$rowcl['materno'];  
 ?>             
-            DATOS PERSONALES: (TITULAR <?=$k;?>):</span> 
+            <span style="font-weight:bold; font-size:75%;">DATOS PERSONALES: (TITULAR <?=$k;?>):</span> 
             <table 
                 cellpadding="0" cellspacing="0" border="0" 
                 style="width: 100%; height: auto; font-size: 75%; font-family: Arial; 
@@ -612,7 +615,8 @@ if($_coverage === 'IM'){
                            <strong>CERTIFICADO INDIVIDUAL DE SEGURO SEGURO DE VIDA DE DESGRAVAMEN N°</strong><br>
                            Formato aprobado por la Autoridad de Fiscalización y Control de Pensiones y Seguros -APS 
                            mediante R.A No.081 del 10/03/00<br>
-                           POLIZA DE SEGURO DE DESGRAVAMEN HIPORTECARIO N° POL-DH-LP-00103-2013-01<br>Codigo 206-934901-2000 03 006 4008
+                           POLIZA DE SEGURO DE DESGRAVAMEN HIPORTECARIO N° <?= $row['no_poliza'] ;?>
+                           <br>Codigo 206-934901-2000 03 006 4008
                         </div><br>
                         NACIONAL VIDA Seguros de Personas S.A., (denominada en adelante la “Compañía “), por el presente CERTIFICADO INDIVIDUAL DE SEGURO hace constar que la persona nominada en la declaración jurada de salud / solicitud de seguro de desgravamen hipotecario, que consta en el anverso, (denominado en adelante el “Asegurado”), está protegido por la Póliza de Seguro de Vida de Desgravamen arriba mencionada, de acuerdo a las siguientes Condiciones Particulares:
                         <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
@@ -1062,7 +1066,8 @@ if($_coverage === 'IM'){
                 </tr>
                 <tr>
                   <td style="width:100%; font-weight:bold; text-align:center; font-size: 80%;">
-                     DECLARACIÓN JURADA DE SALUD Nº<br />SOLICITUD DE SEGURO DE DESGRAVAMEN HIPOTECARIO
+                     DECLARACIÓN JURADA DE SALUD Nº <?= $row['no_emision'] ;?>
+                     <br />SOLICITUD DE SEGURO DE DESGRAVAMEN HIPOTECARIO
                   </td> 
                 </tr>
             </table>     
@@ -1569,7 +1574,8 @@ if($_coverage === 'IM'){
                            <strong>CERTIFICADO INDIVIDUAL DE SEGURO SEGURO DE VIDA DE DESGRAVAMEN N°</strong><br/>
                            Formato aprobado por la Autoridad de Fiscalización y Control de Pensiones y Seguros -APS 
                            mediante R.A No.081 del 10/03/00<br>
-                           POLIZA DE SEGURO DE DESGRAVAMEN HIPORTECARIO N° POL-DH-LP-00103-2013-01<br>Codigo 206-934901-2000 03 006 4008
+                           POLIZA DE SEGURO DE DESGRAVAMEN HIPOTECARIO N° <?= $row['no_poliza'] ;?>
+                           <br>Codigo 206-934901-2000 03 006 4008
                         </div><br/>
                         NACIONAL VIDA Seguros de Personas S.A., (denominada en adelante la “Compañía “), por el presente CERTIFICADO INDIVIDUAL DE SEGURO hace constar que la persona nominada en la declaración jurada de salud / solicitud de seguro de desgravamen hipotecario, que consta en el anverso, (denominado en adelante el “Asegurado”), está protegido por la Póliza de Seguro de Vida de Desgravamen arriba mencionada, de acuerdo a las siguientes Condiciones Particulares:
                         <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">

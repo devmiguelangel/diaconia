@@ -290,7 +290,7 @@ class PolicyRepo
 			id_tc, plazo, tipo_plazo, id_usuario, 
 			fecha_creacion, hora_creacion, anulado, and_usuario, 
 			fecha_anulado, motivo_anulado, emitir, fecha_emision, 
-			id_compania, id_poliza, operacion, facultativo, 
+			id_compania, id_poliza, no_poliza, operacion, facultativo, 
 			motivo_facultativo, tasa, prima_total, no_copia, 
 			no_copia_cob, leido, id_certificado) 
 		values 
@@ -306,10 +306,11 @@ class PolicyRepo
 			"' . $vars['user'] . '", "' . date('Y-m-d') . '", 
 			"' . date('H:i:s') . '", false, "' . $vars['user'] . '", 
 			"", "", false, "", "' . $vars['dcr_cia'] . '", 
-			' . $vars['dcr_policy'] . ', "' . $vars['dcr_type_mov'] . '", 
-			' . (int)$vars['FAC'] . ', "' . $vars['fac_reason'] . '", 
-			"' . $vars['tasa'] . '", "' . $vars['prima'] . '", 
-			0, 0, false, "' . $vars['certificate'] . '") 
+			' . $vars['dcr_policy'] . ', "' . $vars['no_policy'] . '", 
+			"' . $vars['dcr_type_mov'] . '", ' . (int)$vars['FAC'] . ', 
+			"' . $vars['fac_reason'] . '", "' . $vars['tasa'] . '", 
+			"' . $vars['prima'] . '", 0, 0, false, 
+			"' . $vars['certificate'] . '") 
 		;';
 
 		if ($this->cx->query($sql)) {
@@ -354,6 +355,7 @@ class PolicyRepo
 			plazo = "' . $vars['dcr_term'] . '", 
 			tipo_plazo = "' . $vars['dcr_type_term'] . '", 
 			id_poliza = ' . $vars['dcr_policy'] . ', 
+			no_poliza = "' . $vars['no_policy'] . '",
 			operacion = "' . $vars['dcr_type_mov'] . '", 
 			facultativo = ' . (int)$vars['FAC'] . ', 
 			motivo_facultativo = "' . $vars['fac_reason'] . '", 
