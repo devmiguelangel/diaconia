@@ -65,8 +65,8 @@ if(isset($_POST['dsc-dni'])){
 
 	$WsController = new WsController($dni, $_SESSION['idEF'], $web_service);
 
-	if (($arr_cl = $WsController->getClientData()) !== false) {
-    	
+	if (($aux_cl = $WsController->getClientData()) !== false) {
+    	$arr_cl = $aux_cl;
     } else {
     	$err_search = 'El Titular no Existe';
     }

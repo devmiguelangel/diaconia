@@ -153,7 +153,9 @@ class CertificateQuery extends CertificateHtml {
 			scia.logo as logo_cia,
 			ef.nombre as ef_nombre,
 			ef.logo as logo_ef,
-			stpc.valor_boliviano as tipo_cambio
+			stpc.valor_boliviano as tipo_cambio,
+			ssh.data,
+			efc.id_ef_cia
 		from
 			s_de_cot_cabecera as scc
 				inner join
@@ -173,7 +175,9 @@ class CertificateQuery extends CertificateHtml {
 			    inner join
 		    s_compania as sc on (sc.id_compania=sefc.id_compania)
 			    inner join
-			s_tipo_cambio as stpc on (stpc.id_ef=scc.id_ef)					    
+			s_tipo_cambio as stpc on (stpc.id_ef=scc.id_ef)
+			    inner join
+			s_sgc_home as ssh on (ssh.id_ef=scc.id_ef and ssh.producto='".$this->product."')						    
 		where
 			scc.id_cotizacion = '".$this->idc."' and sc.id_compania='".$this->idcia."' and stpc.activado=true
 		limit 0 , 1;";
