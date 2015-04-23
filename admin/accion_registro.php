@@ -958,101 +958,63 @@
 		 echo 2;
 	 }
   }elseif($_POST['opcion']=='guarda_parametros'){
-	  $amountMax_fc1 = $conexion->real_escape_string($_POST['txtMax-fc1']);
-	  $amountMin_fc1 = $conexion->real_escape_string($_POST['txtMin-fc1']);
-	  $txtEdadMax_fc1 = $conexion->real_escape_string($_POST['txtEdadMax-fc1']);
-	  $txtEdadMin_fc1 = $conexion->real_escape_string($_POST['txtEdadMin-fc1']);
-	  $amountMax_fc2 = $conexion->real_escape_string($_POST['txtMax-fc2']);
-	  $amountMin_fc2 = $conexion->real_escape_string($_POST['txtMin-fc2']);
-	  $txtEdadMax_fc2 = $conexion->real_escape_string($_POST['txtEdadMax-fc2']);
-	  $txtEdadMin_fc2 = $conexion->real_escape_string($_POST['txtEdadMin-fc2']);
+	  $ck = $conexion->real_escape_string($_POST['k']);
+	  $cm = $conexion->real_escape_string($_POST['m']);
+	  $rd_polbs = $conexion->real_escape_string($_POST['rd_polbs']);
+	  $no_polizaBs = $conexion->real_escape_string($_POST['txtPolizaBs']);
+	  $rd_polusd = $conexion->real_escape_string($_POST['rd_polusd']);
+	  $no_polizaUsd = $conexion->real_escape_string($_POST['txtPolizaUsd']);
+	  $rd_cert = $conexion->real_escape_string($_POST['rd_cert']);
 	  
-	  $amountMax_aa1 = $conexion->real_escape_string($_POST['txtMax-aa1']);
-	  $amountMin_aa1 = $conexion->real_escape_string($_POST['txtMin-aa1']);
-	  $txtEdadMax_aa1 = $conexion->real_escape_string($_POST['txtEdadMax-aa1']);
-	  $txtEdadMin_aa1 = $conexion->real_escape_string($_POST['txtEdadMin-aa1']);
-	  $amountMax_aa2 = $conexion->real_escape_string($_POST['txtMax-aa2']);
-	  $amountMin_aa2 = $conexion->real_escape_string($_POST['txtMin-aa2']);
-	  $txtEdadMax_aa2 = $conexion->real_escape_string($_POST['txtEdadMax-aa2']);
-	  $txtEdadMin_aa2 = $conexion->real_escape_string($_POST['txtEdadMin-aa2']);
-	  
-	  $amountMin_fa1 = $conexion->real_escape_string($_POST['txtMin-fa1']);
-	  $amountMax_fa1 = $conexion->real_escape_string($_POST['txtMax-fa1']);
-	  $txtEdadMax_fa1 = $conexion->real_escape_string($_POST['txtEdadMax-fa1']);
-	  $txtEdadMin_fa1 = $conexion->real_escape_string($_POST['txtEdadMin-fa1']);
-	  $amountMax_fa2 = $conexion->real_escape_string($_POST['txtMax-fa2']);
-	  $amountMin_fa2 = $conexion->real_escape_string($_POST['txtMin-fa2']);
-	  $txtEdadMax_fa2 = $conexion->real_escape_string($_POST['txtEdadMax-fa2']);
-	  $txtEdadMin_fa2 = $conexion->real_escape_string($_POST['txtEdadMin-fa2']);
-	  
-	  $name_fc = $conexion->real_escape_string($_POST['name-fc']);
-	  $name_aa = $conexion->real_escape_string($_POST['name-aa']);
-	  $name_fa = $conexion->real_escape_string($_POST['name-fa']);
-	  
+	  $ranges = array();
+	  $i = 1;
+	  while($i<=$ck){
+		  $j = 1;
+		  $name = $conexion->real_escape_string($_POST["name-".$i]);
+		  $slug = $conexion->real_escape_string($_POST["slug-".$i]);
+		  $ranges[$i] = array('name'=>$name,'slug'=>$slug,'range'=>'');
+		  while($j<=$cm){
+			  $edad_min = $conexion->real_escape_string($_POST["txtEdadMin-".$i."-".$j]);
+			  $edad_max = $conexion->real_escape_string($_POST["txtEdadMax-".$i."-".$j]);
+			  $monto_min = $conexion->real_escape_string($_POST["txtMontoMin-".$i."-".$j]);
+			  $monto_max = $conexion->real_escape_string($_POST["txtMontoMax-".$i."-".$j]);
+			  $ranges[$i]['range'][$j] = array('edad_min'=>(int)$edad_min,'edad_max'=>(int)$edad_max,'amount_min'=>(int)$monto_min,'amount_max'=>(int)$monto_max);
+			  $j++;
+		  }
+		  $i++;  
+	  }
 	  $data = array(
-				1 => array(
-					'name' => $name_fc,
-					'slug' => 'FC',
-					'range' => array(
-						1 => array(
-							'edad_min' => (int)$txtEdadMin_fc1,
-							'edad_max' => (int)$txtEdadMax_fc1,
-							'amount_min' => (int)$amountMin_fc1,
-							'amount_max' => (int)$amountMax_fc1
-						),
-						2 => array(
-							'edad_min' => (int)$txtEdadMin_fc2,
-							'edad_max' => (int)$txtEdadMax_fc2,
-							'amount_min' => (int)$amountMin_fc2,
-							'amount_max' => (int)$amountMax_fc2
-						)
-					)
-				),
-				2 => array(
-					'name' => $name_aa,
-					'slug' => 'AA',
-					'range' => array(
-						1 => array(
-							'edad_min' => (int)$txtEdadMin_aa1,
-							'edad_max' => (int)$txtEdadMax_aa1,
-							'amount_min' => (int)$amountMin_aa1,
-							'amount_max' => (int)$amountMax_aa1
-						),
-						2 => array(
-							'edad_min' => (int)$txtEdadMin_aa2,
-							'edad_max' => (int)$txtEdadMax_aa2,
-							'amount_min' => (int)$amountMin_aa2,
-							'amount_max' => (int)$amountMax_aa2
-						)
-					)
-				),
-				3 => array(
-					'name' => $name_fa,
-					'slug' => 'FA',
-					'range' => array(
-						1 => array(
-							'edad_min' => (int)$txtEdadMin_fa1,
-							'edad_max' => (int)$txtEdadMax_fa1,
-							'amount_min' => (int)$amountMin_fa1,
-							'amount_max' => (int)$amountMax_fa1
-						),
-						2 => array(
-							'edad_min' => (int)$txtEdadMin_fa2,
-							'edad_max' => (int)$txtEdadMax_fa2,
-							'amount_min' => (int)$amountMin_fa2,
-							'amount_max' => (int)$amountMax_fa2
-						)
-					)
-				)
-			);
-			
+	              'ranges' => $ranges,
+				  'policies' => array(
+				                   1=>array(
+								         'policy'=>$no_polizaBs,
+										 'currency'=>'BS',
+										 'active'=>(boolean)$rd_polbs
+								      ),
+								   2=>array(
+								         'policy'=>$no_polizaUsd,
+										 'currency'=>'USD',
+										 'active'=>(boolean)$rd_polusd
+								      )	  
+				                  ),
+				   'certificates' => array(
+				                         1=>array(
+										      'id'=>1,
+											  'active'=>(boolean)$rd_cert 
+										     ) 
+				                      )				    
+	               );
+	  
+	  
 	  $update = "UPDATE s_sgc_home SET data='".$conexion->real_escape_string(json_encode($data))."' WHERE id_home='".base64_decode($_POST['idhome'])."' and id_ef='".base64_decode($_POST['id_ef'])."' LIMIT 1;";
+	  //echo $conexion->real_escape_string(json_encode($data));
 	  
 	  if($conexion->query($update)===TRUE){
 		 echo '1|Se guardo correctamente los datos'; 
 	  }else{
 		 echo '2|.Hubo un error al ingresar los datos '.$conexion->errno. ": " .$conexion->error; 
 	  }
+	  
   }
   
   
