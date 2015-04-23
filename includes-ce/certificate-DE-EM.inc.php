@@ -342,8 +342,10 @@ if($_coverage === 'IM'){
                 if ($question['id_pregunta'] == $respCl['id']) {
                     if ($respCl['value'] === 1) {
                         $resp1_yes = 'X';
+						$resp1_no = '';
                     } elseif($respCl['value'] === 0) {
-                        $resp1_no = 'X';
+                        $resp1_yes = '';
+						$resp1_no = 'X';
                     }
                 }
             }
@@ -353,8 +355,10 @@ if($_coverage === 'IM'){
                 if ($question['id_pregunta'] == $respCl['id']) {
                     if ($respCl['value'] === 1) {
                         $resp2_yes = 'X';
+						$resp2_no = '';
                     } elseif($respCl['value'] === 0) {
-                        $resp2_no = 'X';
+                        $resp2_yes = '';
+						$resp2_no = 'X';
                     }
                 }
             }
