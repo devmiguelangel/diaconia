@@ -335,7 +335,7 @@ if($_coverage === 'IM'){
           }  
       }
         
-        $resp1_yes = $resp1_no = '';    $resp2_yes = $resp2_no = '';
+        $resp1_yes = $resp1_no = '';    $resp2_yes = $resp2_no = ''; $i=1;
         foreach ($row['questions'] as $key => $question) {
             if (count($rsCl_1) > 0) {
                 $respCl = $rsCl_1[$question['orden']];
@@ -390,8 +390,14 @@ if($_coverage === 'IM'){
                   </td>
                </tr>
 <?php
+              if($i==4){
+?>				
+	             <tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr> 			
+<?php				  
+			  }
+			  $i++;
         }
-?>               
+?>                 
                 
             </table> <br>
             
@@ -1323,7 +1329,7 @@ if($_coverage === 'IM'){
                   <td style="width:16%; text-align:center;" colspan="4">TITULAR 2</td>
                </tr>
 <?php
-    $resp1_yes = $resp1_no = '';
+    $resp1_yes = $resp1_no = ''; $i = 1;
     foreach ($row['questions'] as $key => $question) {
         if (count($rsCl_1) > 0) {
             $respCl = $rsCl_1[$question['orden']];
@@ -1367,8 +1373,14 @@ if($_coverage === 'IM'){
                 </td>
             </tr>
 <?php
+            if($i==4){
+?>				
+              <tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr>
+<?php			
+			}
+			$i++;
     }
-?>               
+?>              
                
                
                <!--<tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr>-->
