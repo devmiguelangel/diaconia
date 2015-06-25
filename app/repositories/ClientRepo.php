@@ -50,7 +50,7 @@ class ClientRepo
 			}
 		}
 
-		return [false, 0];
+		return array(false, 0);
 	}
 
 	public function postClientData($data, &$data_cl)
