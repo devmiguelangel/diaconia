@@ -27,10 +27,10 @@ class DiaconiaController extends Diaconia
     {
     	$id = $this->cx->real_escape_string(trim(base64_decode($id)));
 
-    	$tbl = ['s_de_cot_cabecera', 'id_cotizacion'];
+    	$tbl = array('s_de_cot_cabecera', 'id_cotizacion');
     	
     	if ($type === true) {
-    		$tbl = ['s_de_em_cabecera', 'id_emision'];
+    		$tbl = array('s_de_em_cabecera', 'id_emision');
     	}
 
     	$sql = 'select 

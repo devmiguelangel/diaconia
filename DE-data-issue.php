@@ -806,7 +806,7 @@ if ($sw === 3) {
 	$opp_dis4 = 'display: none;';
 }
 
-$arr_sub_title 	= ['Titular', 'Deudor', 'Codeudor'];
+$arr_sub_title 	= array('Titular', 'Deudor', 'Codeudor');
 $sub_title 		= '';
 $percentage 	= 0;
 

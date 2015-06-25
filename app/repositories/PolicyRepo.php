@@ -224,7 +224,7 @@ class PolicyRepo
 		return $prima;
 	}
 
-	public function checkPolicyFac($vars = [], $client = [])
+	public function checkPolicyFac($vars = array(), $client = array())
     {
     	$sql = 'select
           sc.nombre as cl_nombre,

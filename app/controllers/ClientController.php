@@ -9,39 +9,39 @@ class ClientController extends Diaconia
 {
 	protected $cx;
 	protected
-		$status = [
+		$status = array(
 			'SOL' => 'Soltero(a)', 
 			'CAS' => 'Casado(a)', 
 			'VIU' => 'Viudo(a)',
 			'DIV' => 'Divorciado(a)', 
 			'CON' => 'Concubino(a)'
-		];
+		);
 
 	protected
-		$type_doc = [
+		$type_doc = array(
 			'CI' 	=> 'Carnet de Identidad', 
 			'RUN' 	=> 'RUN', 
 			'PA' 	=> 'Pasaporte', 
 			'CE' 	=> 'Carnet Extranjero'
-		];
+		);
 
 	protected
-		$gender = [
+		$gender = array(
 			'M' => 'Masculino', 
 			'F' => 'Femenino'
-		];
+		);
 
 	protected
-		$hand = [
+		$hand = array(
 			'DE' => 'Derecha', 
 			'IZ' => 'Izquierda'
-		];
+		);
 
 	protected
-		$avc = [
+		$avc = array(
 			'AV' => 'Avenida', 
 			'CA' => 'Calle'
-		];
+		);
 	
 	public function __construct()
 	{

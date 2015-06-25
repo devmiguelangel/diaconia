@@ -7,31 +7,31 @@ class Diaconia
 	protected $certificate = 0;
 
 	protected 
-		$coverage = [
+		$coverage = array(
 			'IM' => 'Individual/Mancomunado',
 			'BC' => 'Banca Comunal',
-		];
+		);
 
 	protected
-		$typeTerm = [
+		$typeTerm = array(
 			'Y' => 'Años', 
 			'M' => 'Meses', 
 			'W' => 'Semanas',
 			'D' => 'Días'
-		];
+		);
 
 	protected
-		$currency = [
+		$currency = array(
 			'BS' 	=> 'Bolivianos', 
 			'USD' 	=> 'Dolares Estadounidenses'
-		];
+		);
 
 	protected
-		$moviment = [
+		$moviment = array(
 			'PU' => 'Primera/Única', 
 			'AD' => 'Adicional', 
 			'LC' => 'Línea de Crédito'
-		];
+		);
 
 	protected $productCia = array();
 
@@ -132,10 +132,10 @@ class Diaconia
 		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
 			if ($rs->num_rows > 0) {
 				while ($row = $rs->fetch_array(MYSQLI_ASSOC)) {
-					$this->productCia[] = [
+					$this->productCia[] = array(
 						'id' => $row['id_prcia'], 
 						'producto' => $row['nombre']
-					];
+					);
 				}
 			}
 		}

@@ -49,7 +49,7 @@ class QuestionController extends Diaconia
 					$resp[$i] 	= $this->cx->real_escape_string(trim($data['dq-resp-' . $i]));
 					$idd[$i] 	= $this->cx->real_escape_string(trim(base64_decode($data['dq-idd-' . $i])));
 
-					$data_qs[$i]	= [];
+					$data_qs[$i]	= array();
 				}
 
 				if (($questions = $this->getQuestion(base64_encode($idef))) !== false) {
@@ -66,10 +66,10 @@ class QuestionController extends Diaconia
 								$flag[$k] = true;
 							}
 							
-							$data_qs[$k][$question['orden']] = [
+							$data_qs[$k][$question['orden']] = array(
 								'id' 	=> (int)$question['id_pregunta'],
 								'value'	=> (int)$value	
-							];
+							);
 						}
 					}
 
