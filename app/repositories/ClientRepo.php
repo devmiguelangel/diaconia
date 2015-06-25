@@ -46,7 +46,7 @@ class ClientRepo
 			if($rs->num_rows === 1){
 				$row = $rs->fetch_array(MYSQLI_ASSOC);
 				$rs->free();
-				return [true, $row['id_cliente']];
+				return array(true, $row['id_cliente']);
 			}
 		}
 
