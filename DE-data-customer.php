@@ -121,7 +121,7 @@ if($swCl === false){
 
 	if ($nCl < $max_item) {
 ?>
-<form id="fde-sc" name="fde-sc" action="" method="post" class="form-quote">
+<form id="fde-sc" name="fde-sc" action="" method="post" class="form-quote search-customer">
 	<label>Documento de Identidad: <span>*</span></label>
 	<div class="content-input" style="width:auto;">
 		<input type="text" id="dsc-dni" name="dsc-dni" autocomplete="off" 
@@ -387,7 +387,7 @@ if($nCl < $max_item || $swCl === true){
             <input type="hidden" id="dc-amount-<?=$k?>" name="dc-amount-<?=$k?>" 
             	value="<?=base64_encode($data['amount']);?>">
 		</div><br>
-		<?php if ($bc === true): ?>
+		<?php if ($bc): ?>
 		<label>Monto<br>Banca Comunal: <span>*</span></label>
 		<div class="content-input">
 			<input type="text" id="dc-amount-bc-<?=$k?>" name="dc-amount-bc-<?=$k?>" 
@@ -408,6 +408,7 @@ if($nCl < $max_item || $swCl === true){
     <input type="hidden" id="id-ef" name="id-ef" value="<?=$_SESSION['idEF'];?>" >
     <input type="hidden" id="dc-bc" name="dc-bc" value="<?=base64_encode((int)$bc);?>">
     <input type="hidden" id="dc-ncl" name="dc-ncl" value="<?=base64_encode($client);?>">
+    <input type="hidden" id="dc-ws" name="dc-ws" value="<?=base64_encode((int)$web_service);?>">
     <?php if ($swCl): ?>
 	<input type="hidden" id="dc-idCl" name="dc-idCl" value="<?= $_GET['idCl'] ;?>" >
     <?php endif ?>
@@ -449,6 +450,8 @@ $(document).ready(function(e) {
 			$(this).prop('value',_val.toUpperCase());
 		}
 	});
+
+	data_customer();
 	
 });
 </script>

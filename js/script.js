@@ -169,3 +169,36 @@ function redirect(url, delay) {
 		location.href = url;
 	}, delay);
 }
+
+function data_customer () {
+	$('.search-customer').submit(function(e) {
+		e.preventDefault();
+
+		var ws	= $('#dc-ws').prop('value');
+		var bc	= $('#dc-bc').prop('value');
+		var dni	= $('#dsc-dni').prop('value');
+
+		var dcx = $.getJSON('app/helpers/data_customer.php', {
+			ws: ws,
+			bc: bc,
+			dni: dni
+		}, function (data) {
+			console.log(data);
+		})
+		.done(function () {
+			console.log('Second success');
+		})
+		.fail(function () {
+			console.log('Error');
+		})
+		.always(function () {
+			console.log('complete');
+		});
+
+		dcx.complete(function (data) {
+			console.log(data);
+		});
+
+		// console.log(dni);
+	});
+}

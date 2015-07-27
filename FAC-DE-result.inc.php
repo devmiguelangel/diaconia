@@ -49,8 +49,8 @@ $(document).ready(function(e) {
 	});
 });
 </script>
-<input type="hidden" id="ms" name="ms" value="<?=$_GET['ms'];?>">
-<input type="hidden" id="page" name="page" value="<?=$_GET['page'];?>">
+<input type="hidden" id="ms" name="ms" value="<?=@$_GET['ms'];?>">
+<input type="hidden" id="page" name="page" value="<?=@$_GET['page'];?>">
 <table class="result-list">
 	<thead>
     	<tr>

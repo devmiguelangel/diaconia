@@ -4,19 +4,38 @@ class WsRepo
 {
 	protected 
 		$cx,
+		$host,
 		$data = array();
 	
 	public function __construct($cx)
 	{
 		$this->cx = $cx;
+		$this->host = 'http://10.80.70.33/';
 	}
 
-	public function getData()
+	public function getData($ws, $bc, $dni)
 	{
+		$this->data['client'] = array();
+
+		if ($ws) {
+			$method = '';
+			if ($bc) {
+				$method = 'wsodfclibc';
+			} else {
+				$method = 'wsodfcliind';
+			}
+
+			$this->host .= $method . '.php?parametro=' . $dni;
+
+			if (($json = file_get_contents($this->host)) !== false) {
+				array_push($this->data['client'], json_decode($json, true));
+			}
+		}
+
 		return $this->data;
 	}
 
-	public function dataClientDB($dni, $idef)
+	private function dataClientDB($dni, $idef)
 	{
 		$client = array();
 
@@ -101,7 +120,7 @@ class WsRepo
 		return false;
 	}
 
-	public function dataClientWS()
+	private function dataClientWS()
 	{
 		$clients = array();
 
