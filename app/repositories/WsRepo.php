@@ -5,37 +5,40 @@ class WsRepo
 	protected 
 		$cx,
 		$host,
-		$data = array();
+		$data = array(),
+		$ws,
+		$bc,
+		$dni;
 	
-	public function __construct($cx)
+	public function __construct($cx, $ws, $bc, $dni)
 	{
-		$this->cx = $cx;
+		$this->cx 	= $cx;
 		$this->host = 'http://10.80.70.33/';
+
+		$this->ws	= $ws;
+		$this->bc	= $bc;
+		$this->dni	= $dni;
 	}
 
-	public function getData($ws, $bc, $dni)
+	public function getData()
 	{
-		$this->data['client'] = array();
+
+		$this->data = array(
+			'status' 	=> 400,
+			'error'		=> 'La conexión a fallado',
+			'client' 	=> array()
+		);
 
 		if ($ws) {
-			$method = '';
-			if ($bc) {
-				$method = 'wsodfclibc';
-			} else {
-				$method = 'wsodfcliind';
-			}
-
-			$this->host .= $method . '.php?parametro=' . $dni;
-
-			if (($json = file_get_contents($this->host)) !== false) {
-				array_push($this->data['client'], json_decode($json, true));
-			}
+			$this->dataClientWS();
+		} else {
+			// Search in DB
 		}
 
 		return $this->data;
 	}
 
-	private function dataClientDB($dni, $idef)
+	private function dataClientDB()
 	{
 		$client = array();
 
@@ -122,9 +125,32 @@ class WsRepo
 
 	private function dataClientWS()
 	{
-		$clients = array();
+		$method = '';
+		if ($this->bc) {
+			$method = 'wsodfclibc';
+		} else {
+			$method = 'wsodfcliind';
+		}
 
-		return false;
+		$this->host .= $method . '.php?parametro=' . $this->dni;
+
+		if (($res = file_get_contents($this->host)) !== false) {
+			$json = json_decode($res, true);
+
+			if (is_array($json)) {
+				if (count($json) > 0) {
+					$this->data['status'] = 200;
+
+					foreach ($json as $key => $value) {
+						array_push($this->data['client'], $value);
+					}
+				} else {
+					$this->data['status'] = 451;
+				}
+			} else {
+				$this->data['status'] = 452;
+			}
+		}
 	}
 
 }

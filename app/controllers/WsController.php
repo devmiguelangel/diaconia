@@ -8,34 +8,26 @@ class WsController extends Diaconia
 {
 	protected 
 		$cx,
-		$dni,
 		$idef,
-		$ws;
+		$ws,
+		$bc,
+		$dni;
 
-	public function __construct($dni, $idef, $ws)
+	public function __construct($idef, $ws, $bc, $dni)
 	{
 		$this->cx 	= new SibasDB();
-		$this->dni 	= $this->cx->real_escape_string(trim($dni));
 		$this->idef = $this->cx->real_escape_string(trim(base64_decode($idef)));
 		$this->ws 	= $ws;
+		$this->bc 	= $bc;
+		$this->dni 	= $this->cx->real_escape_string(trim($dni));
 	}
 
 	public function getClientData()
 	{
-		$WsRepo = new WsRepo($this->cx);
+		$WsRepo = new WsRepo($this->cx, $this->ws, $this->bc, $this->dni);
+		$data 	= $WsRepo->getData();
 
-		$clients	= array();
-		$data 		= array();
-
-		if ($this->ws) {
-			// $clients = $this->dataClientWS();
-		} else {
-			if ($WsRepo->dataClientDB($this->dni, $this->idef)) {
-				return $WsRepo->getData();
-			}
-		}
-
-		return false;
+		return $data;
 	}
 
 	private function setClientData($data)

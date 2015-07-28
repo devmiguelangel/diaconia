@@ -63,13 +63,12 @@ if (($data_pr = $Diaconia->getDataProduct($_SESSION['idEF'])) !== false) {
 if(isset($_POST['dsc-dni'])){
 	$dni = $_POST['dsc-dni'];
 
-	$WsController = new WsController($dni, $_SESSION['idEF'], $web_service);
-
-	if (($aux_cl = $WsController->getClientData()) !== false) {
-    	$arr_cl = $aux_cl;
-    } else {
+	$WsController = new WsController($_SESSION['idEF'], $web_service, $bc, $dni);
+	$aux_cl = $WsController->getClientData();
+	var_dump($aux_cl);
+	/*if (empty($aux_cl = $WsController->getClientData())) {
     	$err_search = 'El Titular no Existe';
-    }
+    }*/
 }
 
 if (isset($_GET['idCl'])) {
@@ -408,7 +407,6 @@ if($nCl < $max_item || $swCl === true){
     <input type="hidden" id="id-ef" name="id-ef" value="<?=$_SESSION['idEF'];?>" >
     <input type="hidden" id="dc-bc" name="dc-bc" value="<?=base64_encode((int)$bc);?>">
     <input type="hidden" id="dc-ncl" name="dc-ncl" value="<?=base64_encode($client);?>">
-    <input type="hidden" id="dc-ws" name="dc-ws" value="<?=base64_encode((int)$web_service);?>">
     <?php if ($swCl): ?>
 	<input type="hidden" id="dc-idCl" name="dc-idCl" value="<?= $_GET['idCl'] ;?>" >
     <?php endif ?>
