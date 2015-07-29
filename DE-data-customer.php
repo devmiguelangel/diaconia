@@ -447,8 +447,5 @@ $(document).ready(function(e) {
 			$(this).prop('value',_val.toUpperCase());
 		}
 	});
-
-	data_customer();
-	
 });
 </script>
