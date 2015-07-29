@@ -29,10 +29,10 @@ class WsRepo
 			'client' 	=> array()
 		);
 
-		if ($ws) {
+		if ($this->ws) {
 			$this->dataClientWS();
 		} else {
-			// Search in DB
+			$this->dataClientDB();
 		}
 
 		return $this->data;
@@ -72,19 +72,18 @@ class WsRepo
 			s_de_cot_cliente as sc
 				inner join
 			s_de_cot_detalle as sdd on (sdd.id_cliente = sc.id_cliente)
-				inner join
-		    s_entidad_financiera as sef on (sef.id_ef = sc.id_ef)
 		where
-			sc.ci = "' . $dni . '"
-				and sef.id_ef = "' . $idef . '"
-				and sef.activado = true
+			sc.ci = "' . $this->dni . '"
 		limit 0 , 1
 		;';
 
 		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
-			if ($rs->num_rows > 0) {
+			if ($rs->num_rows === 1) {
 				$row = $rs->fetch_array(MYSQLI_ASSOC);
 				$rs->free();
+
+				$this->data['status'] = 200;
+				$this->data['error'] = '';
 
 				$client['code'] 		= '';
 				$client['name'] 		= $row['cl_nombre'];
@@ -114,13 +113,15 @@ class WsRepo
 				$client['amount'] 		= $row['cl_saldo'];
 				$client['amount_bc'] 	= $row['cl_monto_bc'];
 
-				$this->data[] = $client;
-				
-				return true;
+				array_push($this->data['client'], $client);
+			} else {
+				$this->data['status'] = 451;
+				$this->data['error'] = 'El Cliente no existe.';
 			}
+		} else {
+			$this->data['status'] = 452;
+			$this->data['error'] = 'La conexión a fallado.';
 		}
-
-		return false;
 	}
 
 	private function dataClientWS()
@@ -133,22 +134,54 @@ class WsRepo
 		}
 
 		$this->host .= $method . '.php?parametro=' . $this->dni;
-
+		
 		if (($res = file_get_contents($this->host)) !== false) {
 			$json = json_decode($res, true);
 
 			if (is_array($json)) {
 				if (count($json) > 0) {
+					$client = array();
 					$this->data['status'] = 200;
-
+					$this->data['error'] = '';
+					
 					foreach ($json as $key => $value) {
-						array_push($this->data['client'], $value);
+						$client['code'] 		= trim($value['codigocliente']);
+						$client['name'] 		= trim($value['nombrecliente']);
+						$client['patern'] 		= trim($value['apellidopaterno']);
+						$client['matern'] 		= trim($value['apellidomaterno']);
+						$client['married'] 		= trim($value['apellidocasada']);
+						$client['status'] 		= trim($value['estadocivil']);
+						$client['type_doc'] 	= 'CI';
+						$client['doc_id'] 		= trim($value['carnetdeidentidad']);
+						$client['comp'] 		= trim($value['complemento']);
+						$client['ext'] 			= trim($value['expedido']);
+						$client['country'] 		= '';
+						$client['birth'] 		= trim($value['fechanacimiento']);
+						$client['place_birth'] 	= '';
+						$client['place_res'] 	= '';
+						$client['locality'] 	= '';
+						$client['address'] 		= trim($value['direccciondomicilio']);
+						$client['phone_1'] 		= '';
+						$client['phone_2'] 		= '';
+						$client['phone_office'] = '';
+						$client['email'] 		= '';
+						$client['occupation'] 	= '';
+						$client['occ_desc'] 	= '';
+						$client['gender'] 		= trim($value['genero']);
+						$client['weight'] 		= '';
+						$client['height'] 		= '';
+						$client['amount'] 		= trim($value['montodesembolsado']);
+						$client['amount_bc'] 	= trim($value['montosolicitado']);
+
+						array_push($this->data['client'], $client);
 					}
 				} else {
 					$this->data['status'] = 451;
+					$this->data['error'] = 'El Cliente no existe.';
 				}
 			} else {
 				$this->data['status'] = 452;
+				$this->data['error'] = 'La conexión a fallado.';
 			}
 		}
 	}

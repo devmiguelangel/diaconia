@@ -14,7 +14,9 @@ class ClientController extends Diaconia
 			'CAS' => 'Casado(a)', 
 			'VIU' => 'Viudo(a)',
 			'DIV' => 'Divorciado(a)', 
-			'CON' => 'Concubino(a)'
+			'CON' => 'Concubino(a)',
+			'SEP' => 'Separado(a)',
+			'A-C' => 'Abandono/Conyugue',
 		);
 
 	protected

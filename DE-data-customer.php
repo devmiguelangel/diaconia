@@ -64,11 +64,10 @@ if(isset($_POST['dsc-dni'])){
 	$dni = $_POST['dsc-dni'];
 
 	$WsController = new WsController($_SESSION['idEF'], $web_service, $bc, $dni);
-	$aux_cl = $WsController->getClientData();
-	var_dump($aux_cl);
-	/*if (empty($aux_cl = $WsController->getClientData())) {
-    	$err_search = 'El Titular no Existe';
-    }*/
+	$data_ws = $WsController->getClientData($arr_cl);
+	if ($data_ws['status'] !== 200) {
+    	$err_search = $data_ws['error'];
+    }
 }
 
 if (isset($_GET['idCl'])) {
@@ -267,7 +266,7 @@ if($nCl < $max_item || $swCl === true){
 	            		<?php if ($value['id_depto'] === $data['ext']): $selected = 'selected' ?>
 			    		<?php endif ?>
 						<option value="<?= $value['id_depto'] ;?>" 
-							<?= $selected ;?>><?= $value['departamento'] ;?></option>';
+							<?= $selected ;?>><?= $value['departamento'] ;?></option>
             		<?php endif ?>
             	<?php endforeach ?>
 			</select>
@@ -367,7 +366,7 @@ if($nCl < $max_item || $swCl === true){
 				<?php foreach ($ClientController->getGender() as $key => $value): $selected = '' ?>
 					<?php if ($key === $data['gender']): $selected = 'selected' ?>
 		    		<?php endif ?>
-					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>';
+					<option value="<?= $key ;?>" <?= $selected ;?>><?= $value ;?></option>
 				<?php endforeach ?>
 			</select>
 		</div><br>
