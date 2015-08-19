@@ -309,8 +309,8 @@ $.fn.extend({
 						$(imgLoading).slideUp();
 					},
 					success: function(result){
-						// alert(result);
-						// $(".loading").html(result);
+						// console.log(result);
+						
 						$(option.nameLoading+" img:last").after('<span class="loading-text">'+result[2]+'</span>');
 						setTimeout(function(){
 							if (result[0] === 1) {

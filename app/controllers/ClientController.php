@@ -187,7 +187,6 @@ class ClientController extends Diaconia
 
 				for ($k = 0; $k < $nCl; $k++) { 
 					$temp_data = array();
-
 					$temp_data['name'] 		= $this->cx->real_escape_string(trim($data['dc-name-'.$k]));
 					$temp_data['patern'] 	= $this->cx->real_escape_string(trim($data['dc-ln-patern-'.$k]));
 					$temp_data['matern'] 	= $this->cx->real_escape_string(trim($data['dc-ln-matern-'.$k]));
@@ -253,69 +252,69 @@ class ClientController extends Diaconia
 						$birth_mess .= 'La Fecha de nacimiento del titular ' . $name 
 							. ' no esta en el rango permitido de edades <br>';
 					}
+				}
 
-					if ($birth_flag) {
-						$ClientRepo = new ClientRepo($this->cx);
+				if ($birth_flag) {
+					$ClientRepo = new ClientRepo($this->cx);
 
-						if ($flag) {
-							$arr_cl[0]['id'] = $data['id'];
+					if ($flag) {
+						$arr_cl[0]['id'] = $data['id'];
+						
+						if ($ClientRepo->putClientData($data, $arr_cl[0], $bc)) {
+							$mess[0] = 1;
+							$mess[1] = 'de-quote.php?ms=' . $ms . '&page=' . $page 
+								. '&pr=' . $pr . '&idc=' . base64_encode($data['idc']);
+							$mess[2] = 'Los Datos se actualizaron correctamente';
+
+							return true;
+						} else {
+							$mess[2] = 'No se pudo actualizar los datos';
+						}
+					} else {
+						if ($nCl === 1 && $bc === false) {
+							$data['dc'] = $this->getNumberClients($data['idc'], $data['idef'], false);
+						}
+
+						$rec = true;
+
+						foreach ($arr_cl as $key => $data_cl) {
+							if ($bc === true) {
+								$data_cl['dc'] = 'CC';
+							} else {
+								$data_cl['dc'] = $data['dc'];
+							}
 							
-							if ($ClientRepo->putClientData($data, $arr_cl[0], $bc)) {
+							if ($ClientRepo->postClientData($data, $data_cl)) {
+								
+							} else {
+								$rec = false;
+								break;
+							}
+						}
+
+						if ($rec) {
+							if ($bc) {
+								$QuoteController = new QuoteController();
+								
+								if ($QuoteController->setDataBcCot($data['idc'])) {
+									goto Resp2;
+								}
+							} else {
+								Resp2:
 								$mess[0] = 1;
 								$mess[1] = 'de-quote.php?ms=' . $ms . '&page=' . $page 
 									. '&pr=' . $pr . '&idc=' . base64_encode($data['idc']);
-								$mess[2] = 'Los Datos se actualizaron correctamente';
+								$mess[2] = 'Cliente(s) registrado(s) con Éxito';
 
 								return true;
-							} else {
-								$mess[2] = 'No se pudo actualizar los datos';
 							}
 						} else {
-							if ($nCl === 1 && $bc === false) {
-								$data['dc'] = $this->getNumberClients($data['idc'], $data['idef'], false);
-							}
-
-							$rec = true;
-
-							foreach ($arr_cl as $key => $data_cl) {
-								if ($bc === true) {
-									$data_cl['dc'] = 'CC';
-								} else {
-									$data_cl['dc'] = $data['dc'];
-								}
-								
-								if ($ClientRepo->postClientData($data, $data_cl)) {
-									
-								} else {
-									$rec = false;
-									break;
-								}
-							}
-
-							if ($rec) {
-								if ($bc) {
-									$QuoteController = new QuoteController();
-									
-									if ($QuoteController->setDataBcCot($data['idc'])) {
-										goto Resp2;
-									}
-								} else {
-									Resp2:
-									$mess[0] = 1;
-									$mess[1] = 'de-quote.php?ms=' . $ms . '&page=' . $page 
-										. '&pr=' . $pr . '&idc=' . base64_encode($data['idc']);
-									$mess[2] = 'Cliente(s) registrado(s) con Éxito';
-
-									return true;
-								}
-							} else {
-								$mess[2] = 'No se pudo registrar al(los) Cliente(s)';
-							}
+							$mess[2] = 'No se pudo registrar al(los) Cliente(s)';
 						}
-					} else {
-						$mess[2] = $birth_mess . '[ ' . $data['data']['edad_min'] 
-							. ' - ' . $data['data']['edad_max'] . ' ]';
 					}
+				} else {
+					$mess[2] = $birth_mess . '[ ' . $data['data']['edad_min'] 
+						. ' - ' . $data['data']['edad_max'] . ' ]';
 				}
 			} else {
 				$mess[2] = 'Error .';

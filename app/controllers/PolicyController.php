@@ -253,8 +253,8 @@ class PolicyController extends Diaconia
 
 						$cu_amount_mess = '
 							| El monto solicitado supera el monto maximo permitido. 
-							Monto maximo permitido ' . number_format($range['amount_min'], 2, '.', ',') 
-								. ' ' . $vars['dcr_currency'] . '. ';
+							Monto maximo permitido ' . number_format($range['amount_max'], 2, '.', ',') 
+								. ' BS. ';
 						$fac_reason .= $cu_amount_mess;
 					}
 
