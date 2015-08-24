@@ -155,7 +155,7 @@ class WsRepo
 						$client['doc_id'] 		= trim($value['carnetdeidentidad']);
 						$client['comp'] 		= trim($value['complemento']);
 						$client['ext'] 			= trim($value['expedido']);
-						$client['country'] 		= '';
+						$client['country'] 		= 'BOLIVIA';
 						$client['birth'] 		= trim($value['fechanacimiento']);
 						$client['place_birth'] 	= '';
 						$client['place_res'] 	= '';
