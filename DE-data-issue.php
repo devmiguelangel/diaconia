@@ -942,8 +942,8 @@ foreach ($data as $key => $row) {
 
 		}
 
-		echo '<input type="' . $type_btn . '" id="dc-save" 
-			name="dc-save" value="Guardar/Cerrar" class="btn-next btn-issue" >';
+		/*echo '<input type="' . $type_btn . '" id="dc-save" 
+			name="dc-save" value="Guardar/Cerrar" class="btn-next btn-issue" >';*/
 	}
 ?>
     </div>
