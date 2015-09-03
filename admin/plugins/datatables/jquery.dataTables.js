@@ -11840,74 +11840,74 @@
 $(document).ready(function() {
    //ACTIVAR DESACTIVAR MARCA
    $("a[href].accion_active_marca").click(function(e){
-		   var valor = $(this).attr('id');
-		   var vec = valor.split('|');
-		   var id_marca = vec[0];
-		   var id_ef = vec[1];
-		   var text = vec[2]; 		  
-		   jConfirm("¿Esta seguro de "+text+" el tipo de vehiculo?", ""+text+" registro", function(r) {
-				//alert(r);
-				if(r) {
-						var dataString ='id_marca='+id_marca+'&id_ef='+id_ef+'&text='+text+'&opcion=active_marca';
-						$.ajax({
-							   async: true,
-							   cache: false,
-							   type: "POST",
-							   url: "accion_registro.php",
-							   data: dataString,
-							   success: function(datareturn) {
-									  //alert(datareturn);
-									  if(datareturn==1){
-										 location.reload(true);
-									  }else if(datareturn==2){
-										jAlert("El registro no se proceso correctamente intente nuevamente", "Mensaje");
-										 e.preventDefault();
-									  }
-									  
-							   }
-					    });
-					
-				} else {
-					//jAlert("No te gusta Actualidad jQuery", "Actualidad jQuery");
-				}
-		   });
-		   e.preventDefault();
+	   var valor = $(this).attr('id');
+	   var vec = valor.split('|');
+	   var id_marca = vec[0];
+	   var id_ef = vec[1];
+	   var text = vec[2]; 		  
+	   jConfirm("¿Esta seguro de "+text+" el tipo de vehiculo?", ""+text+" registro", function(r) {
+			//alert(r);
+			if(r) {
+					var dataString ='id_marca='+id_marca+'&id_ef='+id_ef+'&text='+text+'&opcion=active_marca';
+					$.ajax({
+						   async: true,
+						   cache: false,
+						   type: "POST",
+						   url: "accion_registro.php",
+						   data: dataString,
+						   success: function(datareturn) {
+								  //alert(datareturn);
+								  if(datareturn==1){
+									 location.reload(true);
+								  }else if(datareturn==2){
+									jAlert("El registro no se proceso correctamente intente nuevamente", "Mensaje");
+									 e.preventDefault();
+								  }
+								  
+						   }
+					});
+				
+			} else {
+				//jAlert("No te gusta Actualidad jQuery", "Actualidad jQuery");
+			}
+	   });
+	   e.preventDefault();
    });
    
    //ACTIVAR DESACTIVAR MODELO
    $("a[href].accion_active_modelo").click(function(e){
-		   var valor = $(this).attr('id');
-		   var vec = valor.split('|');
-		   var id_modelo = vec[0];
-		   var id_marca = vec[1];
-		   var text = vec[2]; 		  
-		   jConfirm("¿Esta seguro de "+text+" el modelo de auto?", ""+text+" registro", function(r) {
-				//alert(r);
-				if(r) {
-						var dataString ='id_modelo='+id_modelo+'&id_marca='+id_marca+'&text='+text+'&opcion=active_modelo';
-						$.ajax({
-							   async: true,
-							   cache: false,
-							   type: "POST",
-							   url: "accion_registro.php",
-							   data: dataString,
-							   success: function(datareturn) {
-									  //alert(datareturn);
-									  if(datareturn==1){
-										 location.reload(true);
-									  }else if(datareturn==2){
-										jAlert("El registro no se proceso correctamente intente nuevamente", "Mensaje");
-										 e.preventDefault();
-									  }
-									  
-							   }
-					    });
-					
-				} else {
-					//jAlert("No te gusta Actualidad jQuery", "Actualidad jQuery");
-				}
-		   });
-		   e.preventDefault();
+	   var valor = $(this).attr('id');
+	   var vec = valor.split('|');
+	   var id_modelo = vec[0];
+	   var id_marca = vec[1];
+	   var text = vec[2]; 		  
+	   jConfirm("¿Esta seguro de "+text+" el modelo de auto?", ""+text+" registro", function(r) {
+			//alert(r);
+			if(r) {
+					var dataString ='id_modelo='+id_modelo+'&id_marca='+id_marca+'&text='+text+'&opcion=active_modelo';
+					$.ajax({
+						   async: true,
+						   cache: false,
+						   type: "POST",
+						   url: "accion_registro.php",
+						   data: dataString,
+						   success: function(datareturn) {
+								  //alert(datareturn);
+								  if(datareturn==1){
+									 location.reload(true);
+								  }else if(datareturn==2){
+									jAlert("El registro no se proceso correctamente intente nuevamente", "Mensaje");
+									 e.preventDefault();
+								  }
+								  
+						   }
+					});
+				
+			} else {
+				//jAlert("No te gusta Actualidad jQuery", "Actualidad jQuery");
+			}
+	   });
+	   e.preventDefault();
    });   
    
    //ELIMINAR MODELO
@@ -11947,36 +11947,72 @@ $(document).ready(function() {
    
    //ACTIVAR DESACTIVAR USUARIO
    $("a[href].activar_user").click(function(e){
-		   var valor = $(this).attr('id');
-		   var vec = valor.split('|');
-		   var id_usuario = vec[0];
-		   var text = vec[1];
-		   jConfirm("Esta seguro de "+text+" al usuario?", ""+text+" usuario", function(r) {
-				//alert(r);
-				if(r) {
-						var dataString ='id_usuario='+id_usuario+'&text='+text+'&opcion=enabled_disabled_user';
-						$.ajax({
-							   async: true,
-							   cache: false,
-							   type: "POST",
-							   url: "accion_registro.php",
-							   data: dataString,
-							   success: function(datareturn) {
-									  //alert(datareturn);
-									  if(datareturn==1){
-										 location.reload(true);
-									  }else if(datareturn==2){
-										jAlert("El registro no se proceso correctamente intente nuevamente", "Mensaje");
-										 e.preventDefault();
-									  }
+	   var valor = $(this).attr('id');
+	   var vec = valor.split('|');
+	   var id_usuario = vec[0];
+	   var text = vec[1];
+	   jConfirm("Esta seguro de "+text+" al usuario?", ""+text+" usuario", function(r) {
+			//alert(r);
+			if(r) {
+					var dataString ='id_usuario='+id_usuario+'&text='+text+'&opcion=enabled_disabled_user';
+					$.ajax({
+						   async: true,
+						   cache: false,
+						   type: "POST",
+						   url: "accion_registro.php",
+						   data: dataString,
+						   success: function(datareturn) {
+								  //alert(datareturn);
+								  if(datareturn==1){
+									 location.reload(true);
+								  }else if(datareturn==2){
+									jAlert("El registro no se proceso correctamente intente nuevamente", "Mensaje");
+									 e.preventDefault();
+								  }
 
-							   }
-					    });
+						   }
+					});
 
-				} else {
-					//jAlert("No te gusta Actualidad jQuery", "Actualidad jQuery");
-				}
-		   });
-		   e.preventDefault();
+			} else {
+				//jAlert("No te gusta Actualidad jQuery", "Actualidad jQuery");
+			}
+	   });
+	   e.preventDefault();
+   });
+   
+   //ELIMINAR CORREO ELECTRONICO
+   $("a[href].eliminar").click(function(e){
+	   var variable = $(this).attr('id');
+	   var vec = variable.split('|');
+	   var idcorreo = vec[0];
+	   var id_ef = vec[1];
+	   jConfirm("¿Esta seguro de eliminar la ocupacion?", "Eliminar registro", function(r) {
+			//alert(r);
+			if(r) {
+					var dataString ='idcorreo='+idcorreo+'&id_ef='+id_ef+'&opcion=eliminarcorreo';
+					$.ajax({
+						   async: true,
+						   cache: false,
+						   type: "POST",
+						   url: "eliminar_registro.php",
+						   data: dataString,
+						   success: function(datareturn) {
+								  //alert(datareturn);
+								  if(datareturn==1){
+									 //location.reload(true);
+									 $('#del-'+idcorreo).fadeOut('slow');
+								  }else if(datareturn==2){
+									jAlert("El registro no pudo eliminarse intente nuevamente", "Mensaje");
+									 e.preventDefault();
+								  }
+
+						   }
+					});
+
+			} else {
+				//jAlert("No te gusta Actualidad jQuery", "Actualidad jQuery");
+			}
+	   });
+	   e.preventDefault();
    });
 });

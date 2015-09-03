@@ -154,6 +154,7 @@ function mostrar_lista_formularios($id_usuario_sesion, $tipo_sesion, $usuario_se
 		   var id_home=vec[1];
 		   var archivo=vec[2];
 		   var id_ef=vec[3];
+		   var ct=vec[4];
 		  
 		   jConfirm("¿Esta seguro de eliminar el archivo pdf?", "Eliminar registro", function(r) {
 				//alert(r);
@@ -167,12 +168,15 @@ function mostrar_lista_formularios($id_usuario_sesion, $tipo_sesion, $usuario_se
 							   data: dataString,
 							   success: function(datareturn) {
 									  //alert(datareturn);
+									  //alert(ct);
 									  if(datareturn==1){
-										 location.reload(true);
+										 //location.reload(true);
+										 $('#del-'+ct).fadeOut('slow');
 									  }else if(datareturn==2){
 										jAlert("El archivo no pudo eliminarse intente nuevamente", "Mensaje");
 										 e.preventDefault();
 									  }
+									  
 									  
 							   }
 					    });
@@ -277,8 +281,10 @@ if($tipo_sesion=='ROOT'){
 					<tbody>';
 					  $num = $res->num_rows;
 					  if($num>0){
+						  $ct=0;
 							while($regi = $res->fetch_array(MYSQLI_ASSOC)){
-								echo'<tr>
+								$ct++;
+								echo'<tr id="del-'.$ct.'">
 										<td>'.$regi['titulo'].'</td>
 										<td>'.$regi['producto_nombre'].'</td>
 										<td style="text-align:center;">';
@@ -295,7 +301,7 @@ if($tipo_sesion=='ROOT'){
 										<td class="da-icon-column">
 										   <ul class="action_user">
 											  <li><a href="?l=archivos&idformulario='.base64_encode($regi['id_formulario']).'&id_ef='.base64_encode($regief['id_ef']).'&editar=v&var='.$_GET['var'].'" class="edit da-tooltip-s" title="<span lang=\'es\'>Editar</span>"></a></li>
-											  <li><a href="#" id="'.$regi['id_formulario'].'|'.$regi['id_home'].'|'.$regi['archivo'].'|'.$regief['id_ef'].'" class="eliminar da-tooltip-s" title="<span lang=\'es\'>Eliminar</span>"></a></li>
+											  <li><a href="#" id="'.$regi['id_formulario'].'|'.$regi['id_home'].'|'.$regi['archivo'].'|'.$regief['id_ef'].'|'.$ct.'" class="eliminar da-tooltip-s" title="<span lang=\'es\'>Eliminar</span>"></a></li>
 										   </ul>	
 										</td>
 									</tr>';

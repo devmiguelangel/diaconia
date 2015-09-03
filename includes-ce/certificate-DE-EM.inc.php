@@ -1475,7 +1475,7 @@ if($_coverage === 'IM'){
                <tr>
                 <td style="width:10%;">No. de Crédito</td>
                 <td style="width:35%; border-bottom: 1px solid #333;">&nbsp;
-                  
+                  <?= $row['no_operacion'] ;?>
                 </td>
                 <td style="width:25%;"></td>
                                 
