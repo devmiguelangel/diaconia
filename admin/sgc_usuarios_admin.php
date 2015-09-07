@@ -15,7 +15,8 @@ if(isset($_SESSION['usuario_sesion']) && isset($_SESSION['tipo_sesion'])) {
 		//SI HA HECHO CLICK EN EL FORM DE LOGIN, VALIDAMOS LOS DATOS Q HA INGRESADO
 		if(validar_login($conexion)) {
 			//SI LOS DATOS DEL FORM SON CORRECTOS, MOSTRAMOS LA PAGINA
-			mostrar_pagina($_SESSION['id_usuario_sesion'], $_SESSION['tipo_sesion'], $_SESSION['usuario_sesion'], $_SESSION['id_ef_sesion'], $conexion, $lugar);
+			header('Location: index.php?l=usuarios_admin');
+			exit();
 		} else {
 			//SI LOS DATOS NO SON CORRECTOS, MOSTRAMOS EL FORM DE LOGIN CON EL MENSAJE DE ERROR
 			session_unset();
@@ -169,17 +170,15 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 <script type="text/javascript" src="plugins/jalerts/jquery.alerts.js"></script>
 <script type="text/javascript">
    $(function(){
-	   $("a[href].accionef").click(function(e){
+	   $("a[href].activar_user").click(function(e){
 		   var valor = $(this).attr('id');
 		   var vec = valor.split('|');
 		   var id_usuario = vec[0];
-		   var id_ef = vec[1];
-		   var text = vec[2]; 		  
-		   jConfirm("Esta seguro de "+text+" el usuario?", ""+text+" registro", function(r) {
+		   var text = vec[1];
+		   jConfirm("Esta seguro de "+text+" al usuario?", ""+text+" usuario", function(r) {
 				//alert(r);
 				if(r) {
-						var dataString ='id_usuario='+id_usuario+'&id_ef='+id_ef+'&text='+text+'&opcion=enabled_disabled_usuario';
-						//alert(dataString);
+						var dataString ='id_usuario='+id_usuario+'&text='+text+'&opcion=enabled_disabled_user';
 						$.ajax({
 							   async: true,
 							   cache: false,
@@ -194,10 +193,10 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 										jAlert("El registro no se proceso correctamente intente nuevamente", "Mensaje");
 										 e.preventDefault();
 									  }
-									  
+
 							   }
 					    });
-					
+
 				} else {
 					//jAlert("No te gusta Actualidad jQuery", "Actualidad jQuery");
 				}
@@ -325,7 +324,13 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 										 }else{
 											echo'';	 
 										 }
-								echo'>  <td>'.$regi['tipo'].'</td> 
+								echo'>  <td ';
+								         if($regi['activado']=='inactivo'){
+											echo'style="background:#FD2F18; color:#ffffff;"'; 
+										 }else{
+											echo'';	 
+										 }
+								    echo'>'.$regi['tipo'].'</td> 
 										<td>'.$regi['usuario'].'</td>
 										<td>'.$regi['nombre_usuario'].'</td>
 										<td>'.$regi['email'].'</td>';
@@ -360,10 +365,10 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 											if($tipo_user==md5('CRU') or $tipo_user==md5('ADM')){
 											   echo'<li><a href="?l=usuarios_admin&idusuario='.base64_encode($regi['id_usuario']).'&id_ef_sesion='.base64_encode($id_ef_sesion).'&reset=v" class="resetear da-tooltip-s" title="Resetear Password"></a></li>';
 											   //echo'<li><a href="?l=usuarios_admin&idusuario='.base64_encode($regi['id_usuario']).'&id_ef_sesion='.base64_encode($id_ef_sesion).'&darbaja=v" class="darbaja da-tooltip-s" title="Dar baja"></a></li>';
-											   if($regi['activado']=='inactivo'){
-													echo'<li><a href="#" id="'.base64_encode($regi['id_usuario']).'|'.base64_encode($id_ef_sesion).'|activar" class="daralta da-tooltip-s accionef" title="Activar"></a></li>';
-											   }else{
-													echo'<li><a href="#" id="'.base64_encode($regi['id_usuario']).'|'.base64_encode($id_ef_sesion).'|desactivar" class="darbaja da-tooltip-s accionef" title="Desactivar"></a></li>';  
+											   if($regi['activado']=='activo'){
+													echo'<li><a href="#" id="'.base64_encode($regi['id_usuario']).'|dar baja" class="darbaja da-tooltip-s activar_user" title="dar baja"></a></li>';
+											   }elseif($regi['activado']=='inactivo'){
+													echo'<li><a href="#" id="'.base64_encode($regi['id_usuario']).'|dar alta" class="daralta da-tooltip-s activar_user" title="dar alta"></a></li>';  
 											   }
 											}
 											//echo'<li><a href="bloquear_desbloquear_usuario.php?idusuario='.base64_encode($regi['id_usuario']).'&op=lock" rel="facebox" class="darbaja da-tooltip-s" title="Dar Baja"></a></li>';
