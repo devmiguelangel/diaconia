@@ -11,18 +11,18 @@ function de_em_certificate($link, $row, $rsDt, $url, $implant, $type, $fac, $rea
     $row['fecha_emision'] = $row['u_departamento'] . ', ' . date('d/m/Y', strtotime($row['fecha_emision']));
     
     $nCl = $rsDt->num_rows;
-    $_coverage = $row['cobertura'];
+    $_coverage = (int)$row['cobertura'];
 
     $coverage = array('', '', '');
     switch ($_coverage) {
-    case 'IM':
+    case 1:
         if ($nCl === 1) {
             $coverage[0] = 'X';
         } elseif ($nCl === 2) {
             $coverage[1] = 'X';
         }
         break;
-    case 'BC':
+    case 2:
         $coverage[2] = '';
         break;
     }
@@ -36,7 +36,7 @@ function de_em_certificate($link, $row, $rsDt, $url, $implant, $type, $fac, $rea
     <div id="main-c" style="width: 775px; font-weight: normal; font-size: 12px; 
         font-family: Arial, Helvetica, sans-serif; color: #000000;">
 <?php
-if($_coverage === 'IM'){
+if($_coverage === 1){
 ?>
         <div style="width: 775px; border: 0px solid #FFFF00; text-align:center;">
             <table 
@@ -342,10 +342,10 @@ if($_coverage === 'IM'){
                 if ($question['id_pregunta'] == $respCl['id']) {
                     if ($respCl['value'] === 1) {
                         $resp1_yes = 'X';
-						$resp1_no = '';
+                        $resp1_no = '';
                     } elseif($respCl['value'] === 0) {
                         $resp1_yes = '';
-						$resp1_no = 'X';
+                        $resp1_no = 'X';
                     }
                 }
             }
@@ -355,10 +355,10 @@ if($_coverage === 'IM'){
                 if ($question['id_pregunta'] == $respCl['id']) {
                     if ($respCl['value'] === 1) {
                         $resp2_yes = 'X';
-						$resp2_no = '';
+                        $resp2_no = '';
                     } elseif($respCl['value'] === 0) {
                         $resp2_yes = '';
-						$resp2_no = 'X';
+                        $resp2_no = 'X';
                     }
                 }
             }
@@ -395,11 +395,11 @@ if($_coverage === 'IM'){
                </tr>
 <?php
               if($i==4){
-?>				
-	             <tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr> 			
-<?php				  
-			  }
-			  $i++;
+?>              
+                 <tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr>          
+<?php                 
+              }
+              $i++;
         }
 ?>                 
                 
@@ -1061,7 +1061,7 @@ if($_coverage === 'IM'){
           </div>
 <?php          
        }
-}elseif($_coverage === 'BC'){
+}elseif($_coverage === 2){
     $k=0;
     while($rowcl=$rsDt->fetch_array(MYSQLI_ASSOC)){
         $k += 1;
@@ -1333,63 +1333,87 @@ if($_coverage === 'IM'){
                   <td style="width:16%; text-align:center;" colspan="4">TITULAR 2</td>
                </tr>
 <?php
-    $resp1_yes = $resp1_no = ''; $i = 1;
-    foreach ($row['questions'] as $key => $question) {
-        if (count($rsCl_1) > 0) {
-            $respCl = $rsCl_1[$question['orden']];
-            if ($question['id_pregunta'] == $respCl['id']) {
-                if ($respCl['value'] === 1) {
-                    $resp1_yes = 'X';
-                } elseif($respCl['value'] === 0) {
-                    $resp1_no = 'X';
+        if($rsDt->data_seek(0)){
+            $cont = 0;
+            $rsCl_1 = array();
+            $rsCl_2 = array();
+            while($rowrp=$rsDt->fetch_array(MYSQLI_ASSOC)){
+                $cont += 1;
+                if($cont === 1) {
+                    $rsCl_1 = json_decode($rowrp['respuesta'],TRUE);
+                } elseif($cont === 2) {
+                    $rsCl_2 = json_decode($rowrp['respuesta'],TRUE);
+                }
+            }  
+        }
+        
+        $resp1_yes = $resp1_no = '';    $resp2_yes = $resp2_no = ''; $i=1;
+        foreach ($row['questions'] as $key => $question) {
+            if (count($rsCl_1) > 0) {
+                $respCl = $rsCl_1[$question['orden']];
+                if ($question['id_pregunta'] == $respCl['id']) {
+                    if ($respCl['value'] === 1) {
+                        $resp1_yes = 'X';
+                        $resp1_no = '';
+                    } elseif($respCl['value'] === 0) {
+                        $resp1_yes = '';
+                        $resp1_no = 'X';
+                    }
                 }
             }
-        }
-?>              
-            <tr>
-                <td style="width:63%; text-align:left;">
-                    <?=$question['orden'].' '.$question['pregunta'];?>
-                </td>
-                <td style="width:3%;">SI</td>
-                <td style="width:5%;">
-                    <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
-                        <?=$resp1_yes;?>
-                    </div>
-                </td>
-                <td style="width:3%;">NO</td>
-                <td style="width:5%;">
-                    <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
-                        <?=$resp1_no;?>
-                    </div>
-                </td>
-                <td style="width:5%;">&nbsp;</td>
-                <td style="width:3%;">SI</td>
-                <td style="width:5%;">
-                    <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
-                        &nbsp;
-                    </div>
-                </td>
-                <td style="width:3%;">NO</td>
-                <td style="width:5%;">
-                    <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
-                        &nbsp;
-                    </div>
-                </td>
-            </tr>
+
+            if (count($rsCl_2) > 0) {
+                $respCl = $rsCl_2[$question['orden']];
+                if ($question['id_pregunta'] == $respCl['id']) {
+                    if ($respCl['value'] === 1) {
+                        $resp2_yes = 'X';
+                        $resp2_no = '';
+                    } elseif($respCl['value'] === 0) {
+                        $resp2_yes = '';
+                        $resp2_no = 'X';
+                    }
+                }
+            }
+?>
+                <tr>
+                  <td style="width:63%; text-align:left;">
+                      <?=$question['orden'].' '.$question['pregunta'];?>
+                  </td>
+                  <td style="width:3%;">SI</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp1_yes;?>
+                     </div> 
+                  </td>
+                  <td style="width:3%;">NO</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp1_no;?>
+                     </div> 
+                  </td>
+                  <td style="width:5%;">&nbsp;</td>
+                  <td style="width:3%;">SI</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp2_yes;?>
+                     </div> 
+                  </td>
+                  <td style="width:3%;">NO</td>
+                  <td style="width:5%;">
+                     <div style="width: 20px; height: 12px; border: 1px solid #000; text-align:center;">
+                      <?=$resp2_no;?>
+                     </div> 
+                  </td>
+               </tr>
 <?php
-            if($i==4){
-?>				
-              <tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr>
-<?php			
-			}
-			$i++;
-    }
+              if($i==4){
 ?>              
-               
-               
-               <!--<tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr>-->
-               
-               
+                 <tr><td colspan="10" style="width:100%; text-align:left; font-weight:bold;">DURANTE LOS ÚLTIMOS CINCO AÑOS:</td></tr>          
+<?php                 
+              }
+              $i++;
+        }
+?>        
                
             </table> 
             
