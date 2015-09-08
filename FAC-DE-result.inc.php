@@ -5,7 +5,11 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
-require('sibas-db.class.php');
+require 'sibas-db.class.php';
+require 'app/models/Diaconia.php';
+
+$Diaconia = new Diaconia();
+
 $s_ef = array();
 $s_nc = '';
 $s_user = '';
@@ -15,6 +19,8 @@ $s_comp = '';
 $s_ext = '';
 $s_date_begin = '2000-01-01';
 $s_date_end = '3000-01-01';
+
+$data_coverage = $Diaconia->getCoverage();
 
 $token = 0;
 $bg = '';
@@ -61,6 +67,7 @@ if($token === 1){
 ?>
             <td>No. Certificado</td>
             <td>Entidad Financiera</td>
+            <td>Tipo de Cobertura</td>
             <td>Cliente</td>
             <td>CI</td>
             <td>Complemento</td>
@@ -112,6 +119,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
     $s_ext = $link->real_escape_string(trim($_GET['fde-ext']));
     $s_date_begin = $link->real_escape_string(trim($_GET['fde-date-b']));
     $s_date_end = $link->real_escape_string(trim($_GET['fde-date-e']));
+    $coverage = $link->real_escape_string(trim($_GET['fde-coverage']));
     
     $idUSer = $link->real_escape_string(trim(base64_decode($_GET['fde-id-user'])));
     $type_user = $link->real_escape_string(trim(base64_decode($_GET['fde-type-user'])));
@@ -236,6 +244,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
             and sde.aprobado = true
             and sde.rechazado = false
             and sde.prefijo like '%" . $s_prefix . "%'
+            and sde.cobertura like '%" . $coverage . "%'
             and (";
     if($nEF > 0){
         $sql .= "sef.id_ef like '".base64_decode($s_ef[0])."'";
@@ -287,7 +296,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
     $sql .= "group by sde.id_emision
     order by sde.id_emision desc
     ;";
-    //echo $sql;
+    // echo $sql;
     $rs = $link->query($sql,MYSQLI_STORE_RESULT);
     if($rs->num_rows > 0){
         // echo $rs->num_rows;
@@ -310,7 +319,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
             $nFa = (int)$row['noFa'];
             $nPr = (int)$row['noPr'];
 
-            $bc = (boolean)$row['bc'];
+            $bc = (int)$row['bc'];
 
             if($swBG === FALSE){
                 $bg = 'background: #EEF9F8;';
@@ -355,49 +364,49 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
             }
             
             $sqlCl = "select 
-                    sdc.id_cliente as idCl,
-                    concat(sdc.nombre,
-                            ' ',
-                            sdc.paterno,
-                            ' ',
-                            sdc.materno) as cl_nombre,
-                    sdc.ci as cl_ci,
-                    sdc.complemento as cl_complemento,
-                    sdep.codigo as cl_extension,
-                    sdep.departamento as cl_ciudad,
-                    (case sdc.genero
-                        when 'M' then 'Hombre'
-                        when 'F' then 'Mujer'
-                    end) as cl_genero,
-                    sdc.telefono_domicilio as cl_telefono,
-                    sdc.telefono_celular as cl_celular,
-                    sdc.email as cl_email,
-                    (case sdd.titular
-                        when 'DD' then 'Deudor'
-                        when 'CC' then 'Codeudor'
-                    end) as cl_titular,
-                    sdd.monto_banca_comunal as cl_monto_bc,
-                    sdd.facultativo as cl_facultativo,
-                    sdd.aprobado as cl_aprobado,
-                    sdd.id_detalle,
-                    sdd.cumulo as monto_acumulado,
-                    sdd.detalle_f,
-                    sdd.detalle_p
-                from
-                    s_cliente as sdc
-                        inner join
-                    s_de_em_detalle as sdd ON (sdd.id_cliente = sdc.id_cliente)
-                        inner join
-                    s_departamento as sdep ON (sdep.id_depto = sdc.extension)
-                where
-                    sdd.id_emision = '".$row['ide']."'
-                order by sdd.id_detalle asc
-                ;";
-            
-            $rsCl = $link->query($sqlCl,MYSQLI_STORE_RESULT);
+                sdc.id_cliente as idCl,
+                concat(sdc.nombre,
+                        ' ',
+                        sdc.paterno,
+                        ' ',
+                        sdc.materno) as cl_nombre,
+                sdc.ci as cl_ci,
+                sdc.complemento as cl_complemento,
+                sdep.codigo as cl_extension,
+                sdep.departamento as cl_ciudad,
+                (case sdc.genero
+                    when 'M' then 'Hombre'
+                    when 'F' then 'Mujer'
+                end) as cl_genero,
+                sdc.telefono_domicilio as cl_telefono,
+                sdc.telefono_celular as cl_celular,
+                sdc.email as cl_email,
+                (case sdd.titular
+                    when 'DD' then 'Deudor'
+                    when 'CC' then 'Codeudor'
+                end) as cl_titular,
+                sdd.monto_banca_comunal as cl_monto_bc,
+                sdd.facultativo as cl_facultativo,
+                sdd.aprobado as cl_aprobado,
+                sdd.id_detalle,
+                sdd.cumulo as monto_acumulado,
+                sdd.detalle_f,
+                sdd.detalle_p
+            from
+                s_cliente as sdc
+                    inner join
+                s_de_em_detalle as sdd ON (sdd.id_cliente = sdc.id_cliente)
+                    inner join
+                s_departamento as sdep ON (sdep.id_depto = sdc.extension)
+            where
+                sdd.id_emision = '".$row['ide']."'
+            order by sdd.id_detalle asc
+            ;";
+            // echo $sqlCl;
+            $rsCl = $link->query($sqlCl, MYSQLI_STORE_RESULT);
             $nDt = $rsCl->num_rows;
 
-            if ($bc === true) {
+            if ($bc === 2) {
                 if ($token === 0) {
                     //$nDt = $nCl - $nAp;
                     $nDt = $nCl - $nAp - $nPr - $nFa;
@@ -407,7 +416,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
                     //$nDt = $nCl - $nAp + $nPr + $nFa;
                 }
             }
-            //echo '|'.$nDt.'|'.$nAp.'|'.$nPr.'|'.$nFa.'| - ';
+            // var_dump($nDt);
             $rowSpan = false;
             if ($token === 0) {
                 if($nDt > 1) {
@@ -433,7 +442,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
                     $cl_facultativo = (boolean)$rowCl['cl_facultativo'];
                     $cl_aprobado = (boolean)$rowCl['cl_aprobado'];
 
-                    if ($bc === true) {
+                    if ($bc === 2) {
                         $arr_detp = json_decode($rowCl['detalle_p'], true);
                         $arr_detf = json_decode($rowCl['detalle_f'], true);
                     }
@@ -448,7 +457,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
 
                     $rowSpan_bc = $rowSpan;
 
-                    if ($bc === true) {
+                    if ($bc === 2) {
                         $rowSpan_bc = '';
                         $idd = 'data-dd="' . base64_encode($rowCl['id_detalle']) . '"';
 
@@ -544,7 +553,8 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
 ?>
                     
             <td <?=$rowSpan . $rowSpanBgOld;?>><?=$row['prefijo'] . '-' . $row['no_emision'];?></td>
-            <td ><?=mb_strtoupper($row['ef_nombre']);?></td>
+            <td <?= $rowSpan ;?>><?=mb_strtoupper($row['ef_nombre']);?></td>
+            <td <?= $rowSpan ;?>><?= $data_coverage[(int)$row['bc']] ;?></td>
             <td ><?=mb_strtoupper($rowCl['cl_nombre']);?></td>
             <td ><?=$rowCl['cl_ci'];?></td>
             <td ><?=$rowCl['cl_complemento'];?></td>

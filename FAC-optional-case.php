@@ -18,7 +18,7 @@ $(document).ready(function(e) {
 		$.ajax({
 			url:'FAC-'+pr+'-result.inc.php',
 			type:'GET',
-			data:'fde=&fde-nc=&fde-user=&fde-client=&fde-dni=&fde-comp=&fde-ext=&fde-date-b=&fde-date-e=&fde-id-user='+user+'&fde-type-user='+type_user+'&token=<?=md5('2');?>&fde-ef[]='+ef,
+			data:'fde=&fde-nc=&fde-user=&fde-client=&fde-dni=&fde-comp=&fde-ext=&fde-date-b=&fde-date-e=&fde-id-user='+user+'&fde-type-user='+type_user+'&token=<?=md5('2');?>&fde-ef[]='+ef+'&fde-coverage=',
 			//dataType:"json",
 			async:true,
 			cache:false,
