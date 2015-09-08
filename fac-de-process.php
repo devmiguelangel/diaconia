@@ -54,7 +54,7 @@ if(isset($_GET['ide']) && isset($_GET['bc'])){
     $sqlPr .= 'order by scl.id_cliente asc
     limit 0 , 2
     ;';
-    
+    // die($sqlPr);
     $CIA = '';
     $TASA = 0;
     $EMAIL_USER = '';

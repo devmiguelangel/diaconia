@@ -51,7 +51,7 @@ $.fn.extend({
 				quote = 1;
 			}
 			var bc = parseInt($(this).attr('data-bc'));
-			if (bc === 1) {
+			if (bc === 2) {
 				idd = '&idd=' + $(this).attr('data-dd');
 			}
 			

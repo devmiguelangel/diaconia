@@ -9,6 +9,7 @@ function de_sc_certificate($link, $row, $rsDt, $url, $implant, $fac, $reason = '
 	$marginUl = 'margin: 0 0 0 20px; padding: 0;';
 	
 	$tipo_cambio = (float)$row['tipo_cambio'];
+  $abrv = '';
 	
 	$response = json_decode($row['data'], true);
 	/*for($i=1;$i<=3;$i++){
@@ -443,7 +444,7 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
                 if($num_titulares==2){
                    echo'<tr>
                      <td style="width:20%; text-align:center;">'.$titulares[1][1].'</td>
-                     <td style="width:20%; text-align:center;">'.$titulares[1][2].'</td>
+                     <td style="width:20%; text-align:center;">'.@$titulares[1][2].'</td>
                      <td style="width:20%; text-align:center;">'.date('d-m-Y').'</td>
                    </tr>
                    <tr>
