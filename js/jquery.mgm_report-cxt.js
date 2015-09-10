@@ -39,20 +39,20 @@ $.fn.extend({
 		$(this).on('contextmenu', function (e) {
 			e.preventDefault();
 			
-			var token = parseInt($(this).attr('data-token'));
-			var ide = $(this).attr('data-nc');
+			var token = parseInt($(this).data('token'));
+			var ide = $(this).data('nc');
 			var idd = '';
 			var idv = '';
 			var idp = '';
 			var idm = '';
-			var issue = $(this).attr('data-issue');
+			var issue = $(this).data('issue');
 			var quote = 0;
 			if($(this).hasClass('quote') === true) {
 				quote = 1;
 			}
-			var bc = parseInt($(this).attr('data-bc'));
+			var bc = parseInt($(this).data('bc'));
 			if (bc === 2) {
-				idd = '&idd=' + $(this).attr('data-dd');
+				idd = '&idd=' + $(this).data('dd');
 			}
 			
 			var ms = '';	var page = '';
@@ -74,9 +74,9 @@ $.fn.extend({
 			$("."+option.id).show();
 			
 			switch (option.product) {
-				case 'AU': idv = $(this).attr('data-vh'); break;
-				case 'TRD': idp = $(this).attr('data-pr'); break;
-				case 'TRM': idm = $(this).attr('data-mt'); break;
+				case 'AU': idv = $(this).data('vh'); break;
+				case 'TRD': idp = $(this).data('pr'); break;
+				case 'TRM': idm = $(this).data('mt'); break;
 			}
 			
 			

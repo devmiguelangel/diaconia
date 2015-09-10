@@ -605,7 +605,7 @@ if($_coverage === 1){
 ?>
             </div>
             <div style="font-size: 60%; text-align:center; margin-top:20px;">  
-                <b>NACIONAL VIDA SEGUROS DE PERSONAS S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
+                <b>NACIONAL SEGUROS VIDA Y SALUD S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
                 SUCRE Tel.Piloto (591-4) 642-5196 * Fax: (591-4) 642-5197-TARIJA Tel. (591-4) 666-6229 * Beni Tel/fax (591-3) 463-4109 * MONTERO Tel. (591-3) 922-6012<br>
                 206-934901-2000 03 006-3012     
             </div>      
@@ -630,13 +630,13 @@ if($_coverage === 1){
                            POLIZA DE SEGURO DE DESGRAVAMEN HIPORTECARIO N° <?= $row['no_poliza'] ;?>
                            <br>Codigo 206-934901-2000 03 006 4008
                         </div><br>
-                        NACIONAL VIDA Seguros de Personas S.A., (denominada en adelante la “Compañía “), por el presente CERTIFICADO INDIVIDUAL DE SEGURO hace constar que la persona nominada en la declaración jurada de salud / solicitud de seguro de desgravamen hipotecario, que consta en el anverso, (denominado en adelante el “Asegurado”), está protegido por la Póliza de Seguro de Vida de Desgravamen arriba mencionada, de acuerdo a las siguientes Condiciones Particulares:
+                        <b>Original Prestatario</b><br>
+                        NACIONAL SEGUROS VIDA Y SALUD S.A., (denominada en adelante la “Compañía “), por el presente CERTIFICADO INDIVIDUAL DE SEGURO hace constar que la persona nominada en la declaración jurada de salud / solicitud de seguro de desgravamen hipotecario, que consta en el anverso, (denominado en adelante el “Asegurado”), está protegido por la Póliza de Seguro de Vida de Desgravamen arriba mencionada, de acuerdo a las siguientes Condiciones Particulares:
                         <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
                           <tr>
                             <td style="width:2%; font-weight:bold;">1.</td>
                             <td style="width:98%;">
-                               <b>CONTRATANTE Y BENEFICIARIO A TÍTULO ONEROSO</b><br>
-                               Fundación Diaconia - Fondo Rotativo de Inversión y Fomento
+                               <b>CONTRATANTE Y BENEFICIARIO A TÍTULO ONEROSO</b>&nbsp;Fundación Diaconia - Fondo Rotativo de Inversión y Fomento
                             </td>
                           </tr>
                           <tr>
@@ -654,9 +654,9 @@ if($_coverage === 1){
                                         <tr>
                                            <td style="width: 15%;">Límites de edad:</td>
                                            <td style="width: 15%;">De Ingreso:<br>De Permanencia</td>
-                                           <td style="width: 70%;">Desde los 15 años hasta los 70   años (hasta un día 
-                                           antes    de cumplir 71 años)<br>Máxima 70 años (hasta un día antes de 
-                                           cumplir 71 años)</td>
+                                           <td style="width: 70%;">Desde los 15 años hasta los 73   años (hasta un día 
+                                           antes    de cumplir 74 años)<br>Máxima 73 años (hasta un día antes de 
+                                           cumplir 74 años)</td>
                                         </tr>
                                       </table>
                                     </td>
@@ -664,7 +664,8 @@ if($_coverage === 1){
                                   <tr>
                                     <td style="width: 3%;" valign="top">b.</td>
                                     <td style="width: 97%;">
-                                      <b>Incapacidad Total Permanente:</b>
+                                      <b>Incapacidad Total Permanente:</b><br>
+                                      Capital Asegurado: Saldo Insoluto de la deuda a la fecha de la Incapacidad Total y Permanente
                                       <table cellpadding="0" cellspacing="0" border="0" 
                                          style="width: 100%; font-size:100%;">
                                          <tr>
@@ -845,7 +846,7 @@ if($_coverage === 1){
                                 </tr>
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
-                                  <td style="width:98%;">Historial clínico O en SU defecto un informe médico- Para edades 
+                                  <td style="width:98%;">Historial clínico O en SU defecto UH informe médico- Para edades 
                                   entre 15 a 49 años y creditos mayores a $us. 7.902.30 -   Para edades entre 50 a 70 años 
                                   y creditos mayores a $us. 5.747.13</td>
                                 </tr>
@@ -889,7 +890,7 @@ if($_coverage === 1){
                                   <tr>
                                       <td style="width: 15%; text-align:left;" valign="top">Razón Social:</td>
                                       <td style="width: 40%; font-weight:bold;">
-                                          NACIONAL VIDA SEGUROS DE PERSONAS S.A.
+                                          NACIONAL SEGUROS VIDA Y SALUD. S.A.
                                       </td>
                                       <td style="width: 15%;">&nbsp;
                                         
@@ -913,7 +914,7 @@ if($_coverage === 1){
                                         
                                       </td>
                                       <td style="width: 15%; text-align:left;">
-                                        Fax : 2442905
+                                        Fax : 2442905 243-3500 2128329
                                       </td>
                                   </tr>
                               </table> 
@@ -927,7 +928,7 @@ if($_coverage === 1){
                                   <tr>
                                       <td style="width: 15%; text-align:left;" valign="top">Razón Social:</td>
                                       <td style="width: 40%; text-align:left;">
-                                          Génesis Brokers Ltda.
+                                          Sudamericana S.R.L. Corredores y Asesores de Seguros
                                       </td>
                                       <td style="width: 15%;">&nbsp;
                                         
@@ -942,16 +943,16 @@ if($_coverage === 1){
                                   <tr>
                                       <td style="width: 15%; text-align:left;" valign="top">Dirección:</td>
                                       <td style="width: 40%; text-align:left;">
-                                        Calle Femando Guachalla N° 369 2do Piso
+                                        Prolongación Cordero N&ordm; 163 - San Jorge
                                       </td>
                                       <td style="width: 15%; text-align:left;">
-                                        Teléfono: 244-0772
+                                        Teléfono: (591) -2-2433500
                                       </td>
                                       <td style="width: 15%;">&nbsp;
                                         
                                       </td>
                                       <td style="width: 15%; text-align:left;">
-                                        Fax: 244-2824
+                                        Fax: (591) -2-2128329
                                       </td>
                                   </tr>
                                </table>
@@ -1024,7 +1025,7 @@ if($_coverage === 1){
                                  </tr>
                                  <tr>
                                    <td style="width:25%;"></td>
-                                   <td style="width:50%; text-align:center;">NACIONAL VIDA SEGUROS PERSONAS S.A.
+                                   <td style="width:50%; text-align:center;">NACIONAL SEGUROS VIDA Y SALUD S.A.
                                    <br>FIRMAS AUTORIZADAS</td>
                                    <td style="width:25%;"></td>
                                  </tr>
@@ -1062,7 +1063,7 @@ if($_coverage === 1){
 <?php          
        }
 }elseif($_coverage === 2){
-    $k=0;
+	$k=0;
     while($rowcl=$rsDt->fetch_array(MYSQLI_ASSOC)){
         $k += 1;
         $rsCl_1 = json_decode($rowcl['respuesta'],TRUE);
@@ -1333,20 +1334,8 @@ if($_coverage === 1){
                   <td style="width:16%; text-align:center;" colspan="4">TITULAR 2</td>
                </tr>
 <?php
-        if($rsDt->data_seek(0)){
-            $cont = 0;
-            $rsCl_1 = array();
-            $rsCl_2 = array();
-            while($rowrp=$rsDt->fetch_array(MYSQLI_ASSOC)){
-                $cont += 1;
-                if($cont === 1) {
-                    $rsCl_1 = json_decode($rowrp['respuesta'],TRUE);
-                } elseif($cont === 2) {
-                    $rsCl_2 = json_decode($rowrp['respuesta'],TRUE);
-                }
-            }  
-        }
         
+        //var_dump($row['questions']);
         $resp1_yes = $resp1_no = '';    $resp2_yes = $resp2_no = ''; $i=1;
         foreach ($row['questions'] as $key => $question) {
             if (count($rsCl_1) > 0) {
@@ -1361,19 +1350,7 @@ if($_coverage === 1){
                     }
                 }
             }
-
-            if (count($rsCl_2) > 0) {
-                $respCl = $rsCl_2[$question['orden']];
-                if ($question['id_pregunta'] == $respCl['id']) {
-                    if ($respCl['value'] === 1) {
-                        $resp2_yes = 'X';
-                        $resp2_no = '';
-                    } elseif($respCl['value'] === 0) {
-                        $resp2_yes = '';
-                        $resp2_no = 'X';
-                    }
-                }
-            }
+            
 ?>
                 <tr>
                   <td style="width:63%; text-align:left;">
@@ -1596,7 +1573,7 @@ if($_coverage === 1){
 ?>
             </div>
             <div style="font-size: 60%; text-align:center; margin-top:20px;">  
-                <b>NACIONAL VIDA SEGUROS DE PERSONAS S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
+                <b>NACIONAL SEGUROS VIDA Y SALUD S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
                 SUCRE Tel.Piloto (591-4) 642-5196 * Fax: (591-4) 642-5197-TARIJA Tel. (591-4) 666-6229 * Beni Tel/fax (591-3) 463-4109 * MONTERO Tel. (591-3) 922-6012<br>
                 206-934901-2000 03 006-3012     
             </div>      
@@ -1621,13 +1598,13 @@ if($_coverage === 1){
                            POLIZA DE SEGURO DE DESGRAVAMEN HIPOTECARIO N° <?= $row['no_poliza'] ;?>
                            <br>Codigo 206-934901-2000 03 006 4008
                         </div><br/>
-                        NACIONAL VIDA Seguros de Personas S.A., (denominada en adelante la “Compañía “), por el presente CERTIFICADO INDIVIDUAL DE SEGURO hace constar que la persona nominada en la declaración jurada de salud / solicitud de seguro de desgravamen hipotecario, que consta en el anverso, (denominado en adelante el “Asegurado”), está protegido por la Póliza de Seguro de Vida de Desgravamen arriba mencionada, de acuerdo a las siguientes Condiciones Particulares:
+                        <b>Original Prestatario</b><br>
+                        NACIONAL SEGUROS VIDA Y SALUD S.A., (denominada en adelante la “Compañía “), por el presente CERTIFICADO INDIVIDUAL DE SEGURO hace constar que la persona nominada en la declaración jurada de salud / solicitud de seguro de desgravamen hipotecario, que consta en el anverso, (denominado en adelante el “Asegurado”), está protegido por la Póliza de Seguro de Vida de Desgravamen arriba mencionada, de acuerdo a las siguientes Condiciones Particulares:
                         <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; font-size:100%;">
                           <tr>
                             <td style="width:2%; font-weight:bold;">1.</td>
                             <td style="width:98%;">
-                               <b>CONTRATANTE Y BENEFICIARIO A TÍTULO ONEROSO</b><br>
-                               Fundación Diaconia - Fondo Rotativo de Inversión y Fomento
+                               <b>CONTRATANTE Y BENEFICIARIO A TÍTULO ONEROSO</b>&nbsp;Fundación Diaconia - Fondo Rotativo de Inversión y Fomento
                             </td>
                           </tr>
                           <tr>
@@ -1645,9 +1622,9 @@ if($_coverage === 1){
                                         <tr>
                                            <td style="width: 15%;">Límites de edad:</td>
                                            <td style="width: 15%;">De Ingreso:<br>De Permanencia</td>
-                                           <td style="width: 70%;">Desde los 15 años hasta los 70   años (hasta un día 
-                                           antes    de cumplir 71 años)<br>Máxima 70 años (hasta un día antes de 
-                                           cumplir 71 años)</td>
+                                           <td style="width: 70%;">Desde los 15 años hasta los 73   años (hasta un día 
+                                           antes    de cumplir 74 años)<br>Máxima 73 años (hasta un día antes de 
+                                           cumplir 74 años)</td>
                                         </tr>
                                       </table>
                                     </td>
@@ -1655,7 +1632,8 @@ if($_coverage === 1){
                                   <tr>
                                     <td style="width: 3%;" valign="top">b.</td>
                                     <td style="width: 97%;">
-                                      <b>Incapacidad Total Permanente:</b>
+                                      <b>Incapacidad Total Permanente:</b><br>
+                                      Capital Asegurado: Saldo Insoluto de la deuda a la fecha de la Incapacidad Total y Permanente
                                       <table cellpadding="0" cellspacing="0" border="0" 
                                          style="width: 100%; font-size:100%;">
                                          <tr>
@@ -1836,7 +1814,7 @@ if($_coverage === 1){
                                 </tr>
                                 <tr>
                                   <td style="width:2%; font-weight:bold;" valign="top">-</td>
-                                  <td style="width:98%;">Historial clínico O en SU defecto un informe médico- Para edades 
+                                  <td style="width:98%;">Historial clínico O en SU defecto UH informe médico- Para edades 
                                   entre 15 a 49 años y creditos mayores a $us. 7.902.30 -   Para edades entre 50 a 70 años 
                                   y creditos mayores a $us. 5.747.13</td>
                                 </tr>
@@ -1880,7 +1858,7 @@ if($_coverage === 1){
                                   <tr>
                                       <td style="width: 15%; text-align:left;" valign="top">Razón Social:</td>
                                       <td style="width: 40%; font-weight:bold;">
-                                          NACIONAL VIDA SEGUROS DE PERSONAS S.A.
+                                          NACIONAL SEGUROS VIDA Y SALUD S.A.
                                       </td>
                                       <td style="width: 15%;">&nbsp;
                                         
@@ -1904,7 +1882,7 @@ if($_coverage === 1){
                                         
                                       </td>
                                       <td style="width: 15%; text-align:left;">
-                                        Fax : 2442905
+                                        Fax : 2442905 243-3500 2128329
                                       </td>
                                   </tr>
                               </table> 
@@ -1918,7 +1896,7 @@ if($_coverage === 1){
                                   <tr>
                                       <td style="width: 15%; text-align:left;" valign="top">Razón Social:</td>
                                       <td style="width: 40%; text-align:left;">
-                                          Génesis Brokers Ltda.
+                                          Sudamericana S.R.L. Corredores y Asesores de Seguros
                                       </td>
                                       <td style="width: 15%;">&nbsp;
                                         
@@ -1933,16 +1911,16 @@ if($_coverage === 1){
                                   <tr>
                                       <td style="width: 15%; text-align:left;" valign="top">Dirección:</td>
                                       <td style="width: 40%; text-align:left;">
-                                        Calle Femando Guachalla N° 369 2do Piso
+                                        Prolongación Cordero N&ordm; 163 - San Jorge
                                       </td>
                                       <td style="width: 15%; text-align:left;">
-                                        Teléfono: 244-0772
+                                        Teléfono: (591) -2-2433500
                                       </td>
                                       <td style="width: 15%;">&nbsp;
                                         
                                       </td>
                                       <td style="width: 15%; text-align:left;">
-                                        Fax: 244-2824
+                                        Fax: (591) -2-2128329
                                       </td>
                                   </tr>
                                </table>
@@ -2015,7 +1993,7 @@ if($_coverage === 1){
                                  </tr>
                                  <tr>
                                    <td style="width:25%;"></td>
-                                   <td style="width:50%; text-align:center;">NACIONAL VIDA SEGUROS PERSONAS S.A.
+                                   <td style="width:50%; text-align:center;">NACIONAL SEGUROS VIDA Y SALUD S.A.
                                    <br>FIRMAS AUTORIZADAS</td>
                                    <td style="width:25%;"></td>
                                  </tr>

@@ -234,8 +234,6 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
         s_departamento as sdep ON (sdep.id_depto = su.id_depto)
             left join
         s_agencia as sag ON (sag.id_agencia = su.id_agencia)
-            inner join
-        s_producto_cia as spc on (spc.id_prcia = sde.id_prcia)
     where
         sde.facultativo = true
             and sde.emitir = false
@@ -405,7 +403,6 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
             // echo $sqlCl;
             $rsCl = $link->query($sqlCl, MYSQLI_STORE_RESULT);
             $nDt = $rsCl->num_rows;
-
             if ($bc === 2) {
                 if ($token === 0) {
                     //$nDt = $nCl - $nAp;
@@ -539,7 +536,7 @@ if(isset($_GET['fde']) && isset($_GET['fde-id-user'])){
 ?>
         <tr style=" <?=$bg;?> " class="row <?=$unread;?>" rel="0" 
             data-nc="<?=base64_encode($row['ide']);?>" data-token="<?=$token;?>" 
-            data-issue="<?=base64_encode($_EM);?>" data-bc="<?=(int)$bc;?>" 
+            data-issue="<?=base64_encode($_EM);?>" data-bc="<?=$bc;?>" 
             <?=$idd;?> >
 <?php
                 if ($token === 1) {

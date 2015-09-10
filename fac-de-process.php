@@ -14,11 +14,12 @@ if(isset($_GET['ide']) && isset($_GET['bc'])){
     $session->getSessionCookie();
 
     $ide = $link->real_escape_string(trim(base64_decode($_GET['ide'])));
-    $bc = (boolean)$link->real_escape_string(trim(base64_decode($_GET['bc'])));
+    $bc = (int)$link->real_escape_string(trim(base64_decode($_GET['bc'])));
     $idd = '';
-    if ($bc === true) {
+    if ($bc === 2) {
         $idd = $link->real_escape_string(trim(base64_decode($_GET['idd'])));
     }
+
     $user = $_SESSION['idUser'];
     
     $sqlPr = 'select 
@@ -47,7 +48,7 @@ if(isset($_GET['ide']) && isset($_GET['bc'])){
         s_usuario as su ON (su.id_usuario = sde.id_usuario)
     where
         sde.id_emision = "'.$ide.'"';
-    if ($bc === true) {
+    if ($bc === 2) {
         $sqlPr .= ' and sdd.id_detalle = "' . $idd . '" ';
     }
 
@@ -318,7 +319,9 @@ $(document).ready(function(e) {
             <label class="fp-lbl fp-name"><?=$arr_Customer[2];?></label>
 <?php
     }
-?>          <label class="fp-lbl fp-rb">Envie la aprobación via correo electrónico <span>*</span></label><br>
+?>
+            <br>
+            <label class="fp-lbl fp-rb">Envie la aprobación via correo electrónico <span>*</span></label><br>
             <input type="text" id="fp-email" name="fp-email" value="<?=$EMAIL_USER;?>" autocomplete="off" style="width:460px;" class="required multiple-email">
             
             <div class="loading loading-02">
@@ -326,7 +329,7 @@ $(document).ready(function(e) {
             </div>
             <div align="center">
 <?php
-    if ($bc === true) {
+    if ($bc === 2) {
         echo '<input type="hidden" id="fp-idd" name="fp-idd" value="' . base64_encode($idd) . '">';
     }
 ?>

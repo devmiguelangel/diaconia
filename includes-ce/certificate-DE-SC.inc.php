@@ -77,7 +77,7 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
       </table><br/>
       <?php
             $titulares=array();
-			$j=1;
+			$ct=1;
 			$num_titulares=$rsDt->num_rows;
 			
 			while($regiDt=$rsDt->fetch_array(MYSQLI_ASSOC)){
@@ -95,7 +95,7 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 					
 				}*/
 		    ?>
-                <div style="width: auto;	height: auto; text-align: left; margin: 7px 0; padding: 0; font-weight: bold; <?=$fontsizeh2;?>">Datos del titular <?=$j;?></div>                             
+                <div style="width: auto;	height: auto; text-align: left; margin: 7px 0; padding: 0; font-weight: bold; <?=$fontsizeh2;?>">Datos del titular <?=$ct;?></div>                             
                 <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; <?=$fontSize;?>">
                    <tr style="font-weight:bold;">
                      <td style="width:25%; text-align:center; font-weight:bold;">Apellido Paterno</td>
@@ -174,9 +174,9 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 				   ?>
                 </table>		
 		<?php
-		        $titulares[1][$j]=$regiDt['nombre'].' '.$regiDt['paterno'].' '.$regiDt['materno'];
-				$titulares[2][$j]=$row['monto'].' '.$row['moneda'];
-				$titulares[3][$j]=$row['tasa_final'];
+		        $titulares[1][$ct]=$regiDt['nombre'].' '.$regiDt['paterno'].' '.$regiDt['materno'];
+				$titulares[2][$ct]=$row['monto'].' '.$row['moneda'];
+				$titulares[3][$ct]=$row['tasa_final'];
 				 echo'<div style="width: auto;	height: auto; text-align: left; margin: 7px 0; padding: 0; font-weight: bold; '.$fontsizeh2.'">Cuestionario</div>
 						<table border="0" cellpadding="0" cellspacing="0" style="width: 100%; '.$fontSize.'">';
 						  $c=0;
@@ -299,7 +299,7 @@ $row['fecha_creacion'] = date('d/m/Y', mktime(0, 0, 0, $mon, $day + 2, $year));
 									 }
 								  echo'</td></tr>'; 
 					   echo'</table>';
-				  $j++;				 		
+				  $ct++;				 		
 			}
 		?>
        <div style="font-size:80%; width: 100%; height: auto; margin: 7px 0;">
