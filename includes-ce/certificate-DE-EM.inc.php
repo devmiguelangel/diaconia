@@ -443,7 +443,7 @@ if($_coverage === 1){
             </table><br>
             <div style="font-size: 75%; text-align:justify;">  
                 Declaro(amos) haber contestado con total veracidad, máxima buena fe a todas las preguntas del presente cuestionario y no haber omitido u ocultado hechos y/o circunstancias que hubiera podido influir en la celebración del contrato de seguro. Las declaraciones de salud que hacen anulable el Contrato de Seguros y en la que el asegurado pierde su derecho a indemnización, se enmarcan en los articulos 992, 993, 999 y 1038 del Código de Comercio.<br>
-              Relevo expresamente del secreto profesional y legal, a cualquier médico que me hubiese asistido y/o tratado de dolencias y le autorizo (amos) a revelar a Nacional Vida Seguros de Personas S.A. todos los datos y antecedentes patológicos que pudiera (amos) tener o de los que hubiera (amos) adquirido conocimiento al prestarme sus servicios. Entiendo que de presentarse alguna eventualidad contemplada bajo la póliza de seguro como consecuencia de alguna enfermedad existente a la fecha de la firma de este documento o cuando haya alcanzado la edad límite estipulada en la póliza, la compañía aseguradora quedará liberada de toda la responsabilidad en lo que respecta a mí (nuestro) seguro. Finalmente, declaro (amos) conocer en su totalidad lo estipulado en mi (nuestra) póliza de seguro      
+              Relevo expresamente del secreto profesional y legal, a cualquier médico que me hubiese asistido y/o tratado de dolencias y le autorizo (amos) a revelar a Nacional Seguros Vida y Salud S.A. todos los datos y antecedentes patológicos que pudiera (amos) tener o de los que hubiera (amos) adquirido conocimiento al prestarme sus servicios. Entiendo que de presentarse alguna eventualidad contemplada bajo la póliza de seguro como consecuencia de alguna enfermedad existente a la fecha de la firma de este documento o cuando haya alcanzado la edad límite estipulada en la póliza, la compañía aseguradora quedará liberada de toda la responsabilidad en lo que respecta a mí (nuestro) seguro. Finalmente, declaro (amos) conocer en su totalidad lo estipulado en mi (nuestra) póliza de seguro      
             </div><br>
             <table 
                 cellpadding="0" cellspacing="0" border="0" 
@@ -605,7 +605,7 @@ if($_coverage === 1){
 ?>
             </div>
             <div style="font-size: 60%; text-align:center; margin-top:20px;">  
-                <b>NACIONAL SEGUROS VIDA Y SALUD S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
+                <b>NACIONAL SEGUROS VIDA Y SALUD S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591)-4 445-7104<br>
                 SUCRE Tel.Piloto (591-4) 642-5196 * Fax: (591-4) 642-5197-TARIJA Tel. (591-4) 666-6229 * Beni Tel/fax (591-3) 463-4109 * MONTERO Tel. (591-3) 922-6012<br>
                 206-934901-2000 03 006-3012     
             </div>      
@@ -1415,7 +1415,7 @@ if($_coverage === 1){
             </table><br>
             <div style="font-size: 75%; text-align:justify;">  
                 Declaro(amos) haber contestado con total veracidad, máxima buena fe a todas las preguntas del presente cuestionario y no haber omitido u ocultado hechos y/o circunstancias que hubiera podido influir en la celebración del contrato de seguro. Las declaraciones de salud que hacen anulable el Contrato de Seguros y en la que el asegurado pierde su derecho a indemnización, se enmarcan en los articulos 992, 993, 999 y 1038 del Código de Comercio.<br>
-              Relevo expresamente del secreto profesional y legal, a cualquier médico que me hubiese asistido y/o tratado de dolencias y le autorizo (amos) a revelar a Nacional Vida Seguros de Personas S.A. todos los datos y antecedentes patológicos que pudiera (amos) tener o de los que hubiera (amos) adquirido conocimiento al prestarme sus servicios. Entiendo que de presentarse alguna eventualidad contemplada bajo la póliza de seguro como consecuencia de alguna enfermedad existente a la fecha de la firma de este documento o cuando haya alcanzado la edad límite estipulada en la póliza, la compañía aseguradora quedará liberada de toda la responsabilidad en lo que respecta a mí (nuestro) seguro. Finalmente, declaro (amos) conocer en su totalidad lo estipulado en mi (nuestra) póliza de seguro      
+              Relevo expresamente del secreto profesional y legal, a cualquier médico que me hubiese asistido y/o tratado de dolencias y le autorizo (amos) a revelar a Nacional Seguros Vida y Salud S.A. todos los datos y antecedentes patológicos que pudiera (amos) tener o de los que hubiera (amos) adquirido conocimiento al prestarme sus servicios. Entiendo que de presentarse alguna eventualidad contemplada bajo la póliza de seguro como consecuencia de alguna enfermedad existente a la fecha de la firma de este documento o cuando haya alcanzado la edad límite estipulada en la póliza, la compañía aseguradora quedará liberada de toda la responsabilidad en lo que respecta a mí (nuestro) seguro. Finalmente, declaro (amos) conocer en su totalidad lo estipulado en mi (nuestra) póliza de seguro      
             </div><br>
             <table 
                 cellpadding="0" cellspacing="0" border="0" 
@@ -1573,7 +1573,7 @@ if($_coverage === 1){
 ?>
             </div>
             <div style="font-size: 60%; text-align:center; margin-top:20px;">  
-                <b>NACIONAL SEGUROS VIDA Y SALUD S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591-4 445-7104)<br>
+                <b>NACIONAL SEGUROS VIDA Y SALUD S.A.</b>, SANTA CRUZ Tel. Piloto: (591-3) 371-6262 * Fax: (591-3) 371-6505<br>LA PAZ Tel. Piloto (591-2) 244-2942 * Fax: (591-2) 244-2905 - COCHABAMBA Tel. Piloto: (591-4) 445-7100 * Fax: (591)-4 445-7104<br>
                 SUCRE Tel.Piloto (591-4) 642-5196 * Fax: (591-4) 642-5197-TARIJA Tel. (591-4) 666-6229 * Beni Tel/fax (591-3) 463-4109 * MONTERO Tel. (591-3) 922-6012<br>
                 206-934901-2000 03 006-3012     
             </div>      
