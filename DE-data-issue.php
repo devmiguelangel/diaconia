@@ -505,7 +505,7 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
             class="not-required email fbin" <?=$read_new;?>>
         </div><br>
         
-        <label>Ocupación: <span>*</span></label>
+        <label>Ocupación (CAEDEC): <span>*</span></label>
         <div class="content-input">
             <select id="dc-<?=$cont;?>-occupation" name="dc-<?=$cont;?>-occupation" 
                 class="required fbin <?=$read_new;?>" <?=$read_save;?>>
@@ -515,7 +515,7 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
                     <?php if ($value['id_ocupacion'] === $row['cl_ocupacion']): $selected = 'selected' ?>
                     <?php endif ?>
                     <option value="<?= base64_encode($value['id_ocupacion']) ;?>" 
-                        <?= $selected ;?>><?= $value['ocupacion'] ;?></option>
+                        <?= $selected ;?>>Código CAEDEC - <?= $value['codigo'] ;?></option>
                 <?php endforeach ?>
             </select>
         </div><br>
@@ -766,7 +766,7 @@ $(document).ready(function(){
             </div>
         </div>
 
-        <label>Número de Crédito: <span>*</span></label>
+        <label>Número de Solicitud: <span>*</span></label>
         <div class="content-input" style="width:auto;">
             <input type="text" id="dcr-opp" name="dcr-opp" autocomplete="off" 
                 value="<?=$cr_opp;?>" class="required number fbin" <?=$read_save;?>>

@@ -31,7 +31,8 @@ if(isset($_GET['product']) && isset($_FILES['attached']) && isset($_POST['attach
 	$file_tmp = $_FILES['attached']['tmp_name'];
 	
 	$file_id = date('U').'_'.strtolower($product).'_'.md5(uniqid('@F#1$'.time(), true));
-	$file_extension = end(explode(".", $file_name));
+  $ext = explode(".", $file_name);
+	$file_extension = end($ext);
 	$file_new = $file_id.'.'.$file_extension;
 	
 	if($_FILES['attached']['error'] > 0){

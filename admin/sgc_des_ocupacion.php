@@ -36,7 +36,8 @@ if(isset($_SESSION['usuario_sesion']) && isset($_SESSION['tipo_sesion'])) {
 
 
 //FUNCION PARA MOSTRAR EL SGC PARA ADMINISTRACION DE USUARIOS
-function mostrar_pagina($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion, $lugar) {			
+function mostrar_pagina($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion, $lugar) {	
+
 ?>
        
 	<!-- Main Wrapper. Set this to 'fixed' for fixed layout and 'fluid' for fluid layout' -->
@@ -98,6 +99,14 @@ function mostrar_pagina($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_e
 						
 								agregar_nueva_ocupacion($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion);
 								
+							} elseif(isset($_GET['importar'])){
+								if($tipo_sesion=='ROOT'){
+                                   importar_archivo_registros($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion,  $conexion);
+								}else{
+									//SOLO EL USUARIO ADMIN PUEDE IMPORTAR USUARIOS
+									//header('Location: index.php?l=usuarios');
+									echo'<meta http-equiv="refresh" content="0;url=index.php?l=usuarios">';
+								}
 							} else {
 								//VEMOS SI NOS PASAN UN ID DE USUARIO
 								if(isset($_GET['idocupacion'])) {
@@ -204,7 +213,7 @@ function mostrar_lista_ocupacion($id_usuario_sesion, $tipo_sesion, $usuario_sesi
 				});
 		 //location.load("sgc.php?l=usuarios&idhome=1");
 		 //$(location).attr('href', 'sgc.php?l=crearusuario&idhome=1');		
-		 setTimeout( "$(location).attr('href', 'index.php?l=des_ocupacion&var=<?php echo $var;?>&producto=<?=$produce;?>');",5000 );
+		 setTimeout( "$(location).attr('href', 'index.php?l=des_ocupacion&var=<?=$var;?>&producto=<?=$produce;?>');",5000 );
 	<?php }?>
 	 
   });
@@ -242,6 +251,7 @@ if($tipo_sesion=='ROOT'){
    if($resef = $conexion->query($selectEf,MYSQLI_STORE_RESULT)){
 		$num_regi_ef =$resef->num_rows;
 		if($num_regi_ef>0){
+			  while($regief = $resef->fetch_array(MYSQLI_ASSOC)){
 			  echo'<div class="da-panel collapsible">
 					  <div class="da-panel-header" style="text-align:right; padding-top:5px; padding-bottom:5px;">
 						  <ul class="action_user">
@@ -249,10 +259,14 @@ if($tipo_sesion=='ROOT'){
 								 <a href="?l=des_ocupacion&var='.$_GET['var'].'&crear=v&producto='.$_GET['producto'].'" class="da-tooltip-s various fancybox.ajax" title="<span lang=\'es\'>Añadir Ocupacion</span>">
 								 <img src="images/add_new.png" width="32" height="32"></a>
 							  </li>
+							  <li style="margin-right:6px;">
+								 <a href="?l=des_ocupacion&importar=1&var='.$_GET['var'].'&producto='.$_GET['producto'].'&id_ef='.base64_encode($regief['id_ef']).'" class="da-tooltip-s" title="Importar archivo">
+								 <img src="images/upload.png" width="32" height="32"></a>
+							  </li>
 						  </ul>
 					  </div>
 				   </div>';
-				  while($regief = $resef->fetch_array(MYSQLI_ASSOC)){	
+				 //while($regief = $resef->fetch_array(MYSQLI_ASSOC)){	
 						  $selectFor="select
 										soc.id_ocupacion,
 										soc.ocupacion,
@@ -267,7 +281,7 @@ if($tipo_sesion=='ROOT'){
 										soc.id_ef='".$regief['id_ef']."' and soc.producto=sh.producto and sh.producto='".base64_decode($_GET['producto'])."' 
 									  order by
 										soc.id_ocupacion asc;";
-							
+						  	
 						  $res = $conexion->query($selectFor,MYSQLI_STORE_RESULT);	
 						  echo'
 						  <div class="da-panel collapsible" style="width:750px;">
@@ -876,5 +890,157 @@ function mostrar_editar_ocupacion($id_usuario_sesion, $tipo_sesion, $usuario_ses
 	}else{
 		echo"<div style='font-size:8pt; text-align:center; margin-top:20px; margin-bottom:15px; border:1px solid #C68A8A; background:#FFEBEA; padding:8px; width:600px;'>Error en la consulta: "."\n ".$conexion->errno . ": " .$conexion->error."</div>";
 	}
+}
+
+//FUNCION QUE PERMITE IMPORTAR USUARIOS ARCHIVO PLANO
+function importar_archivo_registros($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $id_ef_sesion, $conexion){
+	
+	//VEMOS SI EL USUARIO YA HIZO CLICK EN IMPORTAR
+	if(isset($_POST['accionUpload'])) {
+		    //incluimos la clase
+			require_once 'phpexcel/Classes/PHPExcel/IOFactory.php';
+			//cargamos el archivo que deseamos leer
+			$objPHPExcel = PHPExcel_IOFactory::load('files/'.base64_decode($_POST['dc-attached']));
+	        //Obtenemos los datos de la hoja activa (la primera)
+			$objHoja = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
+
+			
+			$identidadf = $conexion->real_escape_string(base64_decode($_GET['id_ef']));
+			
+			$insert_ocp = "INSERT INTO s_ocupacion(id_ocupacion, categoria, ocupacion, codigo, producto, id_ef) VALUES ";
+			
+
+			//recorremos las filas obtenidas
+			foreach($objHoja as $iIndice => $objCelda){
+				$categoria = $objCelda['B'];
+				$caedec = $objCelda['C'];
+				$descripcion = $objCelda['D'];
+				$producto = 'DE';
+
+				//generamos un idusuario unico encriptado
+			    $prefijo = '@S#9$2015';
+                $id_unico = '';
+                $id_unico = uniqid($prefijo,true);
+			    
+				$insert_ocp.="('".$id_unico."', '".$categoria."', '".$descripcion."', '".$caedec."', '".$producto."', '".$identidadf."'), ";
+
+				
+			}
+			$insert_ocp = trim(trim($insert_ocp),',');
+			
+			if($conexion->query($insert_ocp)===TRUE){
+				unlink('files/'.base64_decode($_POST['dc-attached']));
+				$mensaje="Se registro correctamente los datos del archivo excel";
+				header('Location: index.php?l=des_ocupacion&op=1&msg='.base64_encode($mensaje).'&var='.$_GET['var'].'&producto='.$_GET['producto']);
+				exit;
+			}else{
+				$mensaje="Error en la consulta ".$conexion->errno.": ".$conexion->error;
+				header('Location: index.php?l=des_ocupacion&op=2&msg='.base64_encode($mensaje).'&var='.$_GET['var'].'&producto='.$_GET['producto']);
+				exit;
+			}
+
+			
+	}else{
+		mostrar_importar_archivo($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $conexion);
+	}
+}
+
+//FUNCION QUE PERMITE IMPORTAR Y GUARDAR VARIOS USUARIOS DE UN ARCHIVO PLANO
+function mostrar_importar_archivo($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $conexion){
+?>
+   <style type="text/css">
+       .loading-fac{
+			background: #FFFFFF url(images/loading30x30.gif) top center no-repeat;
+			height: 0px;
+			margin: 10px 0;
+			text-align: center;
+			font-size: 90%;
+			font-weight: bold;
+			color: #0075AA;
+		}
+    </style>
+	<script type="text/javascript">
+       $(document).ready(function(e) {
+
+		   //VALIDAR CAMPOS
+		   $('#frmUploadUsuario').submit(function(e){
+			  
+			  var attached = $('#dc-attached').prop('value');
+
+			  var sum=0;
+
+			  $(this).find('.requerid').each(function(){
+
+				   if(attached!=''){
+					   $('#erro_file').fadeOut('slow');
+				   }else{
+					   sum++;
+					   $('#erro_file').fadeIn('slow');
+					   $('#erro_file').html('seleccione un archivo');
+				   }
+			  });
+			  if(sum==0){
+
+			  }else{
+			      e.preventDefault();
+			  }
+		   });
+
+		   //CONVERTIMOS A MINUSCULAS
+		   $('#txtIdusuario').keyup(function() {
+			  $(this).val($(this).val().toLowerCase());
+		   });
+
+       });
+    </script>
+    <script type="text/javascript" src="js/ajaxupload.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+<?php
+	echo'<div class="da-panel collapsible">
+			<div class="da-panel-header" style="text-align:right; padding-top:5px; padding-bottom:5px;">
+				<ul class="action_user">
+					<li style="margin-right:6px;">
+					   <a href="?l=des_ocupacion&var='.$_GET['var'].'&producto='.$_GET['producto'].'" class="da-tooltip-s" title="Volver atras">
+					   <img src="images/retornar.png" width="32" height="32"></a>
+					</li>
+				</ul>
+			</div>
+		 </div>';
+
+   echo'<div class="da-panel" style="width:550px;">
+		  <div class="da-panel-header">
+			  <span class="da-panel-title">
+				  <img src="images/icons/black/16/pencil.png" alt="" />
+				  Importar datos de un excel
+			  </span>
+		  </div>
+		  <div class="da-panel-content">
+			  <form class="da-form" name="frmUploadUsuario" id="frmUploadUsuario" action="" method="post">
+				  
+				  <div class="da-form-row">
+					  <label style="text-align:right;"></label>
+					  <div class="da-form-item large">
+					    <div class="content-input" style="width:auto;">
+							<a href="javascript:;" id="a-dc-attached" class="attached">Seleccione archivo</a>
+							<div class="attached-mess" style="width:220px; margin-top:2px; margin-left:0;">
+								El formato del archivo a subir debe ser EXCEL
+							</div>
+							<span class="errorMessage" id="erro_file"></span>';
+							?>
+							<script type="text/javascript">
+							  set_ajax_upload('dc-attached', 'DE');
+							</script>
+                            <?php
+					echo'</div>
+					  </div>
+				  </div>
+				  <div class="da-button-row">
+					  <input type="submit" value="Importar Datos" class="da-button green" name="btnUsuario" id="btnUsuario"/>
+					  <input type="hidden" name="accionUpload" value="checkdatos"/>
+					  <input type="hidden" id="dc-attached" name="dc-attached" value="" class="requerid"/>
+				  </div>
+			  </form>
+		  </div>
+		</div>';
 }
 ?>
