@@ -284,7 +284,7 @@ class FACEmailDE{
                     }
                     
                     $self = $_SERVER['HTTP_HOST'];
-                    $url = 'http://'.$self.'/';
+                    $url = 'https://'.$self.'/';
                     
                     $host_ws = '';
                     if (($host_ws = $this->cx->getNameHostEF($_SESSION['idEF'])) !== false) {
