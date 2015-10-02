@@ -203,7 +203,11 @@ class ClientController extends Diaconia
             $data['idc']    = $this->cx->real_escape_string(trim(base64_decode($data['dc-idc'])));
             $data['idef']   = $this->cx->real_escape_string(trim(base64_decode($data['id-ef'])));
             $bc     = (boolean)$this->cx->real_escape_string(trim(base64_decode($data['dc-bc'])));
-            $nCl    = (int)$this->cx->real_escape_string(trim(base64_decode($data['dc-ncl'])));
+            $nCl    = (int)$this->cx->real_escape_string(trim($data['dc-ncl']));
+            
+            if ($nCl === 0) {
+                return false;
+            }
 
             if(isset($data['dc-idCl'])){
                 $flag = true;
@@ -216,71 +220,73 @@ class ClientController extends Diaconia
                 }
 
                 for ($k = 0; $k < $nCl; $k++) { 
-                    $temp_data = array();
-                    $temp_data['name']      = $this->cx->real_escape_string(trim($data['dc-name-'.$k]));
-                    $temp_data['patern']    = $this->cx->real_escape_string(trim($data['dc-ln-patern-'.$k]));
-                    $temp_data['matern']    = $this->cx->real_escape_string(trim($data['dc-ln-matern-'.$k]));
-                    $temp_data['married']   = $this->cx->real_escape_string(trim($data['dc-ln-married-'.$k]));
-                    $temp_data['status']    = $this->cx->real_escape_string(trim($data['dc-status-'.$k]));
-                    $temp_data['type_doc']  = $this->cx->real_escape_string(trim($data['dc-type-doc-'.$k]));
-                    $temp_data['doc_id']    = $this->cx->real_escape_string(trim($data['dc-doc-id-'.$k]));
-                    $temp_data['comp']      = $this->cx->real_escape_string(trim($data['dc-comp-'.$k]));
-                    $temp_data['ext']       = $this->cx->real_escape_string(trim($data['dc-ext-'.$k]));
-                    $temp_data['country']   = $this->cx->real_escape_string(trim($data['dc-country-'.$k]));
-                    $temp_data['birth']     = $this->cx->real_escape_string(trim($data['dc-date-birth-'.$k]));
-                    $temp_data['place_birth'] = $this->cx->real_escape_string(trim($data['dc-place-birth-'.$k]));
-                    $temp_data['place_res'] = 'null';
-                    $aux_place_res = $data['dc-place-res-'.$k];
-                    if (empty($aux_place_res) === false) {
-                        $temp_data['place_res'] = $this->cx->real_escape_string(trim($aux_place_res));
-                    }
-                    $temp_data['locality']  = $this->cx->real_escape_string(trim($data['dc-locality-'.$k]));
-                    $temp_data['address']   = $this->cx->real_escape_string(trim($data['dc-address-'.$k]));
-                    $temp_data['phone_1']   = $this->cx->real_escape_string(trim($data['dc-phone1-'.$k]));
-                    $temp_data['phone_2']   = $this->cx->real_escape_string(trim($data['dc-phone2-'.$k]));
-                    $temp_data['email']     = $this->cx->real_escape_string(trim($data['dc-email-'.$k]));
-                    $temp_data['phone_office']  = $this->cx->real_escape_string(trim($data['dc-phone-office-'.$k]));
-                    $temp_data['occupation']    = 'null';
-                    $aux_occupation = $data['dc-occupation-'.$k];
-                    if (empty($aux_occupation) === false) {
-                        $temp_data['occupation'] = '"' 
-                            . $this->cx->real_escape_string(trim(base64_decode($aux_occupation))) . '"';
-                    }
-                    $temp_data['occ_desc']  = $this->cx->real_escape_string(trim($data['dc-desc-occ-'.$k]));
-                    $temp_data['gender']    = $this->cx->real_escape_string(trim($data['dc-gender-'.$k]));
-                    $temp_data['weight']    = $this->cx->real_escape_string(trim($data['dc-weight-'.$k]));
-                    $temp_data['height']    = $this->cx->real_escape_string(trim($data['dc-height-'.$k]));
-                    $temp_data['amount']    = 0;
-                    if (isset($data['dc-amount-'.$k])) {
-                        $temp_data['amount'] = 
-                            $this->cx->real_escape_string(trim(base64_decode($data['dc-amount-'.$k])));
-                    }
-                    $temp_data['amount_bc'] = 0;
-                    if (isset($data['dc-amount-bc-'.$k])) {
-                        $temp_data['amount_bc'] = $this->cx->real_escape_string(trim($data['dc-amount-bc-'.$k]));
-                    }
-                    $temp_data['percentage'] = 100;
-                    if(($temp_data['status'] !== 'CAS' && $temp_data['status'] !== 'VIU') 
-                        || $temp_data['gender'] !== 'F'){
-                        $temp_data['married'] = '';
-                    }
+                    if (isset($data['dc-name-'.$k], $data['dc-doc-id-'.$k])) {
+                        $temp_data = array();
+                        $temp_data['name']      = $this->cx->real_escape_string(trim($data['dc-name-'.$k]));
+                        $temp_data['patern']    = $this->cx->real_escape_string(trim($data['dc-ln-patern-'.$k]));
+                        $temp_data['matern']    = $this->cx->real_escape_string(trim($data['dc-ln-matern-'.$k]));
+                        $temp_data['married']   = $this->cx->real_escape_string(trim($data['dc-ln-married-'.$k]));
+                        $temp_data['status']    = $this->cx->real_escape_string(trim($data['dc-status-'.$k]));
+                        $temp_data['type_doc']  = $this->cx->real_escape_string(trim($data['dc-type-doc-'.$k]));
+                        $temp_data['doc_id']    = $this->cx->real_escape_string(trim($data['dc-doc-id-'.$k]));
+                        $temp_data['comp']      = $this->cx->real_escape_string(trim($data['dc-comp-'.$k]));
+                        $temp_data['ext']       = $this->cx->real_escape_string(trim($data['dc-ext-'.$k]));
+                        $temp_data['country']   = $this->cx->real_escape_string(trim($data['dc-country-'.$k]));
+                        $temp_data['birth']     = $this->cx->real_escape_string(trim($data['dc-date-birth-'.$k]));
+                        $temp_data['place_birth'] = $this->cx->real_escape_string(trim($data['dc-place-birth-'.$k]));
+                        $temp_data['place_res'] = 'null';
+                        $aux_place_res = $data['dc-place-res-'.$k];
+                        if (empty($aux_place_res) === false) {
+                            $temp_data['place_res'] = $this->cx->real_escape_string(trim($aux_place_res));
+                        }
+                        $temp_data['locality']  = $this->cx->real_escape_string(trim($data['dc-locality-'.$k]));
+                        $temp_data['address']   = $this->cx->real_escape_string(trim($data['dc-address-'.$k]));
+                        $temp_data['phone_1']   = $this->cx->real_escape_string(trim($data['dc-phone1-'.$k]));
+                        $temp_data['phone_2']   = $this->cx->real_escape_string(trim($data['dc-phone2-'.$k]));
+                        $temp_data['email']     = $this->cx->real_escape_string(trim($data['dc-email-'.$k]));
+                        $temp_data['phone_office']  = $this->cx->real_escape_string(trim($data['dc-phone-office-'.$k]));
+                        $temp_data['occupation']    = 'null';
+                        $aux_occupation = $data['dc-occupation-'.$k];
+                        if (empty($aux_occupation) === false) {
+                            $temp_data['occupation'] = '"' 
+                                . $this->cx->real_escape_string(trim(base64_decode($aux_occupation))) . '"';
+                        }
+                        $temp_data['occ_desc']  = $this->cx->real_escape_string(trim($data['dc-desc-occ-'.$k]));
+                        $temp_data['gender']    = $this->cx->real_escape_string(trim($data['dc-gender-'.$k]));
+                        $temp_data['weight']    = $this->cx->real_escape_string(trim($data['dc-weight-'.$k]));
+                        $temp_data['height']    = $this->cx->real_escape_string(trim($data['dc-height-'.$k]));
+                        $temp_data['amount']    = 0;
+                        if (isset($data['dc-amount-'.$k])) {
+                            $temp_data['amount'] = 
+                                $this->cx->real_escape_string(trim(base64_decode($data['dc-amount-'.$k])));
+                        }
+                        $temp_data['amount_bc'] = 0;
+                        if (isset($data['dc-amount-bc-'.$k])) {
+                            $temp_data['amount_bc'] = $this->cx->real_escape_string(trim($data['dc-amount-bc-'.$k]));
+                        }
+                        $temp_data['percentage'] = 100;
+                        if(($temp_data['status'] !== 'CAS' && $temp_data['status'] !== 'VIU') 
+                            || $temp_data['gender'] !== 'F'){
+                            $temp_data['married'] = '';
+                        }
 
-                    $amount += $temp_data['amount_bc'];
+                        $amount += $temp_data['amount_bc'];
 
-                    $arr_cl[$k] = $temp_data;
+                        $arr_cl[$k] = $temp_data;
 
-                    $date1 = new DateTime($temp_data['birth']);
-                    $date2 = new DateTime(date('Y-m-d'));
-                    $interval = $date1->diff($date2);
-                    $year = $interval->format('%y');
+                        $date1 = new DateTime($temp_data['birth']);
+                        $date2 = new DateTime(date('Y-m-d'));
+                        $interval = $date1->diff($date2);
+                        $year = $interval->format('%y');
 
-                    if ($this->verifyYearUser($data['data']['edad_min'], 
-                        $data['data']['edad_max'], $temp_data['birth']) === false) {
+                        if ($this->verifyYearUser($data['data']['edad_min'], 
+                            $data['data']['edad_max'], $temp_data['birth']) === false) {
 
-                        $name = $temp_data['name'] . ' ' . $temp_data['patern'] . ' ' . $temp_data['matern'];
-                        $birth_flag = false;
-                        $birth_mess .= 'La Fecha de nacimiento del titular ' . $name 
-                            . ' no esta en el rango permitido de edades <br>';
+                            $name = $temp_data['name'] . ' ' . $temp_data['patern'] . ' ' . $temp_data['matern'];
+                            $birth_flag = false;
+                            $birth_mess .= 'La Fecha de nacimiento del titular ' . $name 
+                                . ' no esta en el rango permitido de edades <br>';
+                        }
                     }
                 }
 

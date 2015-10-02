@@ -292,6 +292,62 @@ class SibasDB extends MySQLi
         }
     }
 
+    public function getResetPassword($id_user, &$data)
+    {
+        $data = array(
+            'mess'      => false,
+            'action'    => false,
+            'days'      => 0
+        );
+
+        $this->sql = 'select 
+            su.id_usuario,
+            date_password
+        from
+            s_usuario as su
+        where
+            su.id_usuario = "' . base64_decode($id_user) . '"
+                and su.activado = true
+                and su.cambio_password = true
+        limit 0, 1
+        ;';
+        // echo $this->sql;
+        if (($this->rs = $this->query($this->sql, MYSQLI_STORE_RESULT)) !== false) {
+            if ($this->rs->num_rows === 1) {
+                $this->row = $this->rs->fetch_array(MYSQLI_ASSOC);
+                $this->rs->free();
+
+                $date_pass  = new DateTime(date('Y-m-d', strtotime($this->row['date_password'])));
+                $date_now   = new DateTime(date('Y-m-d'));
+                $interval   = $date_pass->diff($date_now);
+                // $data        = (array)$interval;
+                $day_lap    = (int)$interval->format('%a%');
+                $day_rem    = 90 - $day_lap;
+
+                if ($day_rem <= 0) {
+                    $data['action'] = true;
+
+                    $sql = 'update s_usuario
+                    set 
+                        activado = false
+                    where
+                        id_usuario = "' . base64_decode($id_user) . '"
+                    ;';
+
+                    if ($this->query($sql)) {
+                    }
+                } elseif ($day_rem <= 7) {
+                    $data['mess'] = true;
+                    $data['days'] = $day_rem;
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getNameHostEF ($idef)
     {
         $this->sql = 'select 

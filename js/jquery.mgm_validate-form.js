@@ -324,6 +324,9 @@ $.fn.extend({
                 }
               } else if (result[0] === 0) {
                 $(option.idForm + ' :submit').prop('disabled', false);
+                if (result[1] === 'R') {
+                  location.reload(true);
+                }
               }
             },2000);
           }

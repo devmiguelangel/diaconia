@@ -7,26 +7,26 @@ header("Pragma: no-cache");
 
 $filename = 'configuration.class.php';
 if (file_exists('installation') === true) {
-	if (file_exists($filename) === true) {
-		$filesize = filesize($filename);
-		if ($filesize > 0) {
-			echo '<br>Elimine el directiorio "installation"';
-		} else {
-			goto installation;
-		}
-	} else {
-		installation:
-		echo '<meta http-equiv="refresh" content="0;url=installation/">';
-	}
-	exit();
+  if (file_exists($filename) === true) {
+    $filesize = filesize($filename);
+    if ($filesize > 0) {
+      echo '<br>Elimine el directiorio "installation"';
+    } else {
+      goto installation;
+    }
+  } else {
+    installation:
+    echo '<meta http-equiv="refresh" content="0;url=installation/">';
+  }
+  exit();
 } else {
-	if (file_exists($filename) === true) {
-		$filesize = filesize($filename);
-		if ($filesize === 0 || $filesize === false ) {
-			echo 'No existe el archivo de configuracion.';
-			exit();
-		}
-	}
+  if (file_exists($filename) === true) {
+    $filesize = filesize($filename);
+    if ($filesize === 0 || $filesize === false ) {
+      echo 'No existe el archivo de configuracion.';
+      exit();
+    }
+  }
 }
 
 require('sibas-db.class.php');
@@ -46,21 +46,21 @@ $cache_expire = session_cache_expire();
 
 $session = new Session();
 if ($session->setSessionCookie() === false) {
-	$session->getSessionCookie();
+  $session->getSessionCookie();
 }
 
 if (isset($_GET['token']) && isset($_GET['user'])) {
-	$s_token = $_GET['token'];
+  $s_token = $_GET['token'];
 
-	if (sha1('sadm01042014key_gen') === $s_token) {
-		$s_user = $link->real_escape_string(trim(base64_decode($_GET['user'])));
-		
-		if (($data_user = $link->getDataUser($s_user)) !== false) {
-			if ($data_user['tipo'] === 'REP') {
-				$session->start_session($data_user['id_usuario'], $data_user['id_ef']);
-			}
-		}
-	}
+  if (sha1('sadm01042014key_gen') === $s_token) {
+    $s_user = $link->real_escape_string(trim(base64_decode($_GET['user'])));
+    
+    if (($data_user = $link->getDataUser($s_user)) !== false) {
+      if ($data_user['tipo'] === 'REP') {
+        $session->start_session($data_user['id_usuario'], $data_user['id_ef']);
+      }
+    }
+  }
 }
 
 $token = $session->check_session();
@@ -75,73 +75,73 @@ $user_cw = true;
 $ef_id = NULL;
 
 if($token === true){
-	if (($rowUs = $link->verify_type_user($_SESSION['idUser'], $_SESSION['idEF'])) !== FALSE) {
-		$user_id = $rowUs['u_id'];
-		$user = $rowUs['u_usuario'];
-		$user_name = $rowUs['u_nombre'];
-		$user_type = $rowUs['u_tipo_codigo'];
-		$user_depto = $rowUs['u_depto'];
-		$user_cw = (boolean)$rowUs['cw'];
+  if (($rowUs = $link->verify_type_user($_SESSION['idUser'], $_SESSION['idEF'])) !== FALSE) {
+    $user_id = $rowUs['u_id'];
+    $user = $rowUs['u_usuario'];
+    $user_name = $rowUs['u_nombre'];
+    $user_type = $rowUs['u_tipo_codigo'];
+    $user_depto = $rowUs['u_depto'];
+    $user_cw = (boolean)$rowUs['cw'];
 
-		if ($user_cw === false && !isset($_GET['c-p'])) {
-			header('Location: index.php?ms=' . md5('MS_COMP') . '&page=' 
-				. md5('P_change_pass') . '&user=' . base64_encode($user_id) 
-				. '&url=' . base64_encode('index.php') . '&c-p='.md5('true'));
-		}
-	}
-	
-	switch($user_type){
-		case 'ROOT':
-			break;
-		case 'ADM':
-			echo '<meta http-equiv="refresh" content="0;url=admin/" >';
-			break;
-		case 'OPR':
-			echo '<meta http-equiv="refresh" content="0;url=admin/" >';
-			break;
-		case 'FAC':
-			break;
-		case 'LOG':
-			break;
-		case 'CRU':
-			echo '<meta http-equiv="refresh" content="0;url=admin/" >';
-			break;
-		case 'REP':
-			break;
-		case 'IMP':
-			break;
-	}
-	
-	$HOST_CLIENT = $link->get_financial_institution($user_id, $token);
-	//$link->close();
+    if ($user_cw === false && !isset($_GET['c-p'])) {
+      header('Location: index.php?ms=' . md5('MS_COMP') . '&page=' 
+        . md5('P_change_pass') . '&user=' . base64_encode($user_id) 
+        . '&url=' . base64_encode('index.php') . '&c-p='.md5('true'));
+    }
+  }
+  
+  switch($user_type){
+    case 'ROOT':
+      break;
+    case 'ADM':
+      echo '<meta http-equiv="refresh" content="0;url=admin/" >';
+      break;
+    case 'OPR':
+      echo '<meta http-equiv="refresh" content="0;url=admin/" >';
+      break;
+    case 'FAC':
+      break;
+    case 'LOG':
+      break;
+    case 'CRU':
+      echo '<meta http-equiv="refresh" content="0;url=admin/" >';
+      break;
+    case 'REP':
+      break;
+    case 'IMP':
+      break;
+  }
+  
+  $HOST_CLIENT = $link->get_financial_institution($user_id, $token);
+  //$link->close();
 }else{
-	/*$_SELF = strtolower($_SERVER['HTTP_HOST']);
-	
-	$_HOST_NAME = '';
-	
-	if (strpos($_SELF, 'localhost') !== FALSE) {
-		$_HOST_NAME = 'BNB';
-	} elseif (strpos($_SELF, 'miguel-mgm') !== FALSE) {
-		$_HOST_NAME = 'BNB';
-	} elseif (strpos($_SELF, 'abrenet.com') !== FALSE) {
-		$_HOST_NAME = 'BNB';
-	} elseif (strpos($_SELF, 'bnb') !== FALSE) {
-		$_HOST_NAME = 'BNB';
-	}
-	
-	if(($HOST_CLIENT = $link->get_financial_institution_offline($_HOST_NAME)) !== FALSE){
-		$_SESSION['idEF'] = base64_encode($HOST_CLIENT['idef']);
-	} else {
-		exit();
-	}*/
-	
-	if (($HOST_CLIENT = $link->get_financial_institution_ins()) !== false) {
-		$_SESSION['idEF'] = base64_encode($HOST_CLIENT['idef']);
-	} else {
-		exit();
-	}
-	
-	
+  /*$_SELF = strtolower($_SERVER['HTTP_HOST']);
+  
+  $_HOST_NAME = '';
+  
+  if (strpos($_SELF, 'localhost') !== FALSE) {
+    $_HOST_NAME = 'BNB';
+  } elseif (strpos($_SELF, 'miguel-mgm') !== FALSE) {
+    $_HOST_NAME = 'BNB';
+  } elseif (strpos($_SELF, 'abrenet.com') !== FALSE) {
+    $_HOST_NAME = 'BNB';
+  } elseif (strpos($_SELF, 'bnb') !== FALSE) {
+    $_HOST_NAME = 'BNB';
+  }
+  
+  if(($HOST_CLIENT = $link->get_financial_institution_offline($_HOST_NAME)) !== FALSE){
+    $_SESSION['idEF'] = base64_encode($HOST_CLIENT['idef']);
+  } else {
+    exit();
+  }*/
+  
+  if (($HOST_CLIENT = $link->get_financial_institution_ins()) !== false) {
+    $_SESSION['idEF'] = base64_encode($HOST_CLIENT['idef']);
+  } else {
+    exit();
+  }
+  
+  
 }
 
 //$HOST_CLIENT = $link->get_financial_institution($user_id, $token);
@@ -149,8 +149,8 @@ $ms = NULL;
 $page = NULL;
 
 if(isset($_GET['ms']) && isset($_GET['page'])){
-	$ms = $_GET['ms'];
-	$page = $_GET['page'];
+  $ms = $_GET['ms'];
+  $page = $_GET['page'];
 }
 ?>
 <!doctype html>
@@ -203,14 +203,16 @@ if(isset($_GET['ms']) && isset($_GET['page'])){
 
 <script type="text/javascript">
 $(document).ready(function(e) {
-	var browser = checkBrowser();
-	browser = browser.split('|');
-	sidebarMenu();
-	go_to_home();
-	/*if(browser[0] != 5)
-		sidebarMenu();
-	else if(browser[2] >= 10)
-		sidebarMenu();*/
+  var browser = checkBrowser();
+  browser = browser.split('|');
+  sidebarMenu();
+  go_to_home();
+
+  $('.alert').fadeTo(2000, 0.9, function(){
+      setTimeout(function () {
+          $('.alert').fadeTo('slow', 0);
+      }, 60000)
+  });
 });
 </script>
 <!--[if gte IE 9]>
@@ -221,11 +223,11 @@ $(document).ready(function(e) {
   </style>
 <![endif]-->
 <!--[if lte IE 9]>
-	<style type="text/css">
-		#main-menu li ul.mega > a.link-pr:hover, #main-menu li ul.mega li ul li:hover > a.link-pr {
-			color: #0093D9;
-		}
-	</style>
+  <style type="text/css">
+    #main-menu li ul.mega > a.link-pr:hover, #main-menu li ul.mega li ul li:hover > a.link-pr {
+      color: #0093D9;
+    }
+  </style>
 <![endif]-->
 </head>
 
@@ -243,65 +245,77 @@ $(document).ready(function(e) {
 }*/
 ?>
 <header>
-	<div id="container-logo">
-		<div id="logo-client" class="logo-01">
-        	<img src="images/<?=$HOST_CLIENT['cliente_logo'];?>" align="left">
+  <?php if ($token): $data = array() ?>
+      <?php if ($link->getResetPassword($_SESSION['idUser'], $data)): ?>
+          <?php if ($data['mess']): ?>
+          <div class="alert">
+              Señor usuario en <?= $data['days'] ;?> día(s) se vence el plazo para 
+              renovar su contraseña. <br>
+              Cambie su contraseña en el menu Opciones de Usuario
+          </div>
+          <?php elseif ($data['action']): header('Location: logout.php') ?>
+          <?php endif ?>
+      <?php endif ?>
+  <?php endif ?>
+  <div id="container-logo">
+    <div id="logo-client" class="logo-01">
+          <img src="images/<?=$HOST_CLIENT['cliente_logo'];?>" align="left">
         </div>
-		<!--<nav id="c-header-menu"></nav>-->
-		<div id="logo-sibas" class="logo-01">
+    <!--<nav id="c-header-menu"></nav>-->
+    <div id="logo-sibas" class="logo-01">
 <?php
-	if (($rsEfCia = $link->getFinancialInstitutionCompany($_SESSION['idEF'])) !== false) {
-		while ($rowEfCia = $rsEfCia->fetch_array(MYSQLI_ASSOC)) {
-			echo '<img src="images/' . $rowEfCia['c_logo'] . '" align="right">';
-		}
-	}
+  if (($rsEfCia = $link->getFinancialInstitutionCompany($_SESSION['idEF'])) !== false) {
+    while ($rowEfCia = $rsEfCia->fetch_array(MYSQLI_ASSOC)) {
+      echo '<img src="images/' . $rowEfCia['c_logo'] . '" align="right">';
+    }
+  }
 ?>
         </div>
-	</div>
+  </div>
 </header>
 <?php
 if (!isset($_GET['c-p'])) {
 ?>
 <nav id="c-main-menu">
-	<div id="menu-container">
+  <div id="menu-container">
 <?php
-	$tokenM = $token;
-	get_menu($user_type, $tokenM, $link);
+  $tokenM = $token;
+  get_menu($user_type, $tokenM, $link);
 ?>
-		<!--
-		--><ul id="user-menu">
-			<li><a href="#"><span class="login-icon"></span><span class="login-txt"><?=$user;?><br><span><?=$user_name;?></span></span></a>
-				<ul>
+    <!--
+    --><ul id="user-menu">
+      <li><a href="#"><span class="login-icon"></span><span class="login-txt"><?=$user;?><br><span><?=$user_name;?></span></span></a>
+        <ul>
 <?php
-	if($tokenM === FALSE){
-		include('USR-form-login.php');
-	}else{
-		echo '
-			<li><a href="index.php">Inicio</a></li>
-			<li><a href="index.php?ms=' . md5('MS_COMP') . '&page=' . md5('P_change_pass') . 
-						'&user=' . $_SESSION['idUser'] . '&url='.base64_encode('index.php') .
-						'&c-p='.md5('true') . '&token=' . md5('key001') . '">
-				Opciones de Usuario
-			</a></li>
-			<!--<li><a href="index.php">Telefono de Agencia</a></li>-->
-			<li><a href="logout.php">Salir</a></li>
-		';
-	}
+  if($tokenM === FALSE){
+    include('USR-form-login.php');
+  }else{
+    echo '
+      <li><a href="index.php">Inicio</a></li>
+      <li><a href="index.php?ms=' . md5('MS_COMP') . '&page=' . md5('P_change_pass') . 
+            '&user=' . $_SESSION['idUser'] . '&url='.base64_encode('index.php') .
+            '&c-p='.md5('true') . '&token=' . md5('key001') . '">
+        Opciones de Usuario
+      </a></li>
+      <!--<li><a href="index.php">Telefono de Agencia</a></li>-->
+      <li><a href="logout.php">Salir</a></li>
+    ';
+  }
 ?>
-				</ul>
-			</li>
-		</ul>
-	</div>
+        </ul>
+      </li>
+    </ul>
+  </div>
 </nav>
 <?php
 }
 
 if($token === FALSE){
-	if($ms === NULL)
-		include('slider.inc.php');
-	elseif($page === md5('P_fac')){
-		include('slider.inc.php');
-	}
+  if($ms === NULL)
+    include('slider.inc.php');
+  elseif($page === md5('P_fac')){
+    include('slider.inc.php');
+  }
 }
 
 function get_menu($user_type, $tokenM, $link){
@@ -309,7 +323,7 @@ function get_menu($user_type, $tokenM, $link){
 <ul id="main-menu">
     <li><a href="#">Entidad Financiera</a>
         <ul>
-			<li><a href="index.php">Inicio</a></li>
+      <li><a href="index.php">Inicio</a></li>
             <li><a href="index.php?ms=<?=md5('MS_COMP');?>&page=<?=md5('P_aboutus');?>">Nosotros</a></li>
             <li><a href="index.php?ms=<?=md5('MS_COMP');?>&page=<?=md5('P_forms');?>">Formularios</a></li>
             <li><a href="index.php?ms=<?=md5('MS_COMP');?>&page=<?=md5('P_fAQs');?>">Preguntas Frecuentes</a></li>
@@ -317,151 +331,151 @@ function get_menu($user_type, $tokenM, $link){
         </ul>
     </li>
     <li>
-    	<a href="#">Productos</a>
-    	<ul class="mega">
+      <a href="#">Productos</a>
+      <ul class="mega">
 <?php
 if (($rsMenu = $link->get_product_menu($_SESSION['idEF'])) !== FALSE) {
-	while ($rowMenu = $rsMenu->fetch_array(MYSQLI_ASSOC)) {
+  while ($rowMenu = $rsMenu->fetch_array(MYSQLI_ASSOC)) {
 ?>
-			<li><a href="#"><?=$rowMenu['producto_nombre'];?></a>
-				<ul>
+      <li><a href="#"><?=$rowMenu['producto_nombre'];?></a>
+        <ul>
 <?php
-		if ($tokenM === TRUE) {
-			if ($user_type === 'LOG' || $user_type === 'ROOT') {
+    if ($tokenM === TRUE) {
+      if ($user_type === 'LOG' || $user_type === 'ROOT') {
 ?>
-					<li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_quote');?>" class="link-pr">
-						Cotizar Póliza
-					</a></li>
+          <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_quote');?>" class="link-pr">
+            Cotizar Póliza
+          </a></li>
 <?php
-				if ($rowMenu['producto'] !== 'TH') {
+        if ($rowMenu['producto'] !== 'TH') {
 ?>
-					<li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_issue');?>" class="link-pr">
-						Emitir Cotización
-					</a></li>
+          <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_issue');?>" class="link-pr">
+            Emitir Cotización
+          </a></li>
 <?php
-				}
-			
-				if ($rowMenu['producto'] !== 'TH') {
+        }
+      
+        if ($rowMenu['producto'] !== 'TH') {
 ?>
                 <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_app_pe');?>" class="link-pr">
-					Solicitudes Pendientes
-				</a></li>
+          Solicitudes Pendientes
+        </a></li>
 <?php
-				}
-				
-				if ($rowMenu['producto'] !== 'TH') {
+        }
+        
+        if ($rowMenu['producto'] !== 'TH') {
 ?>
-					<li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_cancel');?>" class="link-pr">
-						Anular Póliza
-					</a></li>
+          <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_cancel');?>" class="link-pr">
+            Anular Póliza
+          </a></li>
 <?php
-				}
-				
-	            if ($rowMenu['producto'] === 'AU' || $rowMenu['producto'] === 'TRD') {
+        }
+        
+              if ($rowMenu['producto'] === 'AU' || $rowMenu['producto'] === 'TRD') {
 ?>
-					<li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_provisional');?>" class="link-pr">
-						Certificados Provisionales
-					</a></li>
+          <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_provisional');?>" class="link-pr">
+            Certificados Provisionales
+          </a></li>
 <?php
-				}
-			}
-			
-			if ($user_type === 'FAC' || $user_type === 'ROOT') {
-				if ($rowMenu['producto'] !== 'TRD' && $rowMenu['producto'] !== 'TH') {
+        }
+      }
+      
+      if ($user_type === 'FAC' || $user_type === 'ROOT') {
+        if ($rowMenu['producto'] !== 'TRD' && $rowMenu['producto'] !== 'TH') {
 ?>
-					<li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_fac');?>" class="link-pr">
-						Registros Facultativos
-					</a></li>
+          <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_fac');?>" class="link-pr">
+            Registros Facultativos
+          </a></li>
 <?php
-				}
-			} elseif ($user_type === 'IMP' && $link->verify_implant($_SESSION['idEF'], $rowMenu['producto']) === true) {
+        }
+      } elseif ($user_type === 'IMP' && $link->verify_implant($_SESSION['idEF'], $rowMenu['producto']) === true) {
 ?>
-					<li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_app_imp');?>" class="link-pr">
-						Solicitudes de Aprobación
-					</a></li>
+          <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_app_imp');?>" class="link-pr">
+            Solicitudes de Aprobación
+          </a></li>
 <?php
-			}
-		} else {
+      }
+    } else {
 ?>
-					<li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_quote');?>" class="link-pr">
-						Cotizar Póliza
-					</a></li>
+          <li><a href="index.php?ms=<?=md5('MS_'.$rowMenu['producto']);?>&page=<?=md5('P_quote');?>" class="link-pr">
+            Cotizar Póliza
+          </a></li>
 <?php
-		}
+    }
 ?>
-				</ul>
-			</li>
+        </ul>
+      </li>
 <?php
-	}
+  }
 }
 ?>
-    	</ul>
+      </ul>
     </li>
 <?php
 if($tokenM === TRUE){
-	/*if($user_type === 'LOG' || $user_type === 'ROOT' || $user_type === 'FAC' || $user_type === 'REP'){
+  /*if($user_type === 'LOG' || $user_type === 'ROOT' || $user_type === 'FAC' || $user_type === 'REP'){
 ?>  
-	<li><a href="#">Siniestros</a>
+  <li><a href="#">Siniestros</a>
         <ul style="padding:8px;">
            <div style="font-size:70%; font-weight:bold; padding:2; text-align:center; background:#faffe5; border-radius: 5px; border: 1px solid #e06262; margin: 0 auto;">
            La denuncia de siniestros debe enviarse al siguente correo electronico siniestros@diaconia.bo
            </div>
         
 <?php
-			if ($user_type == 'LOG') {
-			?>
-	            <li><a href="rc-report.php?ms=<?=md5('MS_RC');?>&page=<?=md5('P_report');?>">Reportar Siniestros</a></li>
-	            <li><a href="http://200.105.205.142/reprec/" target="_blank">Ver Estado</a></li>
+      if ($user_type == 'LOG') {
+      ?>
+              <li><a href="rc-report.php?ms=<?=md5('MS_RC');?>&page=<?=md5('P_report');?>">Reportar Siniestros</a></li>
+              <li><a href="http://200.105.205.142/reprec/" target="_blank">Ver Estado</a></li>
 <?php
-		    }
+        }
 ?>
-	        <li><a href="rc-report.php?ms=<?=md5('MS_RC');?>&page=<?=md5('P_records');?>">Reporte General</a></li>
+          <li><a href="rc-report.php?ms=<?=md5('MS_RC');?>&page=<?=md5('P_records');?>">Reporte General</a></li>
 
-		</ul>
+    </ul>
     </li>
 <?php
-	}*/
+  }*/
 }
 
 if($tokenM === TRUE){
-	if($user_type === 'ROOT' || $user_type === 'LOG' || $user_type === 'REP' || $user_type === 'FAC'){
+  if($user_type === 'ROOT' || $user_type === 'LOG' || $user_type === 'REP' || $user_type === 'FAC'){
 ?>
     <li><a href="#">Reportes</a>
         <ul>
 <?php
-		if ($user_type !== 'LOG') {
-			/*<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_general_prop');?>">Consolidado Aseguradora</a></li>*/
+    if ($user_type !== 'LOG') {
+      /*<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_general_prop');?>">Consolidado Aseguradora</a></li>*/
 ?>
-			<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_general');?>">Generales</a></li>
+      <li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_general');?>">Generales</a></li>
 <?php
-		}
+    }
 
-		if ($user_type !== 'FAC') {
+    if ($user_type !== 'FAC') {
 ?>
-			<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_policy');?>">Pólizas Emitidas</a></li>
+      <li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_policy');?>">Pólizas Emitidas</a></li>
 <?php
-		}
+    }
 
-		if ($user_type === 'LOG') {
-			$self = $_SERVER['HTTP_HOST'];
-			$url = 'http://' . $self . '/';
+    if ($user_type === 'LOG') {
+      $self = $_SERVER['HTTP_HOST'];
+      $url = 'http://' . $self . '/';
 
-			$host_ws = 'diaconia-frif.';
+      $host_ws = 'diaconia-frif.';
 
-			if (strpos($self, 'localhost') !== false || filter_var($self, FILTER_VALIDATE_IP) !== false) {
-				$url .= 'administrator/' . trim($host_ws, '.') . '/';
-			} elseif (strpos($self, $host_ws . 'abrenet.com') === false){
-				$url = 'http://abrenet.com/administrator/' . trim($host_ws, '.');
-			}
+      if (strpos($self, 'localhost') !== false || filter_var($self, FILTER_VALIDATE_IP) !== false) {
+        $url .= 'administrator/' . trim($host_ws, '.') . '/';
+      } elseif (strpos($self, $host_ws . 'abrenet.com') === false){
+        $url = 'http://abrenet.com/administrator/' . trim($host_ws, '.');
+      }
 ?>
-			<li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_quote');?>">Cotizaciones</a></li>
+      <li><a href="index.php?ms=<?=md5('MS_REP');?>&page=<?=md5('P_quote');?>">Cotizaciones</a></li>
 <?php
-		}
+    }
 ?>
         </ul>
     </li>
 <?php
-	}
+  }
 }
 ?>
 </ul>

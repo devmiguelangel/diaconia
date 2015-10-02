@@ -27,7 +27,7 @@ class CertificateHtml{
 		}
 
 		$self = $_SERVER['HTTP_HOST'];
-		$this->url = 'http://' . $self . '/';
+		$this->url = 'https://' . $self . '/';
 		
 		if (($this->host_ws = $this->cx->getNameHostEF(base64_encode($this->rowPo['idef']))) !== false) {
 			$this->host_ws .= '.';

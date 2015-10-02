@@ -37,7 +37,7 @@ function de_em_certificate($link, $row, $rsDt, $url, $implant, $type, $fac, $rea
         font-family: Arial, Helvetica, sans-serif; color: #000000;">
 <?php
 if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
-    while($ct<=2){	
+    while($ct<=1){	
 ?>
         <div style="width: 775px; border: 0px solid #FFFF00; text-align:center;">
             <table 
@@ -629,6 +629,17 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
         </div>            
 <?php 
        if($type!=='MAIL' && (boolean)$row['emitir']===true && (boolean)$row['anulado']===false){
+		   $arr = explode(',',$row['fecha_emision']);
+		   $departamento = $arr[0];
+		   $fecha_emi = $arr[1];
+		   $fecha_emi = str_replace('/', '-', $fecha_emi);
+		   $newDateEmi = date("Y-m-d", strtotime($fecha_emi));
+		   
+		   $fecha = new DateTime($newDateEmi);
+		   $year = $fecha->format('Y');
+           $month = num_to_string_date($fecha->format('n'));
+		   $day = $fecha->format('d');
+		   
 ?>        
             <page><div style="page-break-before: always;">&nbsp;</div></page>
             
@@ -1002,7 +1013,9 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
                                            <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
                                              font-size:100%;">
                                              <tr>
-                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                              <td style="width: 100%; border-bottom: 1px solid #333; text-align:center;">
+                                               <?=$departamento;?>
+                                              </td>
                                              </tr>
                                            </table>
                                          </td>
@@ -1011,7 +1024,10 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
                                             <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
                                              font-size:100%;">
                                              <tr>
-                                               <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                               <td style="width: 100%; border-bottom: 1px solid #333; 
+                                                 text-align:center;">
+                                                  <?=$day;?>
+                                               </td>
                                              </tr>
                                             </table>
                                          </td>
@@ -1020,7 +1036,9 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
                                            <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
                                              font-size:100%;">
                                              <tr>
-                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                              <td style="width: 100%; border-bottom: 1px solid #333; text-align:center;">
+                                                 <?=$month;?>
+                                              </td>
                                              </tr>
                                            </table>
                                          </td>
@@ -1029,7 +1047,9 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
                                            <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
                                              font-size:100%;">
                                              <tr>
-                                              <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+                                              <td style="width: 100%; border-bottom: 1px solid #333; text-align:center;">
+                                                <?=$year;?>
+                                              </td>
                                              </tr>
                                            </table>
                                          </td>
@@ -1041,10 +1061,11 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
                                    </td>
                                  </tr>
                                  <tr>
-                                   <td style="width:25%;"></td>
-                                   <td style="width:50%; text-align:center;">NACIONAL SEGUROS VIDA Y SALUD S.A.
-                                   <br>FIRMAS AUTORIZADAS</td>
-                                   <td style="width:25%;"></td>
+                                   <td style="width:25%; padding-top:5px;"></td>
+                                   <td style="width:50%; text-align:center; padding-top:5px;">
+                                     NACIONAL SEGUROS VIDA Y SALUD S.A.
+                                     <br>FIRMAS AUTORIZADAS</td>
+                                   <td style="width:25%; padding-top:5px;"></td>
                                  </tr>
                               </table>
                               <table 2cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
@@ -1063,7 +1084,7 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
             </div>  
 <?php
        }
-	   if($ct<2){
+	   if($ct<1){
 			echo'<page><div style="page-break-before: always;">&nbsp;</div></page>';
 	   }
 	   $ct++;
@@ -1085,7 +1106,7 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
 <?php          
     }
 }elseif($_coverage === 2){//BANCA COMUNAL
-    while($ct<=2){	
+    while($ct<=1){	
 	    //echo $ct;
 	    if($rsDt->data_seek(0)){
 			$k = 0;
@@ -1608,6 +1629,16 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
 				</div>            
 		<?php
 				if($type!=='MAIL' && (boolean)$row['emitir']===true && (boolean)$row['anulado']===false){
+					$arr = explode(',',$row['fecha_emision']);
+					$departamento = $arr[0];
+					$fecha_emi = $arr[1];
+					$fecha_emi = str_replace('/', '-', $fecha_emi);
+					$newDateEmi = date("Y-m-d", strtotime($fecha_emi));
+					   
+					$fecha = new DateTime($newDateEmi);
+					$year = $fecha->format('Y');
+					$month = num_to_string_date($fecha->format('n'));
+					$day = $fecha->format('d');
 		?>        
 					<page><div style="page-break-before: always;">&nbsp;</div></page>
 					
@@ -1981,7 +2012,10 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
 												   <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
 													 font-size:100%;">
 													 <tr>
-													  <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+													  <td style="width: 100%; border-bottom: 1px solid #333;
+                                                        text-align:center;">
+                                                        <?=$departamento;?> 
+                                                      </td>
 													 </tr>
 												   </table>
 												 </td>
@@ -1990,7 +2024,10 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
 													<table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
 													 font-size:100%;">
 													 <tr>
-													   <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+													   <td style="width: 100%; border-bottom: 1px solid #333;
+                                                         text-align:center;">
+                                                         <?=$day;?>
+                                                       </td>
 													 </tr>
 													</table>
 												 </td>
@@ -1999,7 +2036,10 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
 												   <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
 													 font-size:100%;">
 													 <tr>
-													  <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+													  <td style="width: 100%; border-bottom: 1px solid #333;
+                                                        text-align:center;">
+                                                        <?=$month;?>
+                                                      </td>
 													 </tr>
 												   </table>
 												 </td>
@@ -2008,7 +2048,10 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
 												   <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; 
 													 font-size:100%;">
 													 <tr>
-													  <td style="width: 100%; border-bottom: 1px solid #333;">&nbsp;</td>
+													  <td style="width: 100%; border-bottom: 1px solid #333;
+                                                        text-align:center;">
+                                                        <?=$year;?>
+                                                      </td>
 													 </tr>
 												   </table>
 												 </td>
@@ -2047,7 +2090,7 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
 				}
 			}
 		}
-		if($ct<2){
+		if($ct<1){
 			echo'<page><div style="page-break-before: always;">&nbsp;</div></page>';
 	    }
 	    $ct++;
@@ -2075,5 +2118,46 @@ if($_coverage === 1){//INDIVIDUAL/MANCOMUNO
 <?php
     $html = ob_get_clean();
     return $html;
+}
+
+function num_to_string_date($mes_num){
+   switch($mes_num){
+	  case 1 : 
+	     return 'Enero';
+	     break;
+	  case 2 :
+	     return 'Febrero';
+	     break;
+	  case 3 :
+	     return 'Marzo';
+	     break;
+	  case 4 :
+	     return 'Abril';
+	     break;
+	  case 5 :
+	     return 'Mayo';
+	     break;
+	  case 6 :
+	     return 'Junio';
+	     break;
+	  case 7 :
+	     return 'Julio';
+	     break;
+	  case 8 :
+	     return 'Agosto';
+	     break;
+	  case 9 :
+	     return 'Septiembre';
+	     break;
+	  case 10 :
+	     return 'Octubre';
+	     break;
+	  case 11 :
+	     return 'Noviembre';
+	     break;
+	  case 12 :
+	     return 'Diciembre';
+	     break;	 	 	 	 	 	 	  	 	 
+   }	 
 }
 ?>

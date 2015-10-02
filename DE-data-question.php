@@ -28,14 +28,14 @@ if (($questions = $QuestionController->getQuestion($_SESSION['idEF'])) !== false
 		if ($question['respuesta'] == 0) {
 			$class_no = 'class="required"';
 			$res .= $question['orden'] . ', ';
-            if ($client['monto'] <= ($client['valor_boliviano'] * 15000)) {
+            /*if ($client['monto'] <= ($client['valor_boliviano'] * 15000)) {
                 $check_no = 'checked';
-            }
+            }*/
 		} elseif ($question['respuesta'] == 1) {
 			$class_yes = 'class="required"';
-            if ($client['monto'] <= ($client['valor_boliviano'] * 15000)) {
+            /*if ($client['monto'] <= ($client['valor_boliviano'] * 15000)) {
                 $check_yes = 'checked';
-            }
+            }*/
 		}
 	?>
 		<div class="question">

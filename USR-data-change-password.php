@@ -169,7 +169,7 @@ function verify_current_password(_user, _val) {
 }
 </script>
 <h3>Cambiar contraseña</h3>
-<form id="f-change-pass" name="f-change-pass" action="" method="post" class="form-quote form-customer" action="" >
+<form id="f-change-pass" name="f-change-pass" method="post" class="form-quote form-customer" action="" >
 	<div style="width:60%; margin:0 auto; padding:10px 15px; border:1px solid #CCC; border-radius:10px; box-shadow:0px 0px 10px #999;">
     	<label>Usuario: <span>*</span></label>
         <div class="content-input" style="width:auto;">
@@ -203,7 +203,7 @@ function verify_current_password(_user, _val) {
         
         <label>Correo electrónico: <span>*</span></label>
         <div class="content-input" style="width:auto;">
-			<input type="text" id="cp_email" name="cp_email" autocomplete="off" value="<?=$row['email'];?>" class="required email fbin">
+			<input type="text" id="cp_email" name="cp_email" autocomplete="off" value="<?=$row['email'];?>" class="required email fbin" readonly>
         </div><br>
 
         <div class="loading">

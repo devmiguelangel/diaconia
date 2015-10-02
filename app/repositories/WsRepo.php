@@ -161,7 +161,7 @@ class WsRepo
                         $client['place_res']    = '';
                         $client['locality']     = '';
                         $client['address']      = trim($value['direccciondomicilio']);
-                        $client['phone_1']      = '';
+                        $client['phone_1']      = trim($value['telefono']);
                         $client['phone_2']      = '';
                         $client['phone_office'] = '';
                         $client['email']        = '';
