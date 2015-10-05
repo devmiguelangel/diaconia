@@ -1,7 +1,5 @@
 <?php
 
-ini_set('display_errors', 1);
-
 require __DIR__ . '/app/controllers/DiaconiaController.php';
 require __DIR__ . '/app/controllers/ClientController.php';
 require __DIR__ . '/app/controllers/WsController.php';
