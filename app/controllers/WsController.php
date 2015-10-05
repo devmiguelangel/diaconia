@@ -58,10 +58,10 @@ class WsController extends Diaconia
                     $value['ext']       = $this->getExtension($value['ext']);
 
                     $dataOcc = $this->ClientController->getOccupationCaedec($value['caedec']);
-
-                    if (count($dataOcc) === 1) {
-                        $value['occupation']  = $dataOcc[0]['id_ocupacion'];
-                        $value['occ_desc']    = trim($dataOcc[0]['ocupacion']);
+                    
+                    if (count($dataOcc) === 4) {
+                        $value['occupation']  = $dataOcc['id_ocupacion'];
+                        $value['occ_desc']    = trim($dataOcc['ocupacion']);
                     }
                 }
                 
