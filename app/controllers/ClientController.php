@@ -128,11 +128,9 @@ class ClientController extends Diaconia
         ORDER BY id_ocupacion ASC
         ;';
         
-        if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT))) {
+        if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
             if ($rs->num_rows > 0) {
-                while ($row = $rs->fetch_array(MYSQLI_ASSOC)) {
-                    $data[] = $row;
-                }
+                $data = $rs->fetch_all(MYSQLI_ASSOC);
             }
         }
 
@@ -156,7 +154,7 @@ class ClientController extends Diaconia
         LIMIT 0, 1
         ;';
         
-        if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT))) {
+        if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
             if ($rs->num_rows === 1) {
                 $data = $rs->fetch_all(MYSQLI_ASSOC);
             }
@@ -203,9 +201,10 @@ class ClientController extends Diaconia
             $data['idc']    = $this->cx->real_escape_string(trim(base64_decode($data['dc-idc'])));
             $data['idef']   = $this->cx->real_escape_string(trim(base64_decode($data['id-ef'])));
             $bc     = (boolean)$this->cx->real_escape_string(trim(base64_decode($data['dc-bc'])));
-            $nCl    = (int)$this->cx->real_escape_string(trim($data['dc-ncl']));
+            $nCl    = (int)$this->cx->real_escape_string(trim(base64_decode($data['dc-ncl'])));
+            $record = (int)$this->cx->real_escape_string(trim($data['dc-record']));
             
-            if ($nCl === 0) {
+            if ($record === 0) {
                 return false;
             }
 
@@ -219,7 +218,7 @@ class ClientController extends Diaconia
                     $data['data']['edad_max'] = 75;
                 }
 
-                for ($k = 0; $k < $nCl; $k++) { 
+                for ($k = 0; $k < $nCl; $k++) {
                     if (isset($data['dc-name-'.$k], $data['dc-doc-id-'.$k])) {
                         $temp_data = array();
                         $temp_data['name']      = $this->cx->real_escape_string(trim($data['dc-name-'.$k]));

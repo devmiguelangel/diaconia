@@ -1,5 +1,7 @@
 <?php
 
+ini_set('display_errors', 1);
+
 require __DIR__ . '/app/controllers/DiaconiaController.php';
 require __DIR__ . '/app/controllers/ClientController.php';
 require __DIR__ . '/app/controllers/WsController.php';
@@ -418,12 +420,12 @@ if($nCl < $max_item || $swCl === true){
     <input type="hidden" id="dc-token" name="dc-token" value="<?=base64_encode('dc-OK');?>" >
     <input type="hidden" id="id-ef" name="id-ef" value="<?=$_SESSION['idEF'];?>" >
     <input type="hidden" id="dc-bc" name="dc-bc" value="<?=base64_encode((int)$bc);?>">
-    <!-- <input type="hidden" id="dc-ncl" name="dc-ncl" value="<?=base64_encode($client);?>"> -->
-    <input type="hidden" id="dc-ncl" name="dc-ncl" value="<?=$client;?>">
+    <input type="hidden" id="dc-ncl" name="dc-ncl" value="<?=base64_encode($client);?>">
+    <input type="hidden" id="dc-record" name="dc-record" value="<?= $client ;?>">
     <?php if ($swCl): ?>
-  <input type="hidden" id="dc-idCl" name="dc-idCl" value="<?= $_GET['idCl'] ;?>" >
+    <input type="hidden" id="dc-idCl" name="dc-idCl" value="<?= $_GET['idCl'] ;?>" >
     <?php endif ?>
-  <input type="submit" id="dc-customer" name="dc-customer" value="<?=$title_btn;?>" class="btn-next" >
+    <input type="submit" id="dc-customer" name="dc-customer" value="<?=$title_btn;?>" class="btn-next" >
 <?php
 }
 ?>  
@@ -476,10 +478,10 @@ $(document).ready(function(e) {
 
     var number  = $(this).data('number');
     var form    = $('#form-' + number);
-    var n_cl    = parseInt($('#dc-ncl').prop('value'));
+    var n_cl    = parseInt($('#dc-record').prop('value'));
 
     n_cl = n_cl - 1;
-    $('#dc-ncl').prop('value', n_cl);
+    $('#dc-record').prop('value', n_cl);
 
     form.fadeOut('slow', function (e) {
       form.remove();
