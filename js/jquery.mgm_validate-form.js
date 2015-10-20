@@ -12,7 +12,7 @@ $.fn.extend({
       cm: false,
       tm: false,
       issue: false,
-            online: null
+      online: null
     }
     var option = $.extend(optionsDefault, options);
     
@@ -21,22 +21,22 @@ $.fn.extend({
     $(this).submit(function(e){
       e.preventDefault();
 
-            option.online = navigator.onLine;
+      option.online = navigator.onLine;
 
-            if ($(option.nameLoading + " .loading-text").length) {
-                $(option.nameLoading + " .loading-text").remove();
-            }
+      if ($(option.nameLoading + " .loading-text").length) {
+          $(option.nameLoading + " .loading-text").remove();
+      }
 
-            if (option.online === false) {
-                $(option.nameLoading + " img:last")
-                    .after('<span class="loading-text">' +
-                        'No existe conexión a Internet <br>' +
-                        'Vuelva a intentarlo' +
-                        '</span>');
+      if (option.online === false) {
+          $(option.nameLoading + " img:last")
+              .after('<span class="loading-text">' +
+                  'No existe conexión a Internet <br>' +
+                  'Vuelva a intentarlo' +
+                  '</span>');
         return false;
-            } else {
+      } else {
 
-            }
+      }
 
       $(this).find(':submit').prop('disabled', true);
       
@@ -283,6 +283,8 @@ $.fn.extend({
       }
       // No Emisiones
       if (sw === true) {
+        $(this).find(':submit').prev('span.msg-form').remove().end();
+        
         var _data = $(this).serialize();
         
         if (option.cm === true) {
@@ -332,8 +334,9 @@ $.fn.extend({
           }
         });
         return false;
-      }else{
+      } else {
         $(this).find(':submit').prop('disabled', false);
+        $(this).find(':submit').prev('span.msg-form').remove().end().before('<span class="msg-form">Los campos marcados con asterisco (*) son obligatorios</span>');
       }
     });
     
