@@ -508,13 +508,14 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
         <label>Ocupación (CAEDEC): <span>*</span></label>
         <div class="content-input">
             <select id="dc-<?=$cont;?>-occupation" name="dc-<?=$cont;?>-occupation" 
-                class="required fbin <?=$read_new;?>" <?=$read_save;?>>
+                class="required fbin occupation" <?=$read_save;?>>
                 <option value="">Seleccione...</option>
                 <?php foreach ($ClientController->getOccupation($_SESSION['idEF']) as $key => $value):
                     $selected = '' ?>
                     <?php if ($value['id_ocupacion'] === $row['cl_ocupacion']): $selected = 'selected' ?>
                     <?php endif ?>
                     <option value="<?= base64_encode($value['id_ocupacion']) ;?>" 
+                      data-desc="<?= trim($value['ocupacion']) ;?>" data-number="<?= $cont ;?>"
                         <?= $selected ;?>>Código CAEDEC - <?= $value['codigo'] ;?></option>
                 <?php endforeach ?>
             </select>
@@ -522,7 +523,7 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
         
         <label style="width:auto;">Descripción Ocupación: <span>*</span></label><br>
         <textarea id="dc-<?=$cont;?>-desc-occ" name="dc-<?=$cont;?>-desc-occ" 
-            class="required fbin" <?=$read_new;?>><?=$row['cl_desc_ocupacion'];?></textarea><br>
+            class="required fbin" <?=$read_save;?>><?=$row['cl_desc_ocupacion'];?></textarea><br>
         
         <label>Dirección laboral: <span></span></label><br>
         <textarea id="dc-<?=$cont;?>-address-work" name="dc-<?=$cont;?>-address-work" 
@@ -954,6 +955,15 @@ foreach ($data as $key => $row) {
 </form>
 <script type="text/javascript">
 $(document).ready(function(e) {
+  $('.occupation').change(function (e) {
+    var selected = $(this).find('option:selected');
+
+    var desc = $(selected).data('desc');
+    var number = $(selected).data('number');
+    
+    $('#dc-' + number + '-desc-occ').prop('value', desc);
+  });
+
 <?php
 if ($_target === false) {
 ?>

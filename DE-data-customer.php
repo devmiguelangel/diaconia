@@ -361,7 +361,7 @@ if($nCl < $max_item || $swCl === true){
               <?php endif ?>
             <option value="<?= base64_encode($value['id_ocupacion']) ;?>" 
               <?= $selected ;?> data-desc="<?= trim($value['ocupacion']) ;?>" 
-              data-number=<?= $k ;?>>Código CAEDEC - <?= $value['codigo'] ;?></option>
+              data-number="<?= $k ;?>">Código CAEDEC - <?= $value['codigo'] ;?></option>
           <?php endforeach ?>
         </select>
       </div><br>
