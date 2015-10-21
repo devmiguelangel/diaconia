@@ -1,66 +1,34 @@
 <?php
+
 header("Expires: Tue, 01 Jan 2000 06:00:00 GMT");
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
-$filename = 'configuration.class.php';
-if (file_exists('installation') === true) {
-  if (file_exists($filename) === true) {
-    $filesize = filesize($filename);
-    if ($filesize > 0) {
-      echo '<br>Elimine el directiorio "installation"';
-    } else {
-      goto installation;
-    }
-  } else {
-    installation:
-    echo '<meta http-equiv="refresh" content="0;url=installation/">';
-  }
-  exit();
-} else {
-  if (file_exists($filename) === true) {
-    $filesize = filesize($filename);
-    if ($filesize === 0 || $filesize === false ) {
-      echo 'No existe el archivo de configuracion.';
-      exit();
-    }
-  }
-}
+require 'sibas-db.class.php';
+require 'session.class.php';
 
-require('sibas-db.class.php');
-require('session.class.php');
 $link = new SibasDB();
 
 /************ Session Expire *******/
-
-ini_set('session.cookie_lifetime', 0);
-ini_set('session.cache_expire', 30000);
-
-session_cache_limiter('private');
-$cache_limiter = session_cache_limiter();
-
-session_cache_expire(30000);
-$cache_expire = session_cache_expire();
-
 $session = new Session();
 if ($session->setSessionCookie() === false) {
-  $session->getSessionCookie();
+    $session->getSessionCookie();
 }
 
 if (isset($_GET['token']) && isset($_GET['user'])) {
-  $s_token = $_GET['token'];
+    $s_token = $_GET['token'];
 
-  if (sha1('sadm01042014key_gen') === $s_token) {
-    $s_user = $link->real_escape_string(trim(base64_decode($_GET['user'])));
-    
-    if (($data_user = $link->getDataUser($s_user)) !== false) {
-      if ($data_user['tipo'] === 'REP') {
-        $session->start_session($data_user['id_usuario'], $data_user['id_ef']);
-      }
+    if (sha1('sadm01042014key_gen') === $s_token) {
+        $s_user = $link->real_escape_string(trim(base64_decode($_GET['user'])));
+        
+        if (($data_user = $link->getDataUser($s_user)) !== false) {
+            if ($data_user['tipo'] === 'REP') {
+                $session->start_session($data_user['id_usuario'], $data_user['id_ef']);
+            }
+        }
     }
-  }
 }
 
 $token = $session->check_session();
@@ -75,44 +43,46 @@ $user_cw = true;
 $ef_id = NULL;
 
 if($token === true){
-  if (($rowUs = $link->verify_type_user($_SESSION['idUser'], $_SESSION['idEF'])) !== FALSE) {
-    $user_id = $rowUs['u_id'];
-    $user = $rowUs['u_usuario'];
-    $user_name = $rowUs['u_nombre'];
-    $user_type = $rowUs['u_tipo_codigo'];
-    $user_depto = $rowUs['u_depto'];
-    $user_cw = (boolean)$rowUs['cw'];
+    if (isset($_SESSION['idUser'], $_SESSION['idEF'])) {
+        if (($rowUs = $link->verify_type_user($_SESSION['idUser'], $_SESSION['idEF'])) !== FALSE) {
+            $user_id = $rowUs['u_id'];
+            $user = $rowUs['u_usuario'];
+            $user_name = $rowUs['u_nombre'];
+            $user_type = $rowUs['u_tipo_codigo'];
+            $user_depto = $rowUs['u_depto'];
+            $user_cw = (boolean)$rowUs['cw'];
 
-    if ($user_cw === false && !isset($_GET['c-p'])) {
-      header('Location: index.php?ms=' . md5('MS_COMP') . '&page=' 
-        . md5('P_change_pass') . '&user=' . base64_encode($user_id) 
-        . '&url=' . base64_encode('index.php') . '&c-p='.md5('true'));
+            if ($user_cw === false && !isset($_GET['c-p'])) {
+                header('Location: index.php?ms=' . md5('MS_COMP') . '&page=' 
+                  . md5('P_change_pass') . '&user=' . base64_encode($user_id) 
+                  . '&url=' . base64_encode('index.php') . '&c-p='.md5('true'));
+            }
+        }
     }
-  }
   
-  switch($user_type){
-    case 'ROOT':
-      break;
-    case 'ADM':
-      echo '<meta http-equiv="refresh" content="0;url=admin/" >';
-      break;
-    case 'OPR':
-      echo '<meta http-equiv="refresh" content="0;url=admin/" >';
-      break;
-    case 'FAC':
-      break;
-    case 'LOG':
-      break;
-    case 'CRU':
-      echo '<meta http-equiv="refresh" content="0;url=admin/" >';
-      break;
-    case 'REP':
-      break;
-    case 'IMP':
-      break;
-  }
-  
-  $HOST_CLIENT = $link->get_financial_institution($user_id, $token);
+    switch($user_type){
+      case 'ROOT':
+        break;
+      case 'ADM':
+        echo '<meta http-equiv="refresh" content="0;url=admin/" >';
+        break;
+      case 'OPR':
+        echo '<meta http-equiv="refresh" content="0;url=admin/" >';
+        break;
+      case 'FAC':
+        break;
+      case 'LOG':
+        break;
+      case 'CRU':
+        echo '<meta http-equiv="refresh" content="0;url=admin/" >';
+        break;
+      case 'REP':
+        break;
+      case 'IMP':
+        break;
+    }
+    
+    $HOST_CLIENT = $link->get_financial_institution($user_id, $token);
   //$link->close();
 }else{
   /*$_SELF = strtolower($_SERVER['HTTP_HOST']);
@@ -134,12 +104,16 @@ if($token === true){
   } else {
     exit();
   }*/
+
+    if (isset($_GET['c-p']) || (isset($_GET['ms']) && !isset($_SESSION['idEF']))) {
+        header('Location: index.php');
+    }
   
-  if (($HOST_CLIENT = $link->get_financial_institution_ins()) !== false) {
-    $_SESSION['idEF'] = base64_encode($HOST_CLIENT['idef']);
-  } else {
-    exit();
-  }
+    if (($HOST_CLIENT = $link->get_financial_institution_ins()) !== false) {
+        $_SESSION['idEF'] = base64_encode($HOST_CLIENT['idef']);
+    } else {
+        exit();
+    }
   
   
 }
@@ -287,7 +261,7 @@ if (!isset($_GET['c-p'])) {
       <li><a href="#"><span class="login-icon"></span><span class="login-txt"><?=$user;?><br><span><?=$user_name;?></span></span></a>
         <ul>
 <?php
-  if($tokenM === FALSE){
+  if(!$tokenM && !isset($_SESSION['idUser'])){
     include('USR-form-login.php');
   }else{
     echo '
