@@ -175,10 +175,11 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 		   var vec = valor.split('|');
 		   var id_usuario = vec[0];
 		   var text = vec[1];
+		   var intent = vec[2];
 		   jConfirm("Esta seguro de "+text+" al usuario?", ""+text+" usuario", function(r) {
 				//alert(r);
 				if(r) {
-						var dataString ='id_usuario='+id_usuario+'&text='+text+'&opcion=enabled_disabled_user';
+						var dataString ='id_usuario='+id_usuario+'&text='+text+'&intent='+intent+'&opcion=enabled_disabled_user';
 						$.ajax({
 							   async: true,
 							   cache: false,
@@ -262,6 +263,7 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 							when 1 then 'activo'
 							when 0 then 'inactivo'
 						  end as activado,
+						  su.intent,
 						  ust.tipo,
 						  ust.codigo,
 						  dep.departamento,
@@ -365,10 +367,17 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 											if($tipo_user==md5('CRU') or $tipo_user==md5('ADM')){
 											   echo'<li><a href="?l=usuarios_admin&idusuario='.base64_encode($regi['id_usuario']).'&id_ef_sesion='.base64_encode($id_ef_sesion).'&reset=v" class="resetear da-tooltip-s" title="Resetear Password"></a></li>';
 											   //echo'<li><a href="?l=usuarios_admin&idusuario='.base64_encode($regi['id_usuario']).'&id_ef_sesion='.base64_encode($id_ef_sesion).'&darbaja=v" class="darbaja da-tooltip-s" title="Dar baja"></a></li>';
-											   if($regi['activado']=='activo'){
-													echo'<li><a href="#" id="'.base64_encode($regi['id_usuario']).'|dar baja" class="darbaja da-tooltip-s activar_user" title="dar baja"></a></li>';
-											   }elseif($regi['activado']=='inactivo'){
-													echo'<li><a href="#" id="'.base64_encode($regi['id_usuario']).'|dar alta" class="daralta da-tooltip-s activar_user" title="dar alta"></a></li>';  
+											   if($regi['intent']!=3){
+												   if($regi['activado']=='activo'){
+														echo'<li><a href="#" id="'.base64_encode($regi['id_usuario']).'|dar baja" class="darbaja da-tooltip-s activar_user" title="dar baja"></a></li>';
+												   }elseif($regi['activado']=='inactivo'){
+														echo'<li><a href="#" id="'.base64_encode($regi['id_usuario']).'|dar alta" class="daralta da-tooltip-s activar_user" title="dar alta"></a></li>';  
+												   }
+											   }
+											   if($regi['intent']==3){
+												  if($regi['activado']=='inactivo'){
+												      echo'<li style="margin-left:2px;"><a href="#" class="locked da-tooltip-s activar_user" id="'.base64_encode($regi['id_usuario']).'|desbloquear|'.$regi['intent'].'" title="desbloquear"></a></li>';
+											      }   
 											   }
 											}
 											//echo'<li><a href="bloquear_desbloquear_usuario.php?idusuario='.base64_encode($regi['id_usuario']).'&op=lock" rel="facebox" class="darbaja da-tooltip-s" title="Dar Baja"></a></li>';

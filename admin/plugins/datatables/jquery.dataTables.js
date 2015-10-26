@@ -11951,10 +11951,12 @@ $(document).ready(function() {
 	   var vec = valor.split('|');
 	   var id_usuario = vec[0];
 	   var text = vec[1];
+	   var intent = vec[2];
+	   //alert(intent);
 	   jConfirm("Esta seguro de "+text+" al usuario?", ""+text+" usuario", function(r) {
 			//alert(r);
 			if(r) {
-					var dataString ='id_usuario='+id_usuario+'&text='+text+'&opcion=enabled_disabled_user';
+					var dataString ='id_usuario='+id_usuario+'&text='+text+'&intent='+intent+'&opcion=enabled_disabled_user';
 					$.ajax({
 						   async: true,
 						   cache: false,

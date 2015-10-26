@@ -82,6 +82,17 @@ a.daralta:hover{
 	background:url(../images/habilitar.gif) 0 0 no-repeat;
 }
 
+/*DESBLOQUEAR POR INTENTOS FALLIDOS*/
+a.locked{
+	display:block;
+	background:url(../images/locked.png) 0 0 no-repeat;
+	width:16px;
+	height:16px;
+}
+a.locked:hover{
+	background:url(../images/unlocked.png) 0 0 no-repeat;
+}
+
 /*CREAR REGISTRO */
 a.create{
 	display:block;

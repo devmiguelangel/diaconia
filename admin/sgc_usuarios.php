@@ -182,10 +182,11 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 		   var vec = valor.split('|');
 		   var id_usuario = vec[0];
 		   var text = vec[1];
+		   var intent = vec[2];
 		   jConfirm("Esta seguro de "+text+" al usuario?", ""+text+" usuario", function(r) {
 				//alert(r);
 				if(r) {
-						var dataString ='id_usuario='+id_usuario+'&text='+text+'&opcion=enabled_disabled_user';
+						var dataString ='id_usuario='+id_usuario+'&text='+text+'&intent='+intent+'&opcion=enabled_disabled_user';
 						$.ajax({
 							   async: true,
 							   cache: false,
@@ -193,7 +194,7 @@ function mostrar_lista_usuarios($id_usuario_sesion, $tipo_sesion, $usuario_sesio
 							   url: "accion_registro.php",
 							   data: dataString,
 							   success: function(datareturn) {
-									  //alert(datareturn);
+									  alert(datareturn);
 									  if(datareturn==1){
 										 location.reload(true);
 									  }else if(datareturn==2){
@@ -251,6 +252,7 @@ $selectUs="select
 				when 1 then 'activo'
 				when 0 then 'inactivo'
 			  end as activado,
+			  su.intent,
 			  ust.tipo,
 			  ust.codigo,
 			  dep.departamento,
@@ -385,10 +387,19 @@ $res = $conexion->query($selectUs,MYSQLI_STORE_RESULT);
 											<li><a href="?l=usuarios&idusuario='.base64_encode($regi['id_usuario']).'&cpass=v" class="privacidad da-tooltip-s" title="Cambiar Contrase&ntilde;a"></a></li>';
 											if($tipo_user==md5('ROOT')){
 											   echo'<li><a href="?l=usuarios&idusuario='.base64_encode($regi['id_usuario']).'&reset=v" class="resetear da-tooltip-s" title="Resetear Contrase&ntilde;a"></a></li>';
-											   if($regi['activado']=='activo'){
-												  echo'<li><a href="#" class="darbaja da-tooltip-s activar_user" id="'.base64_encode($regi['id_usuario']).'|dar baja" title="dar baja"></a></li>';
-											   }elseif($regi['activado']=='inactivo'){
-												  echo'<li><a href="#" class="daralta da-tooltip-s activar_user" id="'.base64_encode($regi['id_usuario']).'|dar alta" title="dar alta"></a></li>';
+											   if($regi['intent']!=3){
+													 if($regi['activado']=='activo'){
+														echo'<li><a href="#" class="darbaja da-tooltip-s activar_user" id="'.base64_encode($regi['id_usuario']).'|dar baja" title="dar baja"></a></li>';
+													 }elseif($regi['activado']=='inactivo'){
+														echo'<li><a href="#" class="daralta da-tooltip-s activar_user" id="'.base64_encode($regi['id_usuario']).'|dar alta" title="dar alta"></a></li>';
+													 }
+											   }
+											   if($regi['intent']==3){
+												  if($regi['activado']=='inactivo'){
+												      echo'<li style="margin-left:2px;"><a href="#" class="locked da-tooltip-s activar_user" id="'.base64_encode($regi['id_usuario']).'|desbloquear|'.$regi['intent'].'" title="desbloquear"></a></li>';
+											      }/*else{
+													  echo'<li style="margin-left:2px;"><a href="#" class="unlocked da-tooltip-s activar_user" title="Desbloqueado"></a></li>';  
+												  }*/   
 											   }
 											}
 
@@ -3211,7 +3222,8 @@ function cambiar_password($id_usuario_sesion, $tipo_sesion, $usuario_sesion, $co
 				if($conexion->query($update) === TRUE){
 				   //REALIZAMOS EL CAMBIO DE CONTRASEÑA
 				   $mensaje='Se cambio correctamente la contraseña del usuario '.$_POST['usuario'];
-				   header('Location: index.php?l=usuarios&op=1&msg='.base64_encode($mensaje));
+				   /*header('Location: index.php?l=usuarios&op=1&msg='.base64_encode($mensaje));*/
+				   header('Location: sgc_logout.php');
 				} else{
 				   $mensaje="Hubo un error al ingresar los datos, consulte con su administrador "."\n ".$conexion->errno. ": " . $conexion->error;
 				   header('Location: index.php?l=usuarios&op=2&msg='.base64_encode($mensaje));

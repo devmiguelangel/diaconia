@@ -325,12 +325,14 @@
   }elseif($_POST['opcion']=='enabled_disabled_user'){
 	  if($_POST['text']=='dar alta'){
 		  $update = "update s_usuario set activado=1 where id_usuario='".base64_decode($_POST['id_usuario'])."';"; 
-		  
-		   
+		  	   
 	  }elseif($_POST['text']=='dar baja'){
 		  $update = "update s_usuario set activado=0 where id_usuario='".base64_decode($_POST['id_usuario'])."';"; 
 		  
-	  }	
+	  }elseif(($_POST['text']=='desbloquear') && ($_POST['intent']==3)){
+		  $encrip_pass=crypt_blowfish_bycarluys('Diaconia123');
+		  $update = "update s_usuario set activado=1, intent=0, cambio_password=0,  password='".$encrip_pass."' where id_usuario='".base64_decode($_POST['id_usuario'])."';";
+	  }		
 	  //VERIFICMOS SI HUBO ERROR EN EL INGRESO
 	  if($conexion->query($update) === TRUE){				
 		 echo 1;
@@ -1022,5 +1024,14 @@ function generar_id_codificado($prefijo){
 	$valor='';
 	$valor=uniqid($prefijo,true);
 	return $valor;
+}
+
+function crypt_blowfish_bycarluys($password, $digito = 7) {
+		$set_salt = './1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+		$salt = sprintf('$2a$%02d$', $digito);
+		for($i = 0; $i < 22; $i++){
+			$salt .= $set_salt[mt_rand(0, 63)];
+		}
+		return crypt($password, $salt);
 }
 ?>
