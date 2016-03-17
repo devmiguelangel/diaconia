@@ -505,10 +505,10 @@ if (($data = $PolicyController->getPolicyData($sw, $idc, $ide, $_SESSION['idEF']
             class="not-required email fbin" <?=$read_new;?>>
         </div><br>
         
-        <label>Ocupación (CAEDEC): <span>*</span></label>
+        <label>Ocupación (CAEDEC): </label>
         <div class="content-input">
             <select id="dc-<?=$cont;?>-occupation" name="dc-<?=$cont;?>-occupation" 
-                class="required fbin occupation" <?=$read_save;?>>
+                class="fbin occupation" <?=$read_save;?>>
                 <option value="">Seleccione...</option>
                 <?php foreach ($ClientController->getOccupation($_SESSION['idEF']) as $key => $value):
                     $selected = '' ?>
