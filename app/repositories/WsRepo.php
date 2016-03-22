@@ -2,32 +2,28 @@
 
 class WsRepo
 {
-    protected 
-        $cx,
-        $host,
-        $data = array(),
-        $ws,
-        $bc,
-        $dni;
-    
+
+    protected $cx, $host, $data = [ ], $ws, $bc, $dni;
+
+
     public function __construct($cx, $ws, $bc, $dni)
     {
         $this->cx   = $cx;
         $this->host = 'http://10.80.70.33/';
 
-        $this->ws   = $ws;
-        $this->bc   = $bc;
-        $this->dni  = $dni;
+        $this->ws  = $ws;
+        $this->bc  = $bc;
+        $this->dni = $dni;
     }
+
 
     public function getData()
     {
-
-        $this->data = array(
-            'status'    => 400,
-            'error'     => 'La conexión a fallado',
-            'client'    => array()
-        );
+        $this->data = [
+            'status' => 400,
+            'error'  => 'La conexión a fallado',
+            'client' => [ ]
+        ];
 
         if ($this->ws) {
             $this->dataClientWS();
@@ -38,9 +34,10 @@ class WsRepo
         return $this->data;
     }
 
+
     private function dataClientDB()
     {
-        $client = array();
+        $client = [ ];
 
         $sql = 'select
             sc.id_cliente,
@@ -77,13 +74,13 @@ class WsRepo
         limit 0 , 1
         ;';
 
-        if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
+        if (( $rs = $this->cx->query($sql, MYSQLI_STORE_RESULT) ) !== false) {
             if ($rs->num_rows === 1) {
                 $row = $rs->fetch_array(MYSQLI_ASSOC);
                 $rs->free();
 
                 $this->data['status'] = 200;
-                $this->data['error'] = '';
+                $this->data['error']  = '';
 
                 $client['code']         = '';
                 $client['name']         = $row['cl_nombre'];
@@ -116,13 +113,14 @@ class WsRepo
                 array_push($this->data['client'], $client);
             } else {
                 $this->data['status'] = 451;
-                $this->data['error'] = 'El Cliente no existe.';
+                $this->data['error']  = 'El Cliente no existe.';
             }
         } else {
             $this->data['status'] = 452;
-            $this->data['error'] = 'La conexión a fallado.';
+            $this->data['error']  = 'La conexión a fallado.';
         }
     }
+
 
     private function dataClientWS()
     {
@@ -134,16 +132,16 @@ class WsRepo
         }
 
         $this->host .= $method . '.php?parametro=' . $this->dni;
-        
-        if (($res = file_get_contents($this->host)) !== false) {
+
+        if (( $res = file_get_contents($this->host) ) !== false) {
             $json = json_decode($res, true);
 
             if (is_array($json)) {
                 if (count($json) > 0) {
-                    $client = array();
+                    $client               = [ ];
                     $this->data['status'] = 200;
-                    $this->data['error'] = '';
-                    
+                    $this->data['error']  = '';
+
                     foreach ($json as $key => $value) {
                         $client['code']         = trim($value['codigocliente']);
                         $client['name']         = trim($value['nombrecliente']);
@@ -178,11 +176,11 @@ class WsRepo
                     }
                 } else {
                     $this->data['status'] = 451;
-                    $this->data['error'] = 'El Cliente no existe.';
+                    $this->data['error']  = 'El Cliente no existe.';
                 }
             } else {
                 $this->data['status'] = 452;
-                $this->data['error'] = 'La conexión a fallado.';
+                $this->data['error']  = 'La conexión a fallado.';
             }
         }
     }

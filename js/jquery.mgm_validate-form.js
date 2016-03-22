@@ -330,7 +330,7 @@ $.fn.extend({
                   location.reload(true);
                 }
               }
-            },2000);
+            },3000);
           }
         });
         return false;

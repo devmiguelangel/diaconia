@@ -2,36 +2,39 @@
 
 class ClientRepo
 {
-	protected $cx;
-	
-	public function __construct($cx)
-	{
-		$this->cx = $cx;
-	}
 
-	public function verifyCustomer($dni, $ext, $idef, $pr = 'DE')
-	{
-		$table = '';
-		
-		switch($pr){
-		case 'DE':
-			$table = 's_de_cot_cliente as sc';
-			break;
-		case 'AU':
-			$table = 's_au_cot_cliente as sc';
-			break;
-		case 'TRD':
-			$table = 's_trd_cot_cliente as sc';
-			break;
-		case 'TRM':
-			$table = 's_trm_cot_cliente as sc';
-			break;
-		case 'TH':
-			$table = 's_th_cot_cliente as sc';
-			break;
-		}
-		
-		$sql = 'SELECT sc.id_cliente 
+    protected $cx;
+
+
+    public function __construct($cx)
+    {
+        $this->cx = $cx;
+    }
+
+
+    public function verifyCustomer($dni, $ext, $idef, $pr = 'DE')
+    {
+        $table = '';
+
+        switch ($pr) {
+            case 'DE':
+                $table = 's_de_cot_cliente as sc';
+                break;
+            case 'AU':
+                $table = 's_au_cot_cliente as sc';
+                break;
+            case 'TRD':
+                $table = 's_trd_cot_cliente as sc';
+                break;
+            case 'TRM':
+                $table = 's_trm_cot_cliente as sc';
+                break;
+            case 'TH':
+                $table = 's_th_cot_cliente as sc';
+                break;
+        }
+
+        $sql = 'SELECT sc.id_cliente
 		FROM 
 			' . $table . ' 
 				INNER JOIN
@@ -42,34 +45,36 @@ class ClientRepo
 				and sef.id_ef = "' . $idef . '"
 		;';
 
-		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT))) {
-			if($rs->num_rows === 1){
-				$row = $rs->fetch_array(MYSQLI_ASSOC);
-				$rs->free();
-				return array(true, $row['id_cliente']);
-			}
-		}
+        if (( $rs = $this->cx->query($sql, MYSQLI_STORE_RESULT) )) {
+            if ($rs->num_rows === 1) {
+                $row = $rs->fetch_array(MYSQLI_ASSOC);
+                $rs->free();
 
-		return array(false, 0);
-	}
+                return [ true, $row['id_cliente'] ];
+            }
+        }
 
-	public function postClientData($data, &$data_cl)
-	{
-		$client = $this->verifyCustomer($data_cl['doc_id'], $data_cl['ext'], $data['idef']);
+        return [ false, 0 ];
+    }
 
-		if ($client[0] === true) {
-			$data_cl['id'] = $client[1];
 
-			if ($this->putClientData($data, $data_cl)) {
-				PostDetail:
-				if ($this->postDetail($data, $data_cl)) {
-					return true;
-				}
-			}
-		} else {
-			$data_cl['id'] = uniqid('@S#1$2013', true);
+    public function postClientData($data, &$data_cl)
+    {
+        $client = $this->verifyCustomer($data_cl['doc_id'], $data_cl['ext'], $data['idef']);
 
-			$sql = 'insert into s_de_cot_cliente
+        if ($client[0] === true) {
+            $data_cl['id'] = $client[1];
+
+            if ($this->putClientData($data, $data_cl)) {
+                PostDetail:
+                if ($this->postDetail($data, $data_cl)) {
+                    return true;
+                }
+            }
+        } else {
+            $data_cl['id'] = uniqid('@S#1$2013', true);
+
+            $sql = 'insert into s_de_cot_cliente
 			(id_cliente, id_ef, tipo, razon_social, paterno,
 				materno, nombre, ap_casada, fecha_nacimiento,
 				lugar_nacimiento, ci, extension, complemento,
@@ -95,18 +100,19 @@ class ClientRepo
                 TIMESTAMPDIFF(YEAR, "' . $data_cl['birth'] . '", curdate()), 
                 "' . $data_cl['amount'] . '")
 			;';
-			
-			if ($this->cx->query($sql)) {
-				goto PostDetail;
-			}
-		}
 
-		return false;
-	}
+            if ($this->cx->query($sql)) {
+                goto PostDetail;
+            }
+        }
 
-	public function putClientData($data, &$data_cl, $bc = false)
-	{
-		$sql = 'update s_de_cot_cliente as scl
+        return false;
+    }
+
+
+    public function putClientData($data, &$data_cl, $bc = false)
+    {
+        $sql = 'update s_de_cot_cliente as scl
         set scl.tipo = 0, scl.razon_social = "",
             scl.paterno 		= "' . $data_cl['patern'] . '",
             scl.materno 		= "' . $data_cl['matern'] . '",
@@ -139,23 +145,24 @@ class ClientRepo
         ;';
 
         if ($this->cx->query($sql)) {
-        	if ($bc === true) {
-        		if ($this->putDetail($data, $data_cl)) {
-        			return true;
-        		}
-        	} else {
-        		return true;
-        	}
+            if ($bc === true) {
+                if ($this->putDetail($data, $data_cl)) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
         }
 
         return false;
-	}
+    }
 
-	public function postDetail($data, &$data_cl)
-	{
-		$data_cl['idd'] = uniqid('@S#1$2013', true);
 
-		$sql = 'insert into s_de_cot_detalle
+    public function postDetail($data, &$data_cl)
+    {
+        $data_cl['idd'] = uniqid('@S#1$2013', true);
+
+        $sql = 'insert into s_de_cot_detalle
         (id_detalle, id_cotizacion, id_cliente,
 	        porcentaje_credito, tasa, monto_banca_comunal, titular)
 		values
@@ -164,33 +171,35 @@ class ClientRepo
 			0, "' . $data_cl['amount_bc'] . '", "' . $data_cl['dc'] . '")
 		;';
 
-		if ($this->cx->query($sql)) {
-			return true;
-		}
+        if ($this->cx->query($sql)) {
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public function putDetail($data, &$data_cl)
-	{
-		$sql = 'update s_de_cot_detalle as sdd
+
+    public function putDetail($data, &$data_cl)
+    {
+        $sql = 'update s_de_cot_detalle as sdd
 		set monto_banca_comunal = "' . $data_cl['amount_bc'] . '"
 		where sdd.id_cotizacion = "' . $data['idc'] . '"
 			and sdd.id_cliente = "' . $data_cl['id'] . '"
 		;';
 
-		if ($this->cx->query($sql)) {
-			return true;
-		}
+        if ($this->cx->query($sql)) {
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public function getClientData($idc, $idef, $idcl)
-	{
-		$data = array();
 
-		$sql = 'select 
+    public function getClientData($idc, $idef, $idcl)
+    {
+        $data = [ ];
+
+        $sql = 'select
 			scl.id_cliente,
 			scl.paterno,
 			scl.materno,
@@ -230,24 +239,25 @@ class ClientRepo
 				and sef.id_ef = "' . $idef . '"
 				and sef.activado = true
 		;';
-		// echo $sql;
-		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
-			if ($rs->num_rows === 1) {
-				$row = $rs->fetch_array(MYSQLI_ASSOC);
-				$rs->free();
-				$data = $row;
-			}
-		}
+        // echo $sql;
+        if (( $rs = $this->cx->query($sql, MYSQLI_STORE_RESULT) ) !== false) {
+            if ($rs->num_rows === 1) {
+                $row = $rs->fetch_array(MYSQLI_ASSOC);
+                $rs->free();
+                $data = $row;
+            }
+        }
 
-		return $data;
+        return $data;
 
-	}
+    }
 
-	public function getListClientData($idc, $idef, $max_item)
-	{
-		$data = array();
 
-		$sql = 'select 
+    public function getListClientData($idc, $idef, $max_item)
+    {
+        $data = [ ];
+
+        $sql = 'select
 			scl.id_cliente,
 			sdd.id_detalle,
 			scl.nombre as cl_nombre,
@@ -289,15 +299,14 @@ class ClientRepo
 		limit 0, ' . $max_item . '
 		;';
 
-		if (($rs = $this->cx->query($sql, MYSQLI_STORE_RESULT)) !== false) {
-			while ($row = $rs->fetch_array(MYSQLI_ASSOC)) {
-				$data[] = $row;
-			}
-		}
+        if (( $rs = $this->cx->query($sql, MYSQLI_STORE_RESULT) ) !== false) {
+            while ($row = $rs->fetch_array(MYSQLI_ASSOC)) {
+                $data[] = $row;
+            }
+        }
 
-		return $data;
-	}
-
+        return $data;
+    }
 
 }
 

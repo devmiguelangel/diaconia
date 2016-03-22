@@ -15,6 +15,7 @@ if ($Diaconia->checkBancaComunal($_GET['idc'])) {
 $data_pr   = [ ];
 $max_item  = $Diaconia->getMaxItem($_GET['idc'], $_SESSION['idEF']);
 $depto     = $ClientController->getDepto();
+$lists     = false;
 $data_list = [ ];
 
 $swCl = false;
@@ -65,9 +66,12 @@ if (isset( $_POST['dsc-dni'] )) {
 
     $WsController = new WsController($_SESSION['idEF'], $web_service, $bc, $dni);
     $data_ws      = $WsController->getClientData($arr_cl);
+
     if ($data_ws['status'] !== 200) {
         $err_search = $data_ws['error'];
     }
+
+    $lists = ( count($arr_cl) > 0 && ! empty( $arr_cl[0]['doc_id'] ) ) ? true : false;
 }
 
 if (isset( $_GET['idCl'] )) {
@@ -201,11 +205,60 @@ if ($swCl === false) {
             "Los campos marcados con asterisco <span style="color: #f00;">(*)</span> son obligatorios".
         </p>
 
+        <?php if ($lists): ?>
+            <div class="lists">
+                <br>
+                <table class="list-cl">
+                    <thead>
+                    <tr>
+                        <td style="width:5%;"></td>
+                        <td style="width:10%;">Documento de Identidad</td>
+                        <td style="width:15%;">Nombre completo</td>
+                        <td style="width:12%;">Peso (kg) <span style="color: #FF6262;">*</span></td>
+                        <td style="width:12%;">Estatura (cm) <span style="color: #FF6262;">*</span></td>
+                        <?php if ($bc): ?>
+                            <td style="width:12%;">Monto Banca Comunal <span style="color: #FF6262;">*</span></td>
+                        <?php endif ?>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php $cont = 1;
+                    foreach ($arr_cl as $k => $data): ?>
+                        <tr class="form-<?=$k;?>">
+                            <td style="font-weight:bold;">T<?=$cont;?></td>
+                            <td><?=$data['doc_id'];?></td>
+                            <td><?=$data['name'] . ' ' . $data['patern'] . ' ' . $data['matern'];?></td>
+                            <td>
+                                <input type="text" id="dc-weight-<?=$k?>" name="dc-weight-<?=$k?>" autocomplete="off"
+                                       value="<?=$data['weight'];?>" class="required wh fbin" style="width: 50px;">
+                            </td>
+                            <td>
+                                <input type="text" id="dc-height-<?=$k?>" name="dc-height-<?=$k?>" autocomplete="off"
+                                       value="<?=$data['height'];?>" class="required wh fbin" style="width: 50px;">
+                            </td>
+                            <?php if ($bc): ?>
+                                <td>
+                                    <input type="text" id="dc-amount-bc-<?=$k?>" name="dc-amount-bc-<?=$k?>"
+                                           autocomplete="off" value="<?=$data['amount_bc'];?>"
+                                           class="required real fbin">
+                                </td>
+                            <?php endif ?>
+                        </tr>
+                        <?php
+                        $cont++;
+                    endforeach
+                    ?>
+                    </tbody>
+                </table>
+                <br>
+            </div>
+        <?php endif ?>
+
         <?php
         $k = 0;
         foreach ($arr_cl as $key => $data) {
             ?>
-            <div id="form-<?=$k;?>" style="border: 1px solid #e2e2e2;">
+            <div class="form-<?=$k;?>" style="border: 1px solid #e2e2e2;">
                 <div style="text-align: right;">
                     <a href="#" class="form-remove" data-number="<?=$k;?>" title="Eliminar">X</a>
                 </div>
@@ -408,23 +461,26 @@ if ($swCl === false) {
                     </div>
                     <br>
 
-                    <label>Peso (kg): <span>*</span></label>
-                    <div class="content-input">
-                        <input type="text" id="dc-weight-<?=$k?>" name="dc-weight-<?=$k?>"
-                               autocomplete="off" value="<?=$data['weight'];?>" class="required wh fbin">
-                    </div>
-                    <br>
+                    <?php if ( ! $lists): ?>
+                        <label>Peso (kg): <span>*</span></label>
+                        <div class="content-input">
+                            <input type="text" id="dc-weight-<?=$k?>" name="dc-weight-<?=$k?>"
+                                   autocomplete="off" value="<?=$data['weight'];?>" class="required wh fbin">
+                        </div>
+                        <br>
 
-                    <label>Estatura (cm): <span>*</span></label>
-                    <div class="content-input">
-                        <input type="text" id="dc-height-<?=$k?>" name="dc-height-<?=$k?>"
-                               autocomplete="off" value="<?=$data['height'];?>" class="required wh fbin">
+                        <label>Estatura (cm): <span>*</span></label>
+                        <div class="content-input">
+                            <input type="text" id="dc-height-<?=$k?>" name="dc-height-<?=$k?>"
+                                   autocomplete="off" value="<?=$data['height'];?>" class="required wh fbin">
 
-                        <input type="hidden" id="dc-amount-<?=$k?>" name="dc-amount-<?=$k?>"
-                               value="<?=base64_encode($data['amount']);?>">
-                    </div>
-                    <br>
-                    <?php if ($bc): ?>
+                            <input type="hidden" id="dc-amount-<?=$k?>" name="dc-amount-<?=$k?>"
+                                   value="<?=base64_encode($data['amount']);?>">
+                        </div>
+                        <br>
+                    <?php endif ?>
+
+                    <?php if ($bc && ! $lists): ?>
                         <label>Monto<br>Banca Comunal: <span>*</span></label>
                         <div class="content-input">
                             <input type="text" id="dc-amount-bc-<?=$k?>" name="dc-amount-bc-<?=$k?>"
@@ -503,11 +559,15 @@ if ($swCl === false) {
             e.preventDefault();
 
             var number = $(this).data('number');
-            var form = $('#form-' + number);
+            var form = $('.form-' + number);
             var n_cl = parseInt($('#dc-record').prop('value'));
 
             n_cl = n_cl - 1;
             $('#dc-record').prop('value', n_cl);
+
+            if (n_cl == 0) {
+                $('.lists').remove();
+            }
 
             form.fadeOut('slow', function (e) {
                 form.remove();
